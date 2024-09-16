@@ -17,7 +17,7 @@ from datasets.APPSDataset import APPSDataset
 from datasets.MBPPDataset import MBPPDataset
 from datasets.XCodeDataset import XCodeDataset
 from datasets.HumanEvalDataset import HumanDataset
-from datasets.CodeContestDataset import CodeContestDataset
+from datasets.HackercupDataset import HackercupDataset
 
 from results.Results import Results
 from evaluations.func_evaluate import evaluate_io

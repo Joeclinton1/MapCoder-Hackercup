@@ -63,21 +63,21 @@ Finally, the Debugging Agent utilizes sample I/O from the problem description to
 git clone https://github.com/Md-Ashraful-Pramanik/MapCoder && cd MapCoder
 ```
 
-2. Create a new conda or python virtual environment and run the following command
+2. Install the module using the following command:
 ```
-pip install -r requirements.txt
+pip install -e ./
 ```
 
 3. Set up the .env file by seeing the example.
 
 4. Run the following command to see the options of running this projects
 ```
-python src/main.py --help
+python -m mapcoder_hackercup --help
 ```
 
 5. Finally run this project. An example is given below:
 ```
-python src/main.py --model ChatGPT --dataset HumanEval --strategy MapCoder
+python -m mapcoder_hackercup --model ChatGPT --dataset HumanEval --strategy MapCoder
 ```
 
 6. To run this projects with competitive datasets you need to setup the [ExecEval](https://github.com/ntunlp/ExecEval) for docker execution. Please visit this [link](https://github.com/ntunlp/ExecEval) to setup a docker container and run it using 5000 port. Change the line 50 of the file `src\evaluations\api_comm.py` for different setup. 
@@ -95,11 +95,11 @@ python src/datasets/convert-hackercup-xcode.py
 
 3. To run map coder with Codestral on the sample dataset run
 ```
-python src/main.py --model Codestral --dataset HackercupSample --strategy MapCoder
+python -m mapcoder_hackercup --model Codestral --dataset HackercupSample --strategy MapCoder
 ```
 4. To run map coder with the first available Ollama model on the sample dataset run
 ```
-python src/main.py --model Local --dataset HackercupSample --strategy MapCoder
+python -m mapcoder_hackercup --model Local --dataset HackercupSample --strategy MapCoder
 ```
 ## Citation
 ```

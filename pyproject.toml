@@ -1,0 +1,32 @@
+[project]
+name = "mapcoder_hackercup"
+version = "1.0.0"
+description = "Clone of MapCoder, modified for use on the HackerCup competition"
+authors = [
+    {name = "Matus Lecky", email = "matus.lecky@gmail.com"},
+    {name = "Joe Clinton", email = "joeclinton1@btinternet.com"}
+]
+
+license = {text = "Idk"}
+requires-python = ">= 3.11"
+dependencies = [
+    "openai",
+    "numpy",
+    "pandas",
+    "python-dotenv",
+    "pyyml",
+    "tenacity",
+    "tiktoken",
+    "tqdm",
+    "gensim",
+    "jsonlines",
+    "astunparse",
+    "pyarrow",
+    "google-generativeai",
+    "accelerate",
+    "datasets"
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
