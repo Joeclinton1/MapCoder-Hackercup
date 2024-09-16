@@ -36,7 +36,7 @@ class OllamaBaseModel(BaseModel):
         model_name=None,
         temperature=0,
         top_p=0.95,
-        max_tokens=800,
+        max_tokens=32768,
         frequency_penalty=0,
         presence_penalty=0,
     ):
@@ -100,40 +100,22 @@ class OllamaBaseModel(BaseModel):
 
         # Extract the response content
         response_content = data.get("response", "")
+        with open("./debug.txt", "w") as f:
+            # logging
+            f.write(response_content)
         # Extract token counts
         prompt_tokens = data.get("prompt_eval_count", 0)
         completion_tokens = data.get("eval_count", 0)
 
         return response_content, prompt_tokens, completion_tokens
 
-class OllamaModel(OllamaBaseModel):
-    def __init__(
-        self,
-        api_url=None,
-        model_name=None,
-        temperature=0.32,
-        top_p=0.95,
-        max_tokens=800,
-        frequency_penalty=0,
-        presence_penalty=0,
-    ):
-        super().__init__(
-            api_url=api_url,
-            model_name=model_name,
-            temperature=temperature,
-            top_p=top_p,
-            max_tokens=max_tokens,
-            frequency_penalty=frequency_penalty,
-            presence_penalty=presence_penalty,
-        )
-
 # Specific model classes can be defined if needed
-class Codestral(OllamaModel):
+class Codestral(OllamaBaseModel):
     def __init__(self, *args, **kwargs):
         kwargs['model_name'] = 'codestral:latest'
         super().__init__(*args, **kwargs)
 
-class Local(OllamaModel):
+class Local(OllamaBaseModel):
     def __init__(self, *args, **kwargs):
         # Fetch the first local model
         first_model = requests.get("http://localhost:11434/api/tags").json()["models"][0]["model"]
