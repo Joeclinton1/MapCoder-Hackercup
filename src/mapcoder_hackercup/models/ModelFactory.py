@@ -1,8 +1,8 @@
-from models.Gemini import Gemini
-from models.OpenAI import ChatGPT
-from models.OpenAI import GPT4
-from models.Ollama import Codestral
-from models.Ollama import Local
+from mapcoder_hackercup.models.Gemini import Gemini
+from mapcoder_hackercup.models.OpenAI import ChatGPT
+from mapcoder_hackercup.models.OpenAI import GPT4
+from mapcoder_hackercup.models.Ollama import Codestral
+from mapcoder_hackercup.models.Ollama import Local
 
 class ModelFactory:
     @staticmethod

@@ -1,5 +1,5 @@
-from utils.jsonl import read_jsonl, write_jsonl
-from evaluations.func_evaluate import evaluate_io_et
+from mapcoder_hackercup.utils.jsonl import read_jsonl, write_jsonl
+from mapcoder_hackercup.evaluations.func_evaluate import evaluate_io_et
 import os
 
 

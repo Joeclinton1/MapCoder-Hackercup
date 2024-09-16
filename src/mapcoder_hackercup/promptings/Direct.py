@@ -4,9 +4,9 @@ import os
 from copy import deepcopy
 
 from .Base import BaseStrategy
-from models.Base import BaseModel
-from datasets.Dataset import Dataset
-from results.Results import Results
+from mapcoder_hackercup.models.Base import BaseModel
+from mapcoder_hackercup.datasets.Dataset import Dataset
+from mapcoder_hackercup.results.Results import Results
 
 
 class DirectStrategy(BaseStrategy):

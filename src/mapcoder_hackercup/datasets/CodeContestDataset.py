@@ -1,6 +1,6 @@
 from .Dataset import Dataset
-from evaluations.evalute import contest_evaluate, contest_evaluate_public_tests
-from constants.paths import *
+from mapcoder_hackercup.evaluations.evalute import contest_evaluate, contest_evaluate_public_tests
+from mapcoder_hackercup.constants.paths import *
 
 class CodeContestDataset(Dataset):
     def __init__(

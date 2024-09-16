@@ -4,15 +4,15 @@ import os
 from copy import deepcopy
 
 from .Base import BaseStrategy
-from models.Base import BaseModel
+from mapcoder_hackercup.models.Base import BaseModel
 
-from results.Results import Results
+from mapcoder_hackercup.results.Results import Results
 
-from datasets.Dataset import Dataset
-from datasets.APPSDataset import APPSDataset
-from datasets.XCodeDataset import XCodeDataset
-from datasets.HumanEvalDataset import HumanDataset
-from datasets.CodeContestDataset import CodeContestDataset
+from mapcoder_hackercup.datasets.Dataset import Dataset
+from mapcoder_hackercup.datasets.APPSDataset import APPSDataset
+from mapcoder_hackercup.datasets.XCodeDataset import XCodeDataset
+from mapcoder_hackercup.datasets.HumanEvalDataset import HumanDataset
+from mapcoder_hackercup.datasets.CodeContestDataset import CodeContestDataset
 
 
 class CoTStrategy(BaseStrategy):

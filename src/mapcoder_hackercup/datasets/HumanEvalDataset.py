@@ -1,6 +1,6 @@
 from .Dataset import Dataset
-from evaluations.func_evaluate import evaluate_functional_correctness, evaluate_io
-from constants.paths import *
+from mapcoder_hackercup.evaluations.func_evaluate import evaluate_functional_correctness, evaluate_io
+from mapcoder_hackercup.constants.paths import *
 
 
 class HumanDataset(Dataset):

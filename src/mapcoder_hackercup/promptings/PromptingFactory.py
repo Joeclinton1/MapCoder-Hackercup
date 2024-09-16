@@ -1,9 +1,9 @@
-from promptings.CoT import CoTStrategy
-from promptings.Direct import DirectStrategy
-from promptings.Analogical import AnalogicalStrategy
-from promptings.SelfPlanning import SelfPlanningStrategy
+from mapcoder_hackercup.promptings.CoT import CoTStrategy
+from mapcoder_hackercup.promptings.Direct import DirectStrategy
+from mapcoder_hackercup.promptings.Analogical import AnalogicalStrategy
+from mapcoder_hackercup.promptings.SelfPlanning import SelfPlanningStrategy
 
-from promptings.MapCoder import MapCoder as MapCoder
+from mapcoder_hackercup.promptings.MapCoder import MapCoder as MapCoder
 
 
 class PromptingFactory:

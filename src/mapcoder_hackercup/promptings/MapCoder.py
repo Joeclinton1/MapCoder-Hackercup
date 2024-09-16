@@ -10,17 +10,17 @@ from copy import deepcopy
 import xml.etree.ElementTree as ET
 
 from .Base import BaseStrategy
-from models.Base import BaseModel
+from mapcoder_hackercup.models.Base import BaseModel
 
-from datasets.Dataset import Dataset
-from datasets.APPSDataset import APPSDataset
-from datasets.MBPPDataset import MBPPDataset
-from datasets.XCodeDataset import XCodeDataset
-from datasets.HumanEvalDataset import HumanDataset
-from datasets.HackercupDataset import HackercupDataset
+from mapcoder_hackercup.datasets.Dataset import Dataset
+from mapcoder_hackercup.datasets.APPSDataset import APPSDataset
+from mapcoder_hackercup.datasets.MBPPDataset import MBPPDataset
+from mapcoder_hackercup.datasets.XCodeDataset import XCodeDataset
+from mapcoder_hackercup.datasets.HumanEvalDataset import HumanDataset
+from mapcoder_hackercup.datasets.HackercupDataset import HackercupDataset
 
-from results.Results import Results
-from evaluations.func_evaluate import evaluate_io
+from mapcoder_hackercup.results.Results import Results
+from mapcoder_hackercup.evaluations.func_evaluate import evaluate_io
 
 mapping = {
     1: "one (01)",

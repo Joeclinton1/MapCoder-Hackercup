@@ -4,10 +4,10 @@ import os
 import copy
 import time
 
-from models.Base import BaseModel
-from datasets.Dataset import Dataset
-from results.Results import Results
-from utils.parse import parse_response
+from mapcoder_hackercup.models.Base import BaseModel
+from mapcoder_hackercup.datasets.Dataset import Dataset
+from mapcoder_hackercup.results.Results import Results
+from mapcoder_hackercup.utils.parse import parse_response
 
 
 class BaseStrategy(object):

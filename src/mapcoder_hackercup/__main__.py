@@ -1,15 +1,15 @@
 import sys
 from datetime import datetime
-from constants.paths import *
+from mapcoder_hackercup.constants.paths import *
 
-from models.Gemini import Gemini
-from models.OpenAI import OpenAIModel
+from mapcoder_hackercup.models.Gemini import Gemini
+from mapcoder_hackercup.models.OpenAI import OpenAIModel
 
-from results.Results import Results
+from mapcoder_hackercup.results.Results import Results
 
-from promptings.PromptingFactory import PromptingFactory
-from datasets.DatasetFactory import DatasetFactory
-from models.ModelFactory import ModelFactory
+from mapcoder_hackercup.promptings.PromptingFactory import PromptingFactory
+from mapcoder_hackercup.datasets.DatasetFactory import DatasetFactory
+from mapcoder_hackercup.models.ModelFactory import ModelFactory
 
 import argparse
 

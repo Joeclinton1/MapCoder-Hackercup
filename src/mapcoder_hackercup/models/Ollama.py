@@ -3,7 +3,7 @@ import dotenv
 import requests
 
 from .Base import BaseModel
-from utils.token_count import token_count
+from mapcoder_hackercup.utils.token_count import token_count
 
 dotenv.load_dotenv()
 

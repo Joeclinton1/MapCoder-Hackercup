@@ -1,11 +1,9 @@
-import os
 from os.path import join, dirname
 
+DATA_DIR = join(dirname(__file__), "..", "..", "..", "data")
+
 # HumanEval Dataset
-HUMAN_DATA_DIR = join(
-    "data",
-    "HumanEval",
-)
+HUMAN_DATA_DIR = join(DATA_DIR, "HumanEval")
 
 HUMAN_DATA_PATH = join(
     HUMAN_DATA_DIR,
@@ -39,10 +37,7 @@ HUMAN_SIMILAR_PROBLEMS_PATH = join(
 
 
 # MBPP Dataset
-MBPP_DATA_DIR = join(
-    "data",
-    "MBPPEval",
-)
+MBPP_DATA_DIR = join(DATA_DIR, "MBPPEval")
 
 MBPP_DATA_PATH = join(
     MBPP_DATA_DIR,
@@ -66,7 +61,7 @@ MBPP_SIMILAR_PROBLEMS_PATH = join(
 
 # XCodeEval Dataset
 XCODE_DATA_DIR = join(
-    "data",
+    DATA_DIR,
     "xCodeEval",
 )
 
@@ -113,7 +108,7 @@ XCODE_PROBLEM_FILE_MAPPINGS_PATH = join(
 
 # Code Contest Dataset
 CODE_CONTEST_DATA_DIR = join(
-    "data",
+    DATA_DIR,
     "CodeContest",
 )
 
@@ -125,7 +120,7 @@ CODE_CONTEST_DATA_PATH = join(
 
 # APPS Dataset
 APPS_DATA_DIR = join(
-    "data",
+    DATA_DIR,
     "APPS",
 )
 
@@ -135,7 +130,7 @@ APPS_DATA_PATH = join(
 )
 
 HACKERCUP_DATA_DIR =join(
-    "data",
+    DATA_DIR,
     "Hackercup",
 )
 

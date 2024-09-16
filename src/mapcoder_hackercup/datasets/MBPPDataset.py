@@ -1,6 +1,6 @@
 from .Dataset import Dataset
-from evaluations.func_evaluate import evaluate_io, evaluate_functional_correctness
-from constants.paths import *
+from mapcoder_hackercup.evaluations.func_evaluate import evaluate_io, evaluate_functional_correctness
+from mapcoder_hackercup.constants.paths import *
 
 
 class MBPPDataset(Dataset):

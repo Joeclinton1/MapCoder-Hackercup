@@ -5,11 +5,12 @@ import tqdm
 from yaml import safe_load
 from typing import List
 
+from mapcoder_hackercup.constants.paths import DATA_DIR
 from .api_comm import APICommunication
 from .exec_outcome import ExecOutcome
-from constants.lang_mappings import LANGUAGE_MAPPING
+from mapcoder_hackercup.constants.lang_mappings import LANGUAGE_MAPPING
 
-limits_by_lang_cfg_file = "./src/evaluations/limits_by_lang.yaml"
+limits_by_lang_cfg_file = f"{os.path.dirname(__file__)}/limits_by_lang.yaml"
 
 assert os.path.exists(
     limits_by_lang_cfg_file), "Need resource limit defaults for all runtimes, provide the path to default 'limits_by_lang.yaml' or to the modified one."
@@ -17,7 +18,8 @@ assert os.path.exists(
 with open(limits_by_lang_cfg_file) as limit_cfg_rp:
     limits_by_lang = safe_load(limit_cfg_rp)
 
-unittest_file = "./data/xCodeEval/unittest_db.json"
+unittest_file = f"{DATA_DIR}/xCodeEval/unittest_db.json"
+print(unittest_file)
 assert os.path.exists(unittest_file), "Unittest file not found."
 
 with open(unittest_file) as ut_rp:

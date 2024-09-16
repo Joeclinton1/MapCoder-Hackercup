@@ -1,10 +1,10 @@
-from datasets.Dataset import Dataset
-from datasets.MBPPDataset import MBPPDataset
-from datasets.APPSDataset import APPSDataset
-from datasets.XCodeDataset import XCodeDataset
-from datasets.HumanEvalDataset import HumanDataset
-from datasets.CodeContestDataset import CodeContestDataset
-from datasets.HackercupDataset import HackercupDataset, HackercupDatasetSample # Import the new dataset class
+from mapcoder_hackercup.datasets.Dataset import Dataset
+from mapcoder_hackercup.datasets.MBPPDataset import MBPPDataset
+from mapcoder_hackercup.datasets.APPSDataset import APPSDataset
+from mapcoder_hackercup.datasets.XCodeDataset import XCodeDataset
+from mapcoder_hackercup.datasets.HumanEvalDataset import HumanDataset
+from mapcoder_hackercup.datasets.CodeContestDataset import CodeContestDataset
+from mapcoder_hackercup.datasets.HackercupDataset import HackercupDataset, HackercupDatasetSample # Import the new dataset class
 
 
 class DatasetFactory:

@@ -1,6 +1,6 @@
 from .Dataset import Dataset
-from evaluations.evalute import contest_evaluate, contest_evaluate_public_tests
-from constants.paths import HACKERCUP_DATA_PATH, HACKERCUP_DATA_PATH_SAMPLE
+from mapcoder_hackercup.evaluations.evalute import contest_evaluate, contest_evaluate_public_tests
+from mapcoder_hackercup.constants.paths import HACKERCUP_DATA_PATH, HACKERCUP_DATA_PATH_SAMPLE
 
 
 class HackercupDataset(Dataset):

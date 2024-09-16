@@ -1,6 +1,6 @@
 import os
 
-from utils.jsonl import read_jsonl, write_jsonl
+from mapcoder_hackercup.utils.jsonl import read_jsonl, write_jsonl
 
 """
 In this file, we define the Results class, 
