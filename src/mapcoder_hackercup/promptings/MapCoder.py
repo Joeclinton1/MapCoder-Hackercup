@@ -17,6 +17,7 @@ from mapcoder_hackercup.datasets.APPSDataset import APPSDataset
 from mapcoder_hackercup.datasets.MBPPDataset import MBPPDataset
 from mapcoder_hackercup.datasets.XCodeDataset import XCodeDataset
 from mapcoder_hackercup.datasets.HumanEvalDataset import HumanDataset
+from mapcoder_hackercup.datasets.CodeContestDataset import CodeContestDataset
 from mapcoder_hackercup.datasets.HackercupDataset import HackercupDataset
 
 from mapcoder_hackercup.results.Results import Results
