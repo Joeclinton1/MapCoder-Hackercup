@@ -82,7 +82,25 @@ python src/main.py --model ChatGPT --dataset HumanEval --strategy MapCoder
 
 6. To run this projects with competitive datasets you need to setup the [ExecEval](https://github.com/ntunlp/ExecEval) for docker execution. Please visit this [link](https://github.com/ntunlp/ExecEval) to setup a docker container and run it using 5000 port. Change the line 50 of the file `src\evaluations\api_comm.py` for different setup. 
 
+## Running with the Hackercup Dataset and Ollama served Codestral
 
+We have added two new datasets: `Hackercup` (full split) and `HackercupSample` (sample split)
+
+1. To re-generate the dataset run: 
+```
+python src/datasets/convert-hackercup-xcode.py
+```
+
+2. To start the local model run from windows terminal with Ollama installed `Ollama serve`
+
+3. To run map coder with Codestral on the sample dataset run
+```
+python src/main.py --model Codestral --dataset HackercupSample --strategy MapCoder
+```
+4. To run map coder with the first available Ollama model on the sample dataset run
+```
+python src/main.py --model Local --dataset HackercupSample --strategy MapCoder
+```
 ## Citation
 ```
 @article{islam2024mapcoder,

@@ -133,3 +133,18 @@ APPS_DATA_PATH = join(
     APPS_DATA_DIR,
     "selected150.jsonl"
 )
+
+HACKERCUP_DATA_DIR =join(
+    "data",
+    "Hackercup",
+)
+
+HACKERCUP_DATA_PATH =join(
+    HACKERCUP_DATA_DIR,
+    "hackercup_processed.jsonl",
+)
+
+HACKERCUP_DATA_PATH_SAMPLE =join(
+    HACKERCUP_DATA_DIR,
+    "hackercup_processed_sample.jsonl",
+)

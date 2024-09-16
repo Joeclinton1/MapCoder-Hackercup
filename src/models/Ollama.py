@@ -130,5 +130,12 @@ class OllamaModel(OllamaBaseModel):
 # Specific model classes can be defined if needed
 class Codestral(OllamaModel):
     def __init__(self, *args, **kwargs):
-        kwargs['model_name'] = 'codestral'
+        kwargs['model_name'] = 'codestral:latest'
+        super().__init__(*args, **kwargs)
+
+class Local(OllamaModel):
+    def __init__(self, *args, **kwargs):
+        # Fetch the first local model
+        first_model = requests.get("http://localhost:11434/api/tags").json()["models"][0]["model"]
+        kwargs['model_name'] = first_model
         super().__init__(*args, **kwargs)

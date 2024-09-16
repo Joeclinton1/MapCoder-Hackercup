@@ -13,3 +13,4 @@ astunparse
 pyarrow
 google-generativeai
 accelerate
+datasets

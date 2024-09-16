@@ -24,7 +24,9 @@ parser.add_argument(
         "MBPP", 
         "APPS",
         "xCodeEval", 
-        "CC", 
+        "CC",
+        "Hackercup",
+        "HackercupSample"
     ]
 )
 parser.add_argument(
@@ -47,6 +49,8 @@ parser.add_argument(
         "ChatGPT",
         "GPT4",
         "Gemini",
+        "Codestral",
+        "Local"
     ]
 )
 parser.add_argument(
