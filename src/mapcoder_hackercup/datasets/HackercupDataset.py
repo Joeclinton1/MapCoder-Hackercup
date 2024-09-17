@@ -9,7 +9,7 @@ class HackercupDataset(Dataset):
         path: str = HACKERCUP_DATA_PATH,
     ):
         super().__init__(path)
-        self.id_key = "id"
+        self.id_key = "name"
 
     def evaluate(
         self,
