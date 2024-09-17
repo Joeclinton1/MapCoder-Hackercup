@@ -120,6 +120,10 @@ class BaseStrategy(object):
             item["language"] = self.language
             item["task_id"] = item[self.data.id_key]
 
+            entries_to_remove = ('description', 'test_list', 'code')
+            for k in entries_to_remove:
+                item.pop(k, None)
+
             if i < len(self.results):
                 self.results.results[i] = item
                 self.results.save_results()
