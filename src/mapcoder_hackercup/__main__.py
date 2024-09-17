@@ -12,6 +12,7 @@ from mapcoder_hackercup.datasets.DatasetFactory import DatasetFactory
 from mapcoder_hackercup.models.ModelFactory import ModelFactory
 
 import argparse
+import os
 
 parser = argparse.ArgumentParser()
 
@@ -90,6 +91,7 @@ PASS_AT_K = args.pass_at_k
 LANGUAGE = args.language
 
 RUN_NAME = f"{MODEL_NAME}-{STRATEGY}-{DATASET}-{LANGUAGE}-{TEMPERATURE}-{PASS_AT_K}"
+os.makedirs('./outputs', exist_ok=True)
 RESULTS_PATH = f"./outputs/{RUN_NAME}.jsonl"
 
 print(f"#########################\nRunning start {RUN_NAME}, Time: {datetime.now()}\n##########################\n")

@@ -91,7 +91,11 @@ We have added two new datasets: `Hackercup` (full split) and `HackercupSample` (
 python src/datasets/convert-hackercup-xcode.py
 ```
 
-2. To start the local model run from windows terminal with Ollama installed `Ollama serve`
+2. To start the local model run from Windows terminal with Ollama installed 
+```
+set OLLAMA_HOST=0.0.0.0
+Ollama serve
+```
 
 3. To run map coder with Codestral on the sample dataset run
 ```
