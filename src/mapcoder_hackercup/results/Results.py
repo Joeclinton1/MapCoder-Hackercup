@@ -1,6 +1,6 @@
 import os
 
-from mapcoder_hackercup.utils.jsonl import read_jsonl, write_jsonl
+from mapcoder_hackercup.utils.jsonl import read_jsonl, write_jsonl, write_json
 
 """
 In this file, we define the Results class, 
@@ -29,7 +29,8 @@ class Results(object):
         self.save_results()
 
     def save_results(self):
-        write_jsonl(self.result_path, self.results)
+        # write_jsonl(self.result_path, self.results)
+        write_json(self.result_path[:-1], self.results)
 
     def load_results(self):
         if os.path.exists(self.result_path):

@@ -81,6 +81,14 @@ parser.add_argument(
     ]
 )
 
+parser.add_argument(
+    "--problem_ids",
+    type=str,
+    default=None,
+    nargs='+',
+    help='A list of problem ids to test from the dataset. If not included will test all problems.'
+)
+
 args = parser.parse_args()
 
 DATASET = args.dataset
@@ -89,6 +97,7 @@ MODEL_NAME = args.model
 TEMPERATURE = args.temperature
 PASS_AT_K = args.pass_at_k
 LANGUAGE = args.language
+PROBLEM_IDS = args.problem_ids
 
 RUN_NAME = f"{MODEL_NAME}-{STRATEGY}-{DATASET}-{LANGUAGE}-{TEMPERATURE}-{PASS_AT_K}"
 os.makedirs('./outputs', exist_ok=True)
@@ -98,7 +107,7 @@ print(f"#########################\nRunning start {RUN_NAME}, Time: {datetime.now
 
 strategy = PromptingFactory.get_prompting_class(STRATEGY)(
     model=ModelFactory.get_model_class(MODEL_NAME)(temperature=TEMPERATURE),
-    data=DatasetFactory.get_dataset_class(DATASET)(),
+    data=DatasetFactory.get_dataset_class(DATASET)(problem_ids=PROBLEM_IDS),
     language=LANGUAGE,
     pass_at_k=PASS_AT_K,
     results=Results(RESULTS_PATH),

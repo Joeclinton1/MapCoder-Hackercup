@@ -16,8 +16,6 @@ def write_jsonl(filename, lines):
         for line in lines:
             file.write(json.dumps(line) + "\n")
 
-    write_json(filename[:-1], lines)
-
 def write_json(filename, lines):
     """Writes a python list of dictionaries into a regular JSON file"""
     with open(filename, "w", encoding="utf-8") as file:

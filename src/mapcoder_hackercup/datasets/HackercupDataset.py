@@ -7,9 +7,9 @@ class HackercupDataset(Dataset):
     def __init__(
         self,
         path: str = HACKERCUP_DATA_PATH,
+        problem_ids: list = None
     ):
-        super().__init__(path)
-        self.id_key = "name"
+        super().__init__(path, problem_ids=problem_ids, id_key="name")
 
     def evaluate(
         self,
@@ -50,5 +50,6 @@ class HackercupDatasetSample(HackercupDataset):
     def __init__(
             self,
             path: str = HACKERCUP_DATA_PATH_SAMPLE,
+            problem_ids: list = None
     ):
-        super().__init__(path)
+        super().__init__(path, problem_ids=problem_ids)
