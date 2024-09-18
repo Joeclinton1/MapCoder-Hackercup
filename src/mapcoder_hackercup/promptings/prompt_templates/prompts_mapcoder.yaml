@@ -2,10 +2,10 @@ kb_exemplars:
   content: |
     Given a problem, provide relevant problems then identify the algorithm behind it and also explain the tutorial of the algorithm.
     # Problem:
-    {problem}
+    {problem_prompt}
 
     # Exemplars:
-    Recall {k} relevant and distinct problems (different from problem mentioned above). For each problem,
+    Recall {mapping_k} relevant and distinct problems (different from problem mentioned above). For each problem:
     1. describe it
     2. generate {language} code step by step to solve that problem
     3. finally generate a planning to solve that problem
@@ -18,7 +18,7 @@ kb_exemplars:
 
     <root>
     <problem>
-    # Recall {k} relevant and distinct problems (different from problem mentioned above). Write each problem in the following format.
+    # Recall {mapping_k} relevant and distinct problems (different from problem mentioned above). Write each problem in the following format.
     <description>
     # Describe the problem.
     </description>
@@ -49,40 +49,63 @@ problem_planning_input:
     ## Problem to be solved:
     {problem_prompt}
     {sample_io_prompt}
+    ## Planning:
+
     ----------------
-    Important: Only provide the planning.
+    Important: You should give only the planning to solve the problem. Do not add extra explanation or words.
+
+verification_input:
+  content: |
+    Given a competitive programming problem and a plan to solve the problem in {language}, tell whether the plan is correct to solve this problem.
+    
+    # Problem:
+    {problem_prompt}
+    # Planning:
+    {planning}
+
+    ----------------
+    Important: Your response must follow the following xml format-
+    <root>
+    <explanation> Discuss whether the given competitive programming problem is solvable by using the above mentioned planning.</explanation>
+    <confidence> Confidence score regarding the solvability of the problem. Must be an integer between 0 and 100. </confidence>
+    </root>
+
+std_input_prompt:
+  content: |
+    ## Note: Strictly follow the input and output format.
+    The input should be taken from Standard input and output should be given to standard output. 
+    If you are writing a function then after the function definition take input using input() function then call the function with specified parameters and finally print the output of the function. 
+    Do not add extra print statement otherwise it will failed the test cases.
 
 code_generation_input:
   content: |
-    Generate {language} code to solve the problem.
+    Given a competitive programming problem generate {language} code to solve the problem.
     {algorithm_prompt}
     ## Problem to be solved:
     {problem_prompt}
     ## Planning:
     {planning}
     {sample_io_prompt}
+    ## Let's think step by step.
+
+    ----------------
     Important:
     {std_input_prompt}
-    ## Your response must contain only the {language} code inside ``` block.
-
-verification_input:
-  content: |
-    Given a competitive programming problem and a plan to solve it in {language}, verify if the plan is correct.
-    # Problem:
-    {problem_prompt}
-    # Planning:
-    {planning}
-    ----------------
-    Important: Your response must follow the xml format:
-    <root>
-    <explanation>...</explanation>
-    <confidence>...</confidence>
-    </root>
+    ## Your response must contain only the {language} code to solve this problem. Do not add extra explanation or words.
 
 code_improvement_input:
   content: |
-    Improve the {language} code since it failed test cases.
+    Given a competitive programming problem you have generated {language} code to solve the problem. But the generated code cannot pass sample test cases. Improve your code to solve the problem correctly.
+    {algorithm_prompt}
+    ## Problem to be solved:
+    {problem_prompt}
+    {response}
     ## Test Report:
     {test_log}
-    ## Existing Code:
-    {code}
+    ## Modified Planning:
+    ## Let's think step by step to modify {language} Code for solving this problem.
+
+    ----------------
+    Important:
+    {std_input_prompt}
+    ## Your response must contain the modified planning and then the {language} code inside <code> block to solve this problem.

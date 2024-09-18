@@ -60,8 +60,8 @@ class MapCoder(BaseStrategy):
             {
                 "role": "user",
                 "content": kb_exemplar_template.format(
-                    problem=self.data.get_prompt(item),
-                    k=utils.mapping[self.k],
+                    problem_prompt=self.data.get_prompt(item),
+                    mapping_k=self.k,
                     language=self.language
                 )
             },
@@ -145,7 +145,6 @@ class MapCoder(BaseStrategy):
 
     def generate_final_code(self, item, plannings, algorithm_prompt, sample_io_prompt, pr_tok, com_tok):
         """Generate and improve code until all test cases pass."""
-        std_input_prompt = "## Note: Strictly follow input/output format using `input()` for input and print for output."
 
         for planning, confidence, example in plannings:
             input_for_final_code_generation = [
@@ -157,7 +156,7 @@ class MapCoder(BaseStrategy):
                         problem_prompt=self.data.get_prompt(item),
                         planning=planning,
                         sample_io_prompt=sample_io_prompt,
-                        std_input_prompt=std_input_prompt
+                        std_input_prompt=self.prompts['std_input_prompt']['content']
                     )
                 }
             ]
@@ -176,12 +175,12 @@ class MapCoder(BaseStrategy):
             print("Response from final code generation: ")
             print(code, flush=True)
 
-            passed = self.run_sample_tests(item, code)
+            passed = self.run_sample_tests(item, code, algorithm_prompt)
             if passed:
                 return code, pr_tok, com_tok
-        return None, pr_tok, com_tok
+        return code, pr_tok, com_tok
 
-    def run_sample_tests(self, item, code):
+    def run_sample_tests(self, item, code, algorithm_prompt):
         """Run the sample test cases on the generated code."""
         passed = False
         for i in range(1, self.t + 1):
@@ -191,19 +190,22 @@ class MapCoder(BaseStrategy):
             print(f"Test case failed. Attempt {i} - test log: ")
             print(test_log, flush=True)
 
-            code = self.improve_code(item, code, test_log)
+            code = self.improve_code(item, code, test_log, algorithm_prompt)
 
         return passed
 
-    def improve_code(self, item, code, test_log):
+    def improve_code(self, item, code, test_log, algorithm_prompt):
         """Improve the generated code based on test case failures."""
         input_for_code_improvement = [
             {
                 "role": "user",
                 "content": self.prompts['code_improvement_input']['content'].format(
                     language=self.language,
+                    algorithm_prompt=algorithm_prompt,
+                    problem_prompt=self.data.get_prompt(item),
                     test_log=test_log,
-                    code=code
+                    response=code,
+                    std_input_prompt=self.prompts['std_input_prompt']['content']
                 )
             }
         ]
