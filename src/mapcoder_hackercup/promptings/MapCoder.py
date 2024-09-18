@@ -196,7 +196,7 @@ class MapCoder(BaseStrategy):
             passed, test_log = self.data.evaluate_sample_io(item, code, self.language)
             write_debug(dict(passed=passed, code=code), 'improvement')
 
-            if passed:
+            if passed == 1.0:
                 break
             print(f"Test case failed. Attempt {i} - test log: ")
             print(test_log, flush=True)

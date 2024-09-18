@@ -167,4 +167,4 @@ def contest_evaluate_public_tests(
     failed_feedback = '\n'.join(failed_feedback)
     feedback = f'## Tested passed:\n{passed_feedback}\n\n## Tests failed:\n{failed_feedback}'
 
-    return passed, feedback
+    return len(passed_feedback) / (len(passed_feedback) + len(failed_feedback)), feedback
