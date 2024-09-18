@@ -1,27 +1,7 @@
-from typing import List
-import tiktoken
-import os
-import json
 import re
-import sys
-import time
-
-from copy import deepcopy
 import xml.etree.ElementTree as ET
-
 from .Base import BaseStrategy
-from mapcoder_hackercup.models.Base import BaseModel
 
-from mapcoder_hackercup.datasets.Dataset import Dataset
-from mapcoder_hackercup.datasets.APPSDataset import APPSDataset
-from mapcoder_hackercup.datasets.MBPPDataset import MBPPDataset
-from mapcoder_hackercup.datasets.XCodeDataset import XCodeDataset
-from mapcoder_hackercup.datasets.HumanEvalDataset import HumanDataset
-from mapcoder_hackercup.datasets.CodeContestDataset import CodeContestDataset
-from mapcoder_hackercup.datasets.HackercupDataset import HackercupDataset
-
-from mapcoder_hackercup.results.Results import Results
-from mapcoder_hackercup.evaluations.func_evaluate import evaluate_io
 
 mapping = {
     1: "one (01)",
@@ -318,10 +298,7 @@ Your response must follow the following xml format-
         plannings.sort(key=lambda x: x[1], reverse=True)
         # time.sleep(1)
 
-        if type(self.data) in [APPSDataset, CodeContestDataset, XCodeDataset, HackercupDataset]:
-            std_input_prompt = "## Note: Strictly follow the input and output format. The input should be taken from Standard input and output should be given to standard output. If you are writing a function then after the function definition take input using `input()` function then call the function with specified parameters and finally print the output of the function. Do not add extra print statement otherwise it will failed the test cases."
-        else:
-            std_input_prompt = ""
+        std_input_prompt = "## Note: Strictly follow the input and output format. The input should be taken from Standard input and output should be given to standard output. If you are writing a function then after the function definition take input using `input()` function then call the function with specified parameters and finally print the output of the function. Do not add extra print statement otherwise it will failed the test cases."
 
         for planning_with_ex in plannings:
             planning, confidence, example = planning_with_ex

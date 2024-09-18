@@ -6,9 +6,10 @@ from mapcoder_hackercup.constants.paths import HACKERCUP_DATA_PATH, HACKERCUP_DA
 class HackercupDataset(Dataset):
     def __init__(
         self,
-        path: str = HACKERCUP_DATA_PATH,
-        problem_ids: list = None
+        problem_ids: list = None,
+        split: str = "Sample"
     ):
+        path = HACKERCUP_DATA_PATH_SAMPLE if split == "Sample" else HACKERCUP_DATA_PATH
         super().__init__(path, problem_ids=problem_ids, id_key="name")
 
     def evaluate(
@@ -45,11 +46,3 @@ class HackercupDataset(Dataset):
             sample_io_format = f"Sample Input:\n{sample_io['input']}\nSample Output:\n{sample_io['output'][0]}\n\n"
 
         return f"{item['description']}\n\n{sample_io_format}Important: Follow the input/output format strictly. Read input from standard input and write output to standard output."
-
-class HackercupDatasetSample(HackercupDataset):
-    def __init__(
-            self,
-            path: str = HACKERCUP_DATA_PATH_SAMPLE,
-            problem_ids: list = None
-    ):
-        super().__init__(path, problem_ids=problem_ids)

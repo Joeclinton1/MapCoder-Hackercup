@@ -57,7 +57,7 @@ Finally, the Debugging Agent utilizes sample I/O from the problem description to
 
 
 
-## Running our project
+## Setup Our Project
 1. Clone our project
 ```
 git clone https://github.com/Md-Ashraful-Pramanik/MapCoder && cd MapCoder
@@ -70,40 +70,37 @@ pip install -e ./
 
 3. Set up the .env file by seeing the example.
 
-4. Run the following command to see the options of running this projects
-```
-python -m mapcoder_hackercup --help
-```
 
-5. Finally run this project. An example is given below:
-```
-python -m mapcoder_hackercup --model ChatGPT --dataset HumanEval --strategy MapCoder
-```
-
-6. To run this projects with competitive datasets you need to setup the [ExecEval](https://github.com/ntunlp/ExecEval) for docker execution. Please visit this [link](https://github.com/ntunlp/ExecEval) to setup a docker container and run it using 5000 port. Change the line 50 of the file `src\evaluations\api_comm.py` for different setup. 
-
-## Running with the Hackercup Dataset and Ollama served Codestral
-
-We have added two new datasets: `Hackercup` (full split) and `HackercupSample` (sample split)
-
-1. To re-generate the dataset run: 
+4. Generate the dataset by running: 
 ```
 python src/mapcoder_hackercup/datasets/convert-hackercup-xcode.py
 ```
 
-2. To start the local model run from Windows terminal with Ollama installed 
+5. Start the local llm model in a Windows terminal with Ollama installed 
 ```
 set OLLAMA_HOST=0.0.0.0
 Ollama serve
 ```
+6. setup the [ExecEval](https://github.com/ntunlp/ExecEval) for docker execution. Please visit this [link](https://github.com/ntunlp/ExecEval) to setup a docker container and run it using 5000 port. Change the line 50 of the file `src\evaluations\api_comm.py` for different setup.
 
-3. To run map coder with Codestral on the sample dataset run
+## Running Our Project
+
+1. To run MapCoder with Codestral on the sample dataset run
 ```
-python -m mapcoder_hackercup --model Codestral --dataset HackercupSample --strategy MapCoder
+python -m mapcoder_hackercup --model Codestral
 ```
-4. To run map coder with the first available Ollama model on the sample dataset run
+2. To run MapCoder with Codestral on the full dataset run
 ```
-python -m mapcoder_hackercup --model Local --dataset HackercupSample --strategy MapCoder
+python -m mapcoder_hackercup --model Codestral --split Full
+```
+3. To run map coder with the first available Ollama model on the sample dataset run
+```
+python -m mapcoder_hackercup --model Local --dataset HackercupSample
+```
+
+4. To run map coder with codestral on just the ready_go_part_2 problem of the sample dataset
+```
+python -m mapcoder_hackercup --model Codestral --problem_ids = ready_go_part_2
 ```
 ## Citation
 ```
