@@ -32,8 +32,6 @@ parser.add_argument(
     choices=[
         "Direct",
         "CoT",
-        "SelfPlanning",
-        "Analogical",
         "MapCoder",
         "Custom",
     ]
