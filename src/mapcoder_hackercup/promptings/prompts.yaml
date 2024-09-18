@@ -1,0 +1,88 @@
+kb_exemplars:
+  content: |
+    Given a problem, provide relevant problems then identify the algorithm behind it and also explain the tutorial of the algorithm.
+    # Problem:
+    {problem}
+
+    # Exemplars:
+    Recall {k} relevant and distinct problems (different from problem mentioned above). For each problem,
+    1. describe it
+    2. generate {language} code step by step to solve that problem
+    3. finally generate a planning to solve that problem
+
+    # Algorithm:
+
+    ----------------
+    Important:
+    Your response must follow the following xml format-
+
+    <root>
+    <problem>
+    # Recall {k} relevant and distinct problems (different from problem mentioned above). Write each problem in the following format.
+    <description>
+    # Describe the problem.
+    </description>
+    <code>
+    # Let's think step by step to solve this problem in {language} programming language.
+    </code>
+    <planning>
+    # Planning to solve this problem.
+    </planning>
+    </problem>
+
+    # similarly add more problems here...
+
+    <algorithm>
+    # Identify the algorithm (Brute-force, Dynamic Programming, Divide-and-conquer, Greedy, Backtracking, Recursive, Binary search, and so on) that needs to be used to solve the original problem.
+    # Write a useful tutorial about the above mentioned algorithms. Provide a high level generic tutorial for solving these types of problems. Do not generate code.
+    </algorithm>
+    </root>
+
+problem_planning_input:
+  content: |
+    Given a competitive programming problem generate a concrete planning to solve the problem.
+    # Problem:
+    {example_problem}
+    # Planning:
+    {example_planning}
+    {algorithm_prompt}
+    ## Problem to be solved:
+    {problem_prompt}
+    {sample_io_prompt}
+    ----------------
+    Important: Only provide the planning.
+
+code_generation_input:
+  content: |
+    Generate {language} code to solve the problem.
+    {algorithm_prompt}
+    ## Problem to be solved:
+    {problem_prompt}
+    ## Planning:
+    {planning}
+    {sample_io_prompt}
+    Important:
+    {std_input_prompt}
+    ## Your response must contain only the {language} code inside ``` block.
+
+verification_input:
+  content: |
+    Given a competitive programming problem and a plan to solve it in {language}, verify if the plan is correct.
+    # Problem:
+    {problem_prompt}
+    # Planning:
+    {planning}
+    ----------------
+    Important: Your response must follow the xml format:
+    <root>
+    <explanation>...</explanation>
+    <confidence>...</confidence>
+    </root>
+
+code_improvement_input:
+  content: |
+    Improve the {language} code since it failed test cases.
+    ## Test Report:
+    {test_log}
+    ## Existing Code:
+    {code}

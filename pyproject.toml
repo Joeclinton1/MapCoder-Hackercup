@@ -24,7 +24,7 @@ dependencies = [
     "pyarrow",
     "google-generativeai",
     "accelerate",
-    "datasets"
+    "datasets",
 ]
 
 [build-system]
