@@ -95,12 +95,12 @@ python -m mapcoder_hackercup --model Codestral --split Full
 ```
 3. To run map coder with the first available Ollama model on the sample dataset run
 ```
-python -m mapcoder_hackercup --model Local --dataset HackercupSample
+python -m mapcoder_hackercup --model Local
 ```
 
 4. To run map coder with codestral on just the ready_go_part_2 problem of the sample dataset
 ```
-python -m mapcoder_hackercup --model Codestral --problem_ids = ready_go_part_2
+python -m mapcoder_hackercup --model Codestral --problem_ids ready_go_part_2
 ```
 ## Citation
 ```
