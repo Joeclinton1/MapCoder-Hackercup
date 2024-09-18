@@ -78,6 +78,8 @@ class BaseStrategy(object):
                 item["prompt_tokens"] = []
                 item["completion_tokens"] = []
                 item["no_of_try"] = 0
+                item["is_solved_sample"] = []
+                item["sample_actual_output"] = []
 
                 cur_pass = 0
                 is_solved = False
@@ -104,6 +106,16 @@ class BaseStrategy(object):
                 item["prompt_tokens"].append(prompt_tokens)
                 item["completion_tokens"].append(completion_tokens)
                 item["no_of_try"] += 1
+
+                if callable(getattr(self.data, "evaluate_sample_io", None)):
+                    is_solved_sample, sample_actual_output = self.data.evaluate_sample_io(
+                        item=item,
+                        cur_imp=cur_imp,
+                        language=self.language
+                    )
+                    item["is_solved_sample"].append(is_solved_sample)
+                    item["sample_actual_output"].append(sample_actual_output)
+
 
                 is_solved = self.data.evaluate(
                     item=item,
@@ -132,6 +144,11 @@ class BaseStrategy(object):
 
             if self.verbose:
                 print(
-                    f'completed {i+1}/{num_items}, Solved: {self.results[i]["is_solved"]}, number of success = {num_success}/{i+1}, acc = {round(num_success/(i+1)*100, 2)}')
+                    f'completed {i+1}/{num_items}, '
+                    f'Solved: {self.results[i]["is_solved"]},'
+                    f'Solved Sample: {any(self.results[i]["is_solved_sample"])}, '
+                    f'number of success = {num_success}/{i+1}, '
+                    f'acc = {round(num_success/(i+1)*100, 2)}'
+                )
 
             # break

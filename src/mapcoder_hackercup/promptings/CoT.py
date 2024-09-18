@@ -13,7 +13,7 @@ from mapcoder_hackercup.datasets.APPSDataset import APPSDataset
 from mapcoder_hackercup.datasets.XCodeDataset import XCodeDataset
 from mapcoder_hackercup.datasets.HumanEvalDataset import HumanDataset
 from mapcoder_hackercup.datasets.CodeContestDataset import CodeContestDataset
-
+from mapcoder_hackercup.datasets.HackercupDataset import HackercupDataset
 
 class CoTStrategy(BaseStrategy):
     def run_single_pass(self, item: dict):
@@ -618,7 +618,7 @@ for i in range(1, T + 1):
 """
 
 
-        if type(self.data) == CodeContestDataset:
+        if type(self.data) in [CodeContestDataset, HackercupDataset]:
             prompt = """
 Three little pigs from all over the world are meeting for a convention! Every minute, a triple of 3 new pigs arrives on the convention floor. After the n-th minute, the convention ends.
 

@@ -88,7 +88,7 @@ We have added two new datasets: `Hackercup` (full split) and `HackercupSample` (
 
 1. To re-generate the dataset run: 
 ```
-python src/datasets/convert-hackercup-xcode.py
+python src/mapcoder_hackercup/datasets/convert-hackercup-xcode.py
 ```
 
 2. To start the local model run from Windows terminal with Ollama installed 

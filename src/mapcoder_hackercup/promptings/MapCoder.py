@@ -318,7 +318,7 @@ Your response must follow the following xml format-
         plannings.sort(key=lambda x: x[1], reverse=True)
         # time.sleep(1)
 
-        if type(self.data) == APPSDataset or type(self.data) == CodeContestDataset or type(self.data) == XCodeDataset:
+        if type(self.data) in [APPSDataset, CodeContestDataset, XCodeDataset, HackercupDataset]:
             std_input_prompt = "## Note: Strictly follow the input and output format. The input should be taken from Standard input and output should be given to standard output. If you are writing a function then after the function definition take input using `input()` function then call the function with specified parameters and finally print the output of the function. Do not add extra print statement otherwise it will failed the test cases."
         else:
             std_input_prompt = ""

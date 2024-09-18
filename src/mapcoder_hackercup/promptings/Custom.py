@@ -170,7 +170,7 @@ class Custom(BaseStrategy):
         input_kb_exemplars = [
             {
                 "role": "user",
-                "content": f"""Given a problem, provide relevant problems then identify the algorithm behind it and also explain the tutorial of the algorithm.
+                "content": f"""Given a Hackercup Competitive programming problem, provide relevant problems then identify the algorithm behind it and also explain the tutorial of the algorithm.
 # Problem:
 {self.data.get_prompt(item)}
 
@@ -318,7 +318,7 @@ Your response must follow the following xml format-
         plannings.sort(key=lambda x: x[1], reverse=True)
         # time.sleep(1)
 
-        if type(self.data) == APPSDataset or type(self.data) == CodeContestDataset or type(self.data) == XCodeDataset:
+        if type(self.data) in [APPSDataset, CodeContestDataset, XCodeDataset, HackercupDataset]:
             std_input_prompt = "## Note: Strictly follow the input and output format. The input should be taken from Standard input and output should be given to standard output. If you are writing a function then after the function definition take input using `input()` function then call the function with specified parameters and finally print the output of the function. Do not add extra print statement otherwise it will failed the test cases."
         else:
             std_input_prompt = ""
@@ -329,7 +329,7 @@ Your response must follow the following xml format-
             input_for_final_code_generation = [
                 {
                     "role": "user",
-                    "content": f"Given a competitive programming problem generate {self.language} code to solve the problem.\n{algorithm_prompt}\n## Problem to be solved:\n{self.data.get_prompt(item)}\n## Planning:\n{planning}\n{sample_io_prompt}\n## Let's think step by step.\n\n----------------\nImportant:\n{std_input_prompt}\n## Your response must contain only the {self.language} code to solve this problem. Do not add extra explanation or words."
+                    "content": f"Given a Meta Hackercup competitive programming problem generate {self.language} code to solve the problem.\n{algorithm_prompt}\n## Problem to be solved:\n{self.data.get_prompt(item)}\n## Planning:\n{planning}\n{sample_io_prompt}\n## Let's think step by step.\n\n----------------\nImportant:\n{std_input_prompt}\n## Your response must contain only the {self.language} code to solve this problem. Do not add extra explanation or words. "
                 }
             ]
 

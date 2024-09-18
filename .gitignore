@@ -9,3 +9,4 @@ desktop.ini
 logs/*
 
 test.ipynb
+/outputs/
