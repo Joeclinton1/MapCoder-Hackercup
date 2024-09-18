@@ -47,7 +47,7 @@ class EmptySourceCodeError(EmptyValueError):
 class APICommunication:
     _session: requests.Session
 
-    def __init__(self, server_url: str = "http://localhost:5000"):
+    def __init__(self, server_url: str = "http://windows-6absj2b:5000"):
         self._session = requests.Session()
         self.execute_code_url = f"{server_url}/api/execute_code"
         self.get_runtimes_url = f"{server_url}/api/all_runtimes"

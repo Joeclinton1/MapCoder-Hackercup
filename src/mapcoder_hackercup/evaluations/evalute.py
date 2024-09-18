@@ -26,7 +26,7 @@ with open(unittest_file) as ut_rp:
     unittest_db = json.load(ut_rp)
 
 
-api_comm = APICommunication(server_url=os.getenv('XCODE_SERVER_URL', 'http://localhost:5000'))
+api_comm = APICommunication(server_url=os.getenv('XCODE_SERVER_URL', 'http://windows-6absj2b:5000'))
 
 
 def xcode_evaluate(

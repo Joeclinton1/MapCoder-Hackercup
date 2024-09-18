@@ -40,7 +40,7 @@ class OllamaBaseModel(BaseModel):
         frequency_penalty=0,
         presence_penalty=0,
     ):
-        self.api_url = api_url or os.getenv("OLLAMA_API_URL") or "http://localhost:11434"
+        self.api_url = api_url or os.getenv("OLLAMA_API_URL") or "http://windows-6absj2b:11434"
         self.model_name = model_name or os.getenv("OLLAMA_MODEL")
         assert self.model_name is not None, "Model name must be provided as model config or environment variable `OLLAMA_MODEL`"
 
@@ -118,6 +118,6 @@ class Codestral(OllamaBaseModel):
 class Local(OllamaBaseModel):
     def __init__(self, *args, **kwargs):
         # Fetch the first local model
-        first_model = requests.get("http://localhost:11434/api/tags").json()["models"][0]["model"]
+        first_model = requests.get("http://windows-6absj2b:11434/api/tags").json()["models"][0]["model"]
         kwargs['model_name'] = first_model
         super().__init__(*args, **kwargs)

@@ -1,6 +1,9 @@
 import os
+import time
+
 from . import utils
 from .Base import BaseStrategy
+from ..results import write_debug
 
 # Path to the prompts YAML file
 cwd = os.path.dirname(os.path.abspath(__file__))
@@ -34,6 +37,8 @@ class MapCoder(BaseStrategy):
 
         # Step 2: Post process response
         response = self.post_process_response(response)
+        write_debug(response, 'exemplar')
+
         print("\n\n________________________")
         print("Response from knowledge base and exemplars: ")
         print(response, flush=True)
@@ -49,6 +54,7 @@ class MapCoder(BaseStrategy):
         # Step 5: Sort plannings by confidence and generate code
         plannings.sort(key=lambda x: x[1], reverse=True)
         code, pr_tok, com_tok = self.generate_final_code(item, plannings, algorithm_prompt, sample_io_prompt, pr_tok, com_tok)
+        write_debug(code, 'code')
 
         print("________________________\n\n", flush=True)
         return code, pr_tok, com_tok
@@ -118,6 +124,8 @@ class MapCoder(BaseStrategy):
             print(f"Response from planning verification (example {example_no}): ")
             print(verification_res, flush=True)
 
+            write_debug(dict(confidence=verification_res['confidence'], plan=planning), 'planning')
+
             plannings.append((planning, verification_res['confidence'], example))
 
         return plannings, pr_tok, com_tok
@@ -177,6 +185,7 @@ class MapCoder(BaseStrategy):
 
             passed = self.run_sample_tests(item, code, algorithm_prompt)
             if passed:
+                write_debug(code, 'code')
                 return code, pr_tok, com_tok
         return code, pr_tok, com_tok
 
@@ -185,6 +194,8 @@ class MapCoder(BaseStrategy):
         passed = False
         for i in range(1, self.t + 1):
             passed, test_log = self.data.evaluate_sample_io(item, code, self.language)
+            write_debug(dict(passed=passed, code=code), 'improvement')
+
             if passed:
                 break
             print(f"Test case failed. Attempt {i} - test log: ")

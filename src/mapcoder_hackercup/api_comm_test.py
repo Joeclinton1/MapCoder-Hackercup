@@ -27,7 +27,7 @@ limits = {
 
 try:
     # Create APICommunication instance and test the execute_code method
-    with APICommunication(server_url="http://localhost:5000") as api_comm:
+    with APICommunication(server_url="http://windows-6absj2b:5000") as api_comm:
         result, sample_id, task_id = api_comm.execute_code(
             language=language,
             source_code=source_code,
