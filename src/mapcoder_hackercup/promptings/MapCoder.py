@@ -37,7 +37,6 @@ class MapCoder(BaseStrategy):
 
         # Step 2: Post process response
         response = self.post_process_response(response)
-        write_debug(response, 'exemplar')
 
         print("\n\n________________________")
         print("Response from knowledge base and exemplars: ")
@@ -91,6 +90,9 @@ class MapCoder(BaseStrategy):
         for example_no, example in enumerate(response["problem"], start=1):
             example_problem = example["description"]
             example_planning = example["planning"]
+
+            write_debug(dict(
+                no=example_no, description=example_problem, plan=example_planning), 'exemplar')
 
             # Generate problem planning input using YAML template
             input_for_problem_planning = [
