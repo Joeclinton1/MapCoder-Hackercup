@@ -22,27 +22,33 @@ class MapCoder(BaseStrategy):
 
     def run_single_pass(self, item: dict):
         print("", flush=True)
+
+        # Step 1: Create KB exemplars
         input_kb_exemplars = self.create_kb_exemplars(item)
+        print("\n\n________________________")
+        print("Input for knowledge base and exemplars: ")
+        print(input_kb_exemplars[0]['content'], flush=True)
+
         response, pr_tok, com_tok = self.gpt_chat(input_kb_exemplars)
         item['api_calls'] = item.get('api_calls', 0) + 1
 
+        # Step 2: Post process response
         response = self.post_process_response(response)
         print("\n\n________________________")
         print("Response from knowledge base and exemplars: ")
         print(response, flush=True)
 
+        # Step 3: Parse XML and generate algorithm prompt
         response = utils.parse_xml(response)
         algorithm_prompt = f"## Relevant Algorithm to solve the next problem:\n{response['algorithm']}"
         sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}\n"
 
-        # Generate plannings based on examples
-        plannings, pr_tok, com_tok = self.generate_plannings(item, response, algorithm_prompt, sample_io_prompt, pr_tok,
-                                                             com_tok)
+        # Step 4: Generate plannings based on examples
+        plannings, pr_tok, com_tok = self.generate_plannings(item, response, algorithm_prompt, sample_io_prompt, pr_tok, com_tok)
 
-        # Sort plannings by confidence and generate code
+        # Step 5: Sort plannings by confidence and generate code
         plannings.sort(key=lambda x: x[1], reverse=True)
-        code, pr_tok, com_tok = self.generate_final_code(item, plannings, algorithm_prompt, sample_io_prompt, pr_tok,
-                                                         com_tok)
+        code, pr_tok, com_tok = self.generate_final_code(item, plannings, algorithm_prompt, sample_io_prompt, pr_tok, com_tok)
 
         print("________________________\n\n", flush=True)
         return code, pr_tok, com_tok
@@ -94,12 +100,24 @@ class MapCoder(BaseStrategy):
                 }
             ]
 
+            print("\n\n________________________")
+            print(f"Input for our problem planning using example {example_no}: ")
+            print(input_for_problem_planning[0]['content'], flush=True)
+
             planning, pr_tok_1, com_tok_1 = self.gpt_chat(input_for_problem_planning)
             item['api_calls'] += 1
             pr_tok += pr_tok_1
             com_tok += com_tok_1
 
+            print("\n\n________________________")
+            print(f"Response from our problem planning (example {example_no}): ")
+            print(planning, flush=True)
+
             verification_res = self.verify_planning(item, planning)
+            print("\n\n________________________")
+            print(f"Response from planning verification (example {example_no}): ")
+            print(verification_res, flush=True)
+
             plannings.append((planning, verification_res['confidence'], example))
 
         return plannings, pr_tok, com_tok
@@ -116,17 +134,20 @@ class MapCoder(BaseStrategy):
                 )
             }
         ]
+        print("Input for planning verification: ")
+        print(input_for_verification[0]['content'], flush=True)
+
         verification_res, _, _ = self.gpt_chat(input_for_verification)
         item['api_calls'] += 1
+
         verification_res = utils.parse_xml(utils.replace_tag(verification_res, 'confidence'))
         return verification_res
 
     def generate_final_code(self, item, plannings, algorithm_prompt, sample_io_prompt, pr_tok, com_tok):
         """Generate and improve code until all test cases pass."""
         std_input_prompt = "## Note: Strictly follow input/output format using `input()` for input and print for output."
-        for planning, confidence, example in plannings:
 
-            # Generate code generation input using YAML template
+        for planning, confidence, example in plannings:
             input_for_final_code_generation = [
                 {
                     "role": "user",
@@ -141,11 +162,19 @@ class MapCoder(BaseStrategy):
                 }
             ]
 
+            print("\n\n________________________")
+            print("Input for final code generation: ")
+            print(input_for_final_code_generation[0]['content'], flush=True)
+
             code, pr_tok_1, com_tok_1 = self.gpt_chat(input_for_final_code_generation)
             item['api_calls'] += 1
             code = utils.parse_code(code)
             pr_tok += pr_tok_1
             com_tok += com_tok_1
+
+            print("\n\n________________________")
+            print("Response from final code generation: ")
+            print(code, flush=True)
 
             passed = self.run_sample_tests(item, code)
             if passed:
@@ -159,7 +188,11 @@ class MapCoder(BaseStrategy):
             passed, test_log = self.data.evaluate_sample_io(item, code, self.language)
             if passed:
                 break
+            print(f"Test case failed. Attempt {i} - test log: ")
+            print(test_log, flush=True)
+
             code = self.improve_code(item, code, test_log)
+
         return passed
 
     def improve_code(self, item, code, test_log):
@@ -174,6 +207,17 @@ class MapCoder(BaseStrategy):
                 )
             }
         ]
+
+        print("\n\n________________________")
+        print("Input for improving code generation: ")
+        print(input_for_code_improvement[0]['content'], flush=True)
+
         response, _, _ = self.gpt_chat(input_for_code_improvement)
         item['api_calls'] += 1
-        return utils.parse_code(response)
+        code = utils.parse_code(response)
+
+        print("\n\n________________________")
+        print("Response from improving code generation: ")
+        print(response, flush=True)
+
+        return code

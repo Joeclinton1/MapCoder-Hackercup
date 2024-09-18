@@ -15,24 +15,32 @@ class Custom(MapCoder):
 
     def run_single_pass(self, item: dict):
         print("", flush=True)
+
+        # Step 1: Create KB exemplars
         input_kb_exemplars = self.create_kb_exemplars(item)
+        print("\n\n________________________")
+        print("Input for knowledge base and exemplars: ")
+        print(input_kb_exemplars[0]['content'], flush=True)
+
         response, pr_tok, com_tok = self.gpt_chat(input_kb_exemplars)
         item['api_calls'] = item.get('api_calls', 0) + 1
 
+        # Step 2: Post process response
         response = self.post_process_response(response)
         print("\n\n________________________")
         print("Response from knowledge base and exemplars: ")
         print(response, flush=True)
 
+        # Step 3: Parse XML and generate algorithm prompt
         response = utils.parse_xml(response)
         algorithm_prompt = f"## Relevant Algorithm to solve the next problem:\n{response['algorithm']}"
         sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}\n"
 
-        # Generate plannings based on examples
+        # Step 4: Generate plannings based on examples
         plannings, pr_tok, com_tok = self.generate_plannings(item, response, algorithm_prompt, sample_io_prompt, pr_tok,
                                                              com_tok)
 
-        # Sort plannings by confidence and generate code
+        # Step 5: Sort plannings by confidence and generate code
         plannings.sort(key=lambda x: x[1], reverse=True)
         code, pr_tok, com_tok = self.generate_final_code(item, plannings, algorithm_prompt, sample_io_prompt, pr_tok,
                                                          com_tok)
