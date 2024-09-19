@@ -52,14 +52,14 @@ parser.add_argument(
 parser.add_argument(
     "--temperature", 
     type=float, 
-    default=0,
+    default=[0],
     nargs='+',
 )
 
 parser.add_argument(
     "--top_p",
     type=float,
-    default=0.95,
+    default=[0.95],
     nargs='+',
 )
 parser.add_argument(
