@@ -19,6 +19,8 @@ class BaseStrategy(object):
         pass_at_k: int,
         results: Results,
         verbose: bool = True,
+        temps: list = None,
+        top_ps: list = None
     ):
         self.model = model
         self.data = data

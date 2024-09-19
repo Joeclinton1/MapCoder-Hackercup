@@ -52,13 +52,15 @@ parser.add_argument(
 parser.add_argument(
     "--temperature", 
     type=float, 
-    default=0
+    default=0,
+    nargs='+',
 )
 
 parser.add_argument(
     "--top_p",
     type=float,
-    default=0.95
+    default=0.95,
+    nargs='+',
 )
 parser.add_argument(
     "--pass_at_k", 
@@ -100,18 +102,23 @@ PASS_AT_K = args.pass_at_k
 LANGUAGE = args.language
 PROBLEM_IDS = args.problem_ids
 
-RUN_NAME = f"{MODEL_NAME}-{STRATEGY}-{SPLIT}-{LANGUAGE}-{TEMPERATURE}-{PASS_AT_K}"
+RUN_NAME = f"{MODEL_NAME}-{STRATEGY}-{SPLIT}-{LANGUAGE}-{TEMPERATURE[0]}-{PASS_AT_K}"
 os.makedirs('./outputs', exist_ok=True)
 RESULTS_PATH = f"./outputs/{RUN_NAME}.jsonl"
 
 print(f"#########################\nRunning start {RUN_NAME}, Time: {datetime.now()}\n##########################\n")
 
 strategy = PromptingFactory.get_prompting_class(STRATEGY)(
-    model=ModelFactory.get_model_class(MODEL_NAME)(temperature=TEMPERATURE, top_p=TOP_P),
+    model=ModelFactory.get_model_class(MODEL_NAME)(
+        temperature=TEMPERATURE[0] if TEMPERATURE else None,
+        top_p=TOP_P[0] if TOP_P else None,
+    ),
     data=HackercupDataset(problem_ids=PROBLEM_IDS, split=SPLIT),
     language=LANGUAGE,
     pass_at_k=PASS_AT_K,
     results=Results(RESULTS_PATH),
+    temps = TEMPERATURE,
+    top_ps = TOP_P
 )
 
 strategy.run()
