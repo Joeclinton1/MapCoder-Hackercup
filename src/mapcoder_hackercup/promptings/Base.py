@@ -27,8 +27,8 @@ class BaseStrategy(object):
         self.language = language
         self.verbose = verbose
 
-    def gpt_chat(self, processed_input: List[dict]) -> (str, int, int):
-        return self.model.prompt(processed_input=processed_input)
+    def gpt_chat(self, processed_input: List[dict], **kwargs) -> (str, int, int):
+        return self.model.prompt(processed_input=processed_input, **kwargs)
 
     def run_single_pass(self, item: dict):
         pass

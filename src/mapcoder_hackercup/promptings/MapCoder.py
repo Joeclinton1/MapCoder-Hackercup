@@ -9,6 +9,11 @@ from ..results import write_debug
 cwd = os.path.dirname(os.path.abspath(__file__))
 prompts_file = os.path.join(cwd, 'prompt_templates/prompts_mapcoder.yaml')
 
+EXAMPLE_TEMP, EXAMPLE_P = 0.0, 1.0
+PLANNING_TEMP, PLANNING_P = 0.0, 1.0
+IMPROVEMENT_TEMP, IMPROVEMENT_P = 0.0, 1.0
+CODE_TEMP, CODE_P = 0.0, 1.0
+
 
 class MapCoder(BaseStrategy):
     def __init__(
@@ -32,7 +37,8 @@ class MapCoder(BaseStrategy):
         print("Input for knowledge base and exemplars: ")
         print(input_kb_exemplars[0]['content'], flush=True)
 
-        response, pr_tok, com_tok = self.gpt_chat(input_kb_exemplars)
+        response, pr_tok, com_tok = self.gpt_chat(
+            input_kb_exemplars, temperature=EXAMPLE_TEMP, top_p=EXAMPLE_P)
         item['api_calls'] = item.get('api_calls', 0) + 1
 
         # Step 2: Post process response
@@ -51,7 +57,6 @@ class MapCoder(BaseStrategy):
         plannings, pr_tok, com_tok = self.generate_plannings(item, response, algorithm_prompt, sample_io_prompt, pr_tok, com_tok)
 
         # Step 5: Sort plannings by confidence and generate code
-        plannings.sort(key=lambda x: x[1], reverse=True)
         code, pr_tok, com_tok = self.generate_final_code(item, plannings, algorithm_prompt, sample_io_prompt, pr_tok, com_tok)
         write_debug(code, 'code')
 
@@ -112,7 +117,8 @@ class MapCoder(BaseStrategy):
             print(f"Input for our problem planning using example {example_no}: ")
             print(input_for_problem_planning[0]['content'], flush=True)
 
-            planning, pr_tok_1, com_tok_1 = self.gpt_chat(input_for_problem_planning)
+            planning, pr_tok_1, com_tok_1 = self.gpt_chat(
+                input_for_problem_planning, temperature=PLANNING_TEMP, top_p=PLANNING_P)
             item['api_calls'] += 1
             pr_tok += pr_tok_1
             com_tok += com_tok_1
@@ -175,7 +181,8 @@ class MapCoder(BaseStrategy):
             print("Input for final code generation: ")
             print(input_for_final_code_generation[0]['content'], flush=True)
 
-            code, pr_tok_1, com_tok_1 = self.gpt_chat(input_for_final_code_generation)
+            code, pr_tok_1, com_tok_1 = self.gpt_chat(
+                input_for_final_code_generation, temperature=CODE_TEMP, top_p=CODE_P)
             item['api_calls'] += 1
             code = utils.parse_code(code)
             pr_tok += pr_tok_1
@@ -231,7 +238,8 @@ class MapCoder(BaseStrategy):
         print("Input for improving code generation: ")
         print(input_for_code_improvement[0]['content'], flush=True)
 
-        response, _, _ = self.gpt_chat(input_for_code_improvement)
+        response, _, _ = self.gpt_chat(input_for_code_improvement,
+                                       temperature=IMPROVEMENT_TEMP, top_p=IMPROVEMENT_P)
         item['api_calls'] += 1
         code = utils.parse_code(response)
 

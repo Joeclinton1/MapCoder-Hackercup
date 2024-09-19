@@ -54,7 +54,7 @@ class OllamaBaseModel(BaseModel):
             # "num_ctx": 8192
         }
 
-    def prompt(self, processed_input: list[dict]):
+    def prompt(self, processed_input: list[dict], **kwargs):
         """
         Ollama API implementation.
 
@@ -90,7 +90,7 @@ class OllamaBaseModel(BaseModel):
         payload = {
             "model": self.model_name,
             "prompt": prompt,
-            "options": self.model_params,
+            "options": self.model_params.update(kwargs),
             "stream": False
         }
 
