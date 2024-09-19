@@ -196,7 +196,7 @@ class MapCoder(BaseStrategy):
         passed = False
         for i in range(1, self.t + 1):
             passed, test_log = self.data.evaluate_sample_io(item, code, self.language)
-            write_debug(dict(passed=passed, code=code), 'improvement')
+            write_debug(dict(passed=passed, feedback=test_log, code=code), 'improvement')
 
             if passed == 1.0:
                 break
