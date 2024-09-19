@@ -51,6 +51,7 @@ class OllamaBaseModel(BaseModel):
             "num_predict": max_tokens,
             "frequency_penalty": frequency_penalty,
             "presence_penalty": presence_penalty,
+            # "num_ctx": 8192
         }
 
     def prompt(self, processed_input: list[dict]):
@@ -100,9 +101,9 @@ class OllamaBaseModel(BaseModel):
 
         # Extract the response content
         response_content = data.get("response", "")
-        with open("./debug.txt", "w") as f:
-            # logging
-            f.write(response_content)
+        # with open("./debug.txt", "w") as f:
+        #     # logging
+        #     f.write(response_content)
         # Extract token counts
         prompt_tokens = data.get("prompt_eval_count", 0)
         completion_tokens = data.get("eval_count", 0)
