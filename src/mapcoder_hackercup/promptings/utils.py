@@ -48,8 +48,9 @@ def parse_xml(response: str) -> dict:
 
 
 def parse_code(response: str) -> str:
+    response = response.strip()
     if "```" not in response:
-        return response.strip()
+        return response
 
     code_pattern = r'```((.|\n)*?)```'
     if "```Python" in response:
@@ -64,6 +65,8 @@ def parse_code(response: str) -> str:
         code_pattern = r'```C((.|\n)*?)```'
     if "```c" in response:
         code_pattern = r'```c((.|\n)*?)```'
+    if "```cpp" in response:
+        code_pattern = r'```cpp((.|\n)*?)```'
     if "```C++" in response:
         code_pattern = r'```C\+\+((.|\n)*?)```'
     if "```c++" in response:
