@@ -94,7 +94,15 @@ def xcode_execute_internal_test(
 
     return passed, feedback
 
-
+def score_output_cases(output, expected_output):
+    passed = 0
+    failed = 0
+    for i, (x, y) in enumerate(zip(output.split('\n'), expected_output.split('\n'))):
+        if x == y:
+            passed += 1
+        else:
+            failed += 1
+    return passed / (passed + failed)
 def contest_evaluate(
     generated_code: str,
     lang: str,
@@ -112,16 +120,13 @@ def contest_evaluate(
     )
 
     if results == "error":
-        return False
+        return "error" # False
 
-    passed = True
-    for result in results:
-        if result['exec_outcome'] != ExecOutcome.PASSED.value:
-            passed = False
-            break
-
-    return passed
-
+    if results[0]['exec_outcome'] == ExecOutcome.PASSED.value:
+        return True
+    elif results[0]['exec_outcome'] == ExecOutcome.WRONG_ANSWER.value:
+        return score_output_cases(results[0]['result'], tests[0]["output"][0])
+    return False
 
 def contest_evaluate_public_tests(
     generated_code: str,
@@ -138,33 +143,14 @@ def contest_evaluate_public_tests(
         stop_on_first_fail=False
     )
 
-    passed = True
-    passed_feedback = []
-    failed_feedback = []
+    input = tests[0]['input']
+    expected_output = tests[0]['output'][0]
+    output = results[0]['result']
 
-    idx = 0
-    try:
-        for idx, result in enumerate(results):
-            output = str(result['result'])
-            if len(output) > 500:
-                output = output[:500] + "..."
-            test_case = f"Input:\n{tests[idx]['input']}\nExpected Output:\n{tests[idx]['output'][0]}\nYour Output:\n{output}\n"
-            if result['exec_outcome'] == ExecOutcome.PASSED.value:
-                passed_feedback.append(test_case)
-            if result['exec_outcome'] != ExecOutcome.PASSED.value:
-                failed_feedback.append(test_case)
-                passed = False
-    except:
-        passed = False
-        test_cases = []
-        for i in range(idx, len(tests)):
-            test_case = f"Input:\n{tests[i]['input']}\nExpected Output:\n{tests[i]['output'][0]}\n"
-            test_cases.append(test_case)
-        
-        failed_feedback.extend(test_cases)
-
-    passed_feedback = '\n'.join(passed_feedback) if len(passed_feedback) > 0 else "No test cases passed."
-    failed_feedback = '\n'.join(failed_feedback)
-    feedback = f'## Tested passed:\n{passed_feedback}\n\n## Tests failed:\n{failed_feedback}'
-
-    return len(passed_feedback) / (len(passed_feedback) + len(failed_feedback)), feedback
+    if results[0]['exec_outcome'] == ExecOutcome.PASSED.value:
+        return 1, "All tests passed!"
+    elif results[0]['exec_outcome'] == ExecOutcome.WRONG_ANSWER.value:
+        score = score_output_cases(output, expected_output)
+        feedback = f"Wrong Solution.\n Input:\n{input}\nExpected Output:\n{expected_output}\nYour output:\n{output}"
+        return score, feedback
+    return 0, f"Program Failed with error: `{output}`, Error Type: {results[0]['exec_outcome']}"

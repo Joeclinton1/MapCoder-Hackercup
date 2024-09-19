@@ -149,8 +149,6 @@ class BaseStrategy(object):
                     f'completed {i+1}/{num_items}, '
                     f'Solved: {self.results[i]["is_solved"]},'
                     f'Solved Sample: {any(self.results[i]["is_solved_sample"])}, '
-                    f'number of success = {num_success}/{i+1}, '
-                    f'acc = {round(num_success/(i+1)*100, 2)}'
                 )
 
             # break
