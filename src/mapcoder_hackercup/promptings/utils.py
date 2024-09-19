@@ -49,7 +49,7 @@ def parse_xml(response: str) -> dict:
 
 def parse_code(response: str) -> str:
     if "```" not in response:
-        return response
+        return response.strip()
 
     code_pattern = r'```((.|\n)*?)```'
     if "```Python" in response:
@@ -108,7 +108,7 @@ def parse_code(response: str) -> str:
     else:
         code_str = response
 
-    return code_str
+    return code_str.strip()
 
 
 def trim_text(text: str, trimmed_text: str):
