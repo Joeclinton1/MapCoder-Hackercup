@@ -62,7 +62,7 @@ problem_planning_input:
 verification_input:
   content: |
     Given a competitive programming problem and a plan to solve the problem in {language}, tell whether the plan is correct to solve this problem.
-    
+    Determine if it meets time and memory complexity constraints and will pass test cases.
     # Problem:
     {problem_prompt}
     # Planning:
