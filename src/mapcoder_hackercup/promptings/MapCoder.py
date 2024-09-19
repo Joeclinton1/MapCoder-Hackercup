@@ -193,19 +193,23 @@ class MapCoder(BaseStrategy):
 
     def run_sample_tests(self, item, code, algorithm_prompt):
         """Run the sample test cases on the generated code."""
-        passed = False
-        for i in range(1, self.t + 1):
-            passed, test_log = self.data.evaluate_sample_io(item, code, self.language)
-            write_debug(dict(passed=passed, feedback=test_log, code=code), 'improvement')
+        best_score, best_code = 0.0, ""
 
-            if passed == 1.0:
+        for i in range(1, self.t + 1):
+            score, test_log = self.data.evaluate_sample_io(item, code, self.language)
+            write_debug(dict(score=score, feedback=test_log, code=code), 'improvement')
+
+            if score > best_score:
+                best_score, best_code = score, code
+
+            if score == 1.0:
                 break
             print(f"Test case failed. Attempt {i} - test log: ")
             print(test_log, flush=True)
 
             code = self.improve_code(item, code, test_log, algorithm_prompt)
 
-        return passed, code
+        return best_score, best_code
 
     def improve_code(self, item, code, test_log, algorithm_prompt):
         """Improve the generated code based on test case failures."""
