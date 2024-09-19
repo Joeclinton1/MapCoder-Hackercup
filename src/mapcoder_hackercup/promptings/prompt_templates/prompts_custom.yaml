@@ -1,11 +1,16 @@
 kb_exemplars:
   content: |
-    Given a problem, provide relevant problems then identify the algorithm behind it and also explain the tutorial of the algorithm.
+    Given the below problem, provide 3 relevant and varied competitive coding problem examples, then for each identify the algorithm behind it and also explain the tutorial of the algorithm.
+    These problems should have appeared previously in competitive coding competitions like codeforces, google code jam, meta hackercup.
+    Make sure they are very relevant to the below problem with each distinct and varied.
+
     # Problem:
     {problem_prompt}
 
     # Exemplars:
-    Recall {mapping_k} relevant and distinct problems (different from problem mentioned above). For each problem:
+    Recall {mapping_k} relevant and distinct problems (different from problem mentioned above).
+    These problems should have appeared previously in competitive coding competitions like codeforces, google code jam, meta hackercup. 
+    Make sure they require the same algorithm logic as the problem above. Try to make each successive example, better than the previous and different. For each problem:
     1. describe it
     2. generate {language} code step by step to solve that problem
     3. finally generate a planning to solve that problem
