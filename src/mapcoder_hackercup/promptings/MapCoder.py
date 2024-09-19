@@ -185,7 +185,7 @@ class MapCoder(BaseStrategy):
             print("Response from final code generation: ")
             print(code, flush=True)
 
-            passed = self.run_sample_tests(item, code, algorithm_prompt)
+            passed, code = self.run_sample_tests(item, code, algorithm_prompt)
             if passed:
                 write_debug(code, 'code')
                 return code, pr_tok, com_tok
@@ -205,7 +205,7 @@ class MapCoder(BaseStrategy):
 
             code = self.improve_code(item, code, test_log, algorithm_prompt)
 
-        return passed
+        return passed, code
 
     def improve_code(self, item, code, test_log, algorithm_prompt):
         """Improve the generated code based on test case failures."""
