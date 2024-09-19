@@ -105,7 +105,7 @@ python -m mapcoder_hackercup --model Codestral --problem_ids ready_go_part_2
 
 5. To run map coder with Local model on all problems with a different temperature and top p each stage
 ```
-python -m mapcoder_hackercup --model Local --temperature 0.7 0.6 0 -- top_p 0.7 0.8 1
+python -m mapcoder_hackercup --model Local --temperature 0.7 0.6 0 --top_p 0.7 0.8 1
 ```
 
 ## Citation
