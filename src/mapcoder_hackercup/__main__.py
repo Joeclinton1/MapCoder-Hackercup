@@ -34,6 +34,7 @@ parser.add_argument(
         "CoT",
         "MapCoder",
         "Custom",
+        "CodeGenOnly"
     ]
 )
 parser.add_argument(
