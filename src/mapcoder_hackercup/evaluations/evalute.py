@@ -120,13 +120,13 @@ def contest_evaluate(
     )
 
     if results == "error":
-        return "error" # False
+        return "error"
 
     if results[0]['exec_outcome'] == ExecOutcome.PASSED.value:
         return True
     elif results[0]['exec_outcome'] == ExecOutcome.WRONG_ANSWER.value:
         return score_output_cases(results[0]['result'], tests[0]["output"][0])
-    return False
+    return results[0]['exec_outcome']
 
 def contest_evaluate_public_tests(
     generated_code: str,
