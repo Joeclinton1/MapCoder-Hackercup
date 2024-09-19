@@ -32,15 +32,9 @@ def process_dataset(dataset, dataset_name, output_filename):
             count_errors += 1
             continue
 
-        # Process sample test cases
+        # Process sample test cases and full test cases
         sample_io = [get_test_cases(item['sample_input'], item['sample_output'])]
-
-        # Process full test cases (now renamed to test_list)
-        test_list = {
-            "input": item['input'],
-            "solution": item['solution'],
-            "output": item['output']
-        }
+        test_list = [get_test_cases(item['input'], item['output'])]
 
         processed_item = {
             "name": item['name'],
