@@ -32,7 +32,7 @@ class CodeGenOnly(MapCoder):
 
         sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}\n"
         plannings = [[plan,None,None]]
-        code, pr_tok, com_tok = self.generate_final_code(item, plannings, algorithm_prompt, sample_io_prompt, 0, 0)
+        code = self.generate_final_code(item, plannings, algorithm_prompt, sample_io_prompt, 0, 0)
 
         print("________________________\n\n", flush=True)
-        return code, pr_tok, com_tok
+        return code, self.pr_tok, self.com_tok

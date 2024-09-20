@@ -22,24 +22,26 @@ class MapCoder(BaseStrategy):
         self.k = k
         self.t = t
         self.prompts = utils.load_prompts(prompts_file)
+        self.pr_tok = 0
+        self.com_tok = 0
 
     def run_single_pass(self, item: dict):
         print("", flush=True)
 
         # Step 1: Generate KB exemplars and algorithm
-        response, pr_tok, com_tok = self.generate_kb_exemplars_and_algorithm(item)
+        response = self.generate_kb_exemplars_and_algorithm(item)
 
         # Step 2: Generate plannings based on examples and sort by confidence
         sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}\n"
         algorithm_prompt = f"## Relevant Algorithm to solve the next problem:\n{response['algorithm']}"
-        plannings, pr_tok, com_tok = self.generate_plannings(item, response, algorithm_prompt, sample_io_prompt, pr_tok, com_tok)
+        plannings = self.generate_plannings(item, response, algorithm_prompt, sample_io_prompt)
         plannings.sort(key=lambda x: x[1], reverse=True)
 
         # Step 3: For each planning generate code. Iteratively improve code until it passes samples cases.
-        code, pr_tok, com_tok = self.generate_final_code(item, plannings, algorithm_prompt, sample_io_prompt, pr_tok, com_tok)
+        code = self.generate_final_code(item, plannings, algorithm_prompt, sample_io_prompt)
 
         print("________________________\n\n", flush=True)
-        return code, pr_tok, com_tok
+        return code, self.pr_tok, self.com_tok
 
     def generate_kb_exemplars_and_algorithm(self, item):
         """Create input for knowledge base and exemplars using YAML template."""
@@ -50,12 +52,12 @@ class MapCoder(BaseStrategy):
         )
 
         utils.log("Input for knowledge base and exemplars: ", kb_exemplar_input)
-        response, pr_tok, com_tok = self.chat(kb_exemplar_input, item)
+        response = self.chat(kb_exemplar_input, item)
         response = self.post_process_response(response)
         utils.log("Response from knowledge base and exemplars: ", response)
         response = utils.parse_xml(response)
 
-        return response,  pr_tok, com_tok
+        return response
 
     def post_process_response(self, response):
         """Trim and format the response XML."""
@@ -69,7 +71,7 @@ class MapCoder(BaseStrategy):
         response = utils.replace_tag(response, 'planning')
         return response
 
-    def generate_plannings(self, item, response, algorithm_prompt, sample_io_prompt, pr_tok, com_tok):
+    def generate_plannings(self, item, response, algorithm_prompt, sample_io_prompt):
         """Generate planning using exemplars and verify confidence."""
         plannings = []
         for example_no, example in enumerate(response["problem"], start=1):
@@ -88,9 +90,7 @@ class MapCoder(BaseStrategy):
             )
 
             utils.log("Input for our problem planning using example {example_no}:", input_for_problem_planning)
-            planning, pr_tok_1, com_tok_1 = self.chat(input_for_problem_planning, item)
-            pr_tok += pr_tok_1
-            com_tok += com_tok_1
+            planning = self.chat(input_for_problem_planning, item)
 
             utils.log(f"Response from our problem planning (example {example_no}): ",planning)
 
@@ -100,7 +100,7 @@ class MapCoder(BaseStrategy):
 
             plannings.append((planning, verification_res['confidence'], example))
 
-        return plannings, pr_tok, com_tok
+        return plannings
 
     def verify_planning(self, item, planning):
         """Verify if the generated planning is correct and obtain confidence."""
@@ -131,10 +131,8 @@ class MapCoder(BaseStrategy):
             )
 
             utils.log("Input for final code generation:", input_for_final_code_generation)
-            code, pr_tok_1, com_tok_1 = self.chat(input_for_final_code_generation, item)
+            code = self.chat(input_for_final_code_generation, item)
             code = utils.parse_code(code)
-            pr_tok += pr_tok_1
-            com_tok += com_tok_1
             utils.log("Response from final code generation: ", code)
 
             score, code = self.run_sample_tests(item, code, algorithm_prompt)
@@ -144,10 +142,10 @@ class MapCoder(BaseStrategy):
 
             if score == 1.0:
                 write_debug(code, 'code')
-                return code, pr_tok, com_tok
+                return code
 
         write_debug(best_code, 'code')
-        return best_code, pr_tok, com_tok
+        return best_code
 
     def run_sample_tests(self, item, code, algorithm_prompt):
         """Run the sample test cases on the generated code."""
@@ -189,4 +187,10 @@ class MapCoder(BaseStrategy):
 
     def chat(self, input: str, item: dict, **kwargs) -> (str, int, int):
         item['api_calls'] = item.get('api_calls', 0) + 1
-        return self.model.prompt( processed_input= [{"role": "user","content": input}], **kwargs)
+        response, pr_tok, com_tok = self.model.prompt(
+            processed_input= [{"role": "user","content": input}],
+            **kwargs
+        )
+        self.pr_tok += pr_tok
+        self.com_tok += com_tok
+        return response

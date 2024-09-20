@@ -20,21 +20,21 @@ class Custom(MapCoder):
 
         # Step 1: Generate KB exemplars and algorithm
         self.update_temp_topp_param(0)
-        response, pr_tok, com_tok = self.generate_kb_exemplars_and_algorithm(item)
+        response = self.generate_kb_exemplars_and_algorithm(item)
 
         # Step 2: Generate plannings based on examples and sort by confidence
         self.update_temp_topp_param(1)
         sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}\n"
         algorithm_prompt = f"## Relevant Algorithm to solve the next problem:\n{response['algorithm']}"
-        plannings, pr_tok, com_tok = self.generate_plannings(item, response, algorithm_prompt, sample_io_prompt, pr_tok, com_tok)
+        plannings = self.generate_plannings(item, response, algorithm_prompt, sample_io_prompt)
         plannings.sort(key=lambda x: x[1], reverse=True)
 
         # Step 3: For each planning generate code. Iteratively improve code until it passes samples cases.
         self.update_temp_topp_param(2)
-        code, pr_tok, com_tok = self.generate_final_code(item, plannings, algorithm_prompt, sample_io_prompt, pr_tok, com_tok)
+        code = self.generate_final_code(item, plannings, algorithm_prompt, sample_io_prompt)
 
         print("________________________\n\n", flush=True)
-        return code, pr_tok, com_tok
+        return code, self.pr_tok, self.com_tok
 
     def update_temp_topp_param(self, stage):
         params = {}
