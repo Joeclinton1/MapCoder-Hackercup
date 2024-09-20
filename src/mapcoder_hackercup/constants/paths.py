@@ -16,3 +16,8 @@ HACKERCUP_DATA_PATH_SAMPLE =join(
     HACKERCUP_DATA_DIR,
     "hackercup_processed_sample.jsonl",
 )
+
+LIVE_DATA_DIR = join(
+    DATA_DIR,
+    "Live",
+)

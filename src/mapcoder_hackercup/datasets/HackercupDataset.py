@@ -35,7 +35,7 @@ class HackercupDataset(Dataset):
             generated_code=cur_imp,
             id=item[self.id_key],
             tests=item["sample_io"],
-            lang=language
+            lang=language,
         )
 
     @staticmethod

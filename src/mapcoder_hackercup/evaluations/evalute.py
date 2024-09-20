@@ -103,6 +103,30 @@ def score_output_cases(output, expected_output):
         else:
             failed += 1
     return passed / (passed + failed)
+
+
+def generate_output(
+    generated_code: str,
+    lang: str,
+    id: int,
+    stdin: str,
+):
+    assert lang in LANGUAGE_MAPPING, f"language must be inside the supported language list: {LANGUAGE_MAPPING.keys()}"
+
+    results, _, _ = api_comm.execute_code(
+        language=LANGUAGE_MAPPING[lang],
+        source_code=generated_code,
+        unittests=[dict(input=stdin, output='')],
+        limits=limits_by_lang[LANGUAGE_MAPPING[lang]],
+        task_id=id
+    )
+
+    if results == "error":
+        return "error"
+
+    return '\n'.join(results['output'])
+
+
 def contest_evaluate(
     generated_code: str,
     lang: str,
@@ -127,6 +151,7 @@ def contest_evaluate(
     elif results[0]['exec_outcome'] == ExecOutcome.WRONG_ANSWER.value:
         return score_output_cases(results[0]['result'], tests[0]["output"][0])
     return results[0]['exec_outcome']
+
 
 def contest_evaluate_public_tests(
     generated_code: str,
