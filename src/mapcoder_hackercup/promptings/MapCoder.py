@@ -26,44 +26,36 @@ class MapCoder(BaseStrategy):
     def run_single_pass(self, item: dict):
         print("", flush=True)
 
-        # Step 1: Create KB exemplars
-        input_kb_exemplars = self.create_kb_exemplars(item)
-        utils.log("Input for knowledge base and exemplars: ", input_kb_exemplars[0]['content'])
+        # Step 1: Generate KB exemplars and algorithm
+        response, pr_tok, com_tok = self.generate_kb_exemplars_and_algorithm(item)
 
-        response, pr_tok, com_tok = self.gpt_chat(input_kb_exemplars, item)
-
-        # Step 2: Post process response
-        response = self.post_process_response(response)
-        utils.log("Response from knowledge base and exemplars: ", response)
-
-        # Step 3: Parse XML and generate algorithm prompt
-        response = utils.parse_xml(response)
-        algorithm_prompt = f"## Relevant Algorithm to solve the next problem:\n{response['algorithm']}"
+        # Step 2: Generate plannings based on examples and sort by confidence
         sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}\n"
-
-        # Step 4: Generate plannings based on examples
+        algorithm_prompt = f"## Relevant Algorithm to solve the next problem:\n{response['algorithm']}"
         plannings, pr_tok, com_tok = self.generate_plannings(item, response, algorithm_prompt, sample_io_prompt, pr_tok, com_tok)
+        plannings.sort(key=lambda x: x[1], reverse=True)
 
-        # Step 5: Sort plannings by confidence and generate code
+        # Step 3: For each planning generate code. Iteratively improve code until it passes samples cases.
         code, pr_tok, com_tok = self.generate_final_code(item, plannings, algorithm_prompt, sample_io_prompt, pr_tok, com_tok)
-        write_debug(code, 'code')
 
         print("________________________\n\n", flush=True)
         return code, pr_tok, com_tok
 
-    def create_kb_exemplars(self, item):
+    def generate_kb_exemplars_and_algorithm(self, item):
         """Create input for knowledge base and exemplars using YAML template."""
-        kb_exemplar_template = self.prompts['kb_exemplars']['content']
-        return [
-            {
-                "role": "user",
-                "content": kb_exemplar_template.format(
-                    problem_prompt=self.data.get_prompt(item),
-                    mapping_k=self.k,
-                    language=self.language
-                )
-            },
-        ]
+        kb_exemplar_input = self.prompts['kb_exemplars']['content'].format(
+            problem_prompt=self.data.get_prompt(item),
+            mapping_k=self.k,
+            language=self.language
+        )
+
+        utils.log("Input for knowledge base and exemplars: ", kb_exemplar_input)
+        response, pr_tok, com_tok = self.chat(kb_exemplar_input, item)
+        response = self.post_process_response(response)
+        utils.log("Response from knowledge base and exemplars: ", response)
+        response = utils.parse_xml(response)
+
+        return response,  pr_tok, com_tok
 
     def post_process_response(self, response):
         """Trim and format the response XML."""
@@ -87,26 +79,16 @@ class MapCoder(BaseStrategy):
             write_debug(dict(
                 no=example_no, description=example_problem, plan=example_planning), 'exemplar')
 
-            # Generate problem planning input using YAML template
-            input_for_problem_planning = [
-                {
-                    "role": "user",
-                    "content": self.prompts['problem_planning_input']['content'].format(
-                        example_problem=example_problem,
-                        example_planning=example_planning,
-                        algorithm_prompt=algorithm_prompt,
-                        problem_prompt=self.data.get_prompt(item),
-                        sample_io_prompt=sample_io_prompt
-                    )
-                }
-            ]
-
-            utils.log(
-                "Input for our problem planning using example {example_no}:",
-                input_for_problem_planning[0]['content']
+            input_for_problem_planning = self.prompts['problem_planning_input']['content'].format(
+                example_problem=example_problem,
+                example_planning=example_planning,
+                algorithm_prompt=algorithm_prompt,
+                problem_prompt=self.data.get_prompt(item),
+                sample_io_prompt=sample_io_prompt
             )
 
-            planning, pr_tok_1, com_tok_1 = self.gpt_chat(input_for_problem_planning, item)
+            utils.log("Input for our problem planning using example {example_no}:", input_for_problem_planning)
+            planning, pr_tok_1, com_tok_1 = self.chat(input_for_problem_planning, item)
             pr_tok += pr_tok_1
             com_tok += com_tok_1
 
@@ -122,18 +104,14 @@ class MapCoder(BaseStrategy):
 
     def verify_planning(self, item, planning):
         """Verify if the generated planning is correct and obtain confidence."""
-        input_for_verification = [
-            {
-                "role": "user",
-                "content": self.prompts['verification_input']['content'].format(
-                    language=self.language,
-                    problem_prompt=self.data.get_prompt(item),
-                    planning=planning
-                )
-            }
-        ]
-        utils.log("Input for planning verification: ", input_for_verification[0]['content'])
-        verification_res, _, _ = self.gpt_chat(input_for_verification, item)
+        input_for_verification = self.prompts['verification_input']['content'].format(
+            language=self.language,
+            problem_prompt=self.data.get_prompt(item),
+            planning=planning
+        )
+
+        utils.log("Input for planning verification: ", input_for_verification)
+        verification_res, _, _ = self.chat(input_for_verification, item)
 
         verification_res = utils.parse_xml(utils.replace_tag(verification_res, 'confidence'))
         return verification_res
@@ -143,22 +121,17 @@ class MapCoder(BaseStrategy):
 
         best_score, best_code = 0.0, ""
         for planning, confidence, example in plannings:
-            input_for_final_code_generation = [
-                {
-                    "role": "user",
-                    "content": self.prompts['code_generation_input']['content'].format(
-                        language=self.language,
-                        algorithm_prompt=algorithm_prompt,
-                        problem_prompt=self.data.get_prompt(item),
-                        planning=planning,
-                        sample_io_prompt=sample_io_prompt,
-                        std_input_prompt=self.prompts['std_input_prompt']['content']
-                    )
-                }
-            ]
+            input_for_final_code_generation = self.prompts['code_generation_input']['content'].format(
+                language=self.language,
+                algorithm_prompt=algorithm_prompt,
+                problem_prompt=self.data.get_prompt(item),
+                planning=planning,
+                sample_io_prompt=sample_io_prompt,
+                std_input_prompt=self.prompts['std_input_prompt']['content']
+            )
 
-            utils.log("Input for final code generation:", input_for_final_code_generation[0]['content'])
-            code, pr_tok_1, com_tok_1 = self.gpt_chat(input_for_final_code_generation, item)
+            utils.log("Input for final code generation:", input_for_final_code_generation)
+            code, pr_tok_1, com_tok_1 = self.chat(input_for_final_code_generation, item)
             code = utils.parse_code(code)
             pr_tok += pr_tok_1
             com_tok += com_tok_1
@@ -173,6 +146,7 @@ class MapCoder(BaseStrategy):
                 write_debug(code, 'code')
                 return code, pr_tok, com_tok
 
+        write_debug(best_code, 'code')
         return best_code, pr_tok, com_tok
 
     def run_sample_tests(self, item, code, algorithm_prompt):
@@ -197,28 +171,22 @@ class MapCoder(BaseStrategy):
 
     def improve_code(self, item, code, test_log, algorithm_prompt):
         """Improve the generated code based on test case failures."""
-        input_for_code_improvement = [
-            {
-                "role": "user",
-                "content": self.prompts['code_improvement_input']['content'].format(
-                    language=self.language,
-                    algorithm_prompt=algorithm_prompt,
-                    problem_prompt=self.data.get_prompt(item),
-                    test_log=test_log,
-                    response=code,
-                    std_input_prompt=self.prompts['std_input_prompt']['content']
-                )
-            }
-        ]
+        input_for_code_improvement = self.prompts['code_improvement_input']['content'].format(
+            language=self.language,
+            algorithm_prompt=algorithm_prompt,
+            problem_prompt=self.data.get_prompt(item),
+            test_log=test_log,
+            response=code,
+            std_input_prompt=self.prompts['std_input_prompt']['content']
+        )
 
-        utils.log("Input for improving code generation: ", input_for_code_improvement[0]['content'])
-
-        response, _, _ = self.gpt_chat(input_for_code_improvement, item)
+        utils.log("Input for improving code generation: ", input_for_code_improvement)
+        response, _, _ = self.chat(input_for_code_improvement, item)
         code = utils.parse_code(response)
         utils.log("Response from improving code generation: ", response)
 
         return code
 
-    def gpt_chat(self, processed_input: List[dict], item: dict, **kwargs) -> (str, int, int):
+    def chat(self, input: str, item: dict, **kwargs) -> (str, int, int):
         item['api_calls'] = item.get('api_calls', 0) + 1
-        return self.model.prompt(processed_input=processed_input, **kwargs)
+        return self.model.prompt( processed_input= [{"role": "user","content": input}], **kwargs)

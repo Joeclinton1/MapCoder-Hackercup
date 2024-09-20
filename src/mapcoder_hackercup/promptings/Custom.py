@@ -18,30 +18,20 @@ class Custom(MapCoder):
     def run_single_pass(self, item: dict):
         print("", flush=True)
 
-        # Step 1a: Generate KB exemplars
+        # Step 1: Generate KB exemplars and algorithm
         self.update_temp_topp_param(0)
-        input_kb_exemplars = self.create_kb_exemplars(item)
-        utils.log("Input for knowledge base and exemplars: ", input_kb_exemplars[0]['content'])
-        response, pr_tok, com_tok = self.gpt_chat(input_kb_exemplars, item)
+        response, pr_tok, com_tok = self.generate_kb_exemplars_and_algorithm(item)
 
-        # Step 1b: Post process KB response
+        # Step 2: Generate plannings based on examples and sort by confidence
         self.update_temp_topp_param(1)
-        response = self.post_process_response(response)
-        utils.log("Response from knowledge base and exemplars: ", response)
-        response = utils.parse_xml(response)
-        algorithm_prompt = f"## Relevant Algorithm to solve the next problem:\n{response['algorithm']}"
         sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}\n"
-
-        # Step 2: Generate plannings and confidences based on examples
-        self.update_temp_topp_param(1)
-        plannings, pr_tok, com_tok = self.generate_plannings(item, response, algorithm_prompt, sample_io_prompt, pr_tok,
-                                                             com_tok)
+        algorithm_prompt = f"## Relevant Algorithm to solve the next problem:\n{response['algorithm']}"
+        plannings, pr_tok, com_tok = self.generate_plannings(item, response, algorithm_prompt, sample_io_prompt, pr_tok, com_tok)
         plannings.sort(key=lambda x: x[1], reverse=True)
 
         # Step 3: For each planning generate code. Iteratively improve code until it passes samples cases.
         self.update_temp_topp_param(2)
-        code, pr_tok, com_tok = self.generate_final_code(item, plannings, algorithm_prompt, sample_io_prompt, pr_tok,
-                                                         com_tok)
+        code, pr_tok, com_tok = self.generate_final_code(item, plannings, algorithm_prompt, sample_io_prompt, pr_tok, com_tok)
 
         print("________________________\n\n", flush=True)
         return code, pr_tok, com_tok
