@@ -4,6 +4,7 @@ import time
 from . import utils
 from .Base import BaseStrategy
 from ..results import write_debug
+from typing import List
 
 # Path to the prompts YAML file
 cwd = os.path.dirname(os.path.abspath(__file__))
@@ -27,19 +28,13 @@ class MapCoder(BaseStrategy):
 
         # Step 1: Create KB exemplars
         input_kb_exemplars = self.create_kb_exemplars(item)
-        print("\n\n________________________")
-        print("Input for knowledge base and exemplars: ")
-        print(input_kb_exemplars[0]['content'], flush=True)
+        utils.log("Input for knowledge base and exemplars: ", input_kb_exemplars[0]['content'])
 
-        response, pr_tok, com_tok = self.gpt_chat(input_kb_exemplars)
-        item['api_calls'] = item.get('api_calls', 0) + 1
+        response, pr_tok, com_tok = self.gpt_chat(input_kb_exemplars, item)
 
         # Step 2: Post process response
         response = self.post_process_response(response)
-
-        print("\n\n________________________")
-        print("Response from knowledge base and exemplars: ")
-        print(response, flush=True)
+        utils.log("Response from knowledge base and exemplars: ", response)
 
         # Step 3: Parse XML and generate algorithm prompt
         response = utils.parse_xml(response)
@@ -106,24 +101,19 @@ class MapCoder(BaseStrategy):
                 }
             ]
 
-            print("\n\n________________________")
-            print(f"Input for our problem planning using example {example_no}: ")
-            print(input_for_problem_planning[0]['content'], flush=True)
+            utils.log(
+                "Input for our problem planning using example {example_no}:",
+                input_for_problem_planning[0]['content']
+            )
 
-            planning, pr_tok_1, com_tok_1 = self.gpt_chat(input_for_problem_planning)
-            item['api_calls'] += 1
+            planning, pr_tok_1, com_tok_1 = self.gpt_chat(input_for_problem_planning, item)
             pr_tok += pr_tok_1
             com_tok += com_tok_1
 
-            print("\n\n________________________")
-            print(f"Response from our problem planning (example {example_no}): ")
-            print(planning, flush=True)
+            utils.log(f"Response from our problem planning (example {example_no}): ",planning)
 
             verification_res = self.verify_planning(item, planning)
-            print("\n\n________________________")
-            print(f"Response from planning verification (example {example_no}): ")
-            print(verification_res, flush=True)
-
+            utils.log("Response from planning verification (example {example_no}): ", verification_res)
             write_debug(dict(confidence=verification_res['confidence'], plan=planning), 'planning')
 
             plannings.append((planning, verification_res['confidence'], example))
@@ -142,11 +132,8 @@ class MapCoder(BaseStrategy):
                 )
             }
         ]
-        print("Input for planning verification: ")
-        print(input_for_verification[0]['content'], flush=True)
-
-        verification_res, _, _ = self.gpt_chat(input_for_verification)
-        item['api_calls'] += 1
+        utils.log("Input for planning verification: ", input_for_verification[0]['content'])
+        verification_res, _, _ = self.gpt_chat(input_for_verification, item)
 
         verification_res = utils.parse_xml(utils.replace_tag(verification_res, 'confidence'))
         return verification_res
@@ -170,19 +157,12 @@ class MapCoder(BaseStrategy):
                 }
             ]
 
-            print("\n\n________________________")
-            print("Input for final code generation: ")
-            print(input_for_final_code_generation[0]['content'], flush=True)
-
-            code, pr_tok_1, com_tok_1 = self.gpt_chat(input_for_final_code_generation)
-            item['api_calls'] += 1
+            utils.log("Input for final code generation:", input_for_final_code_generation[0]['content'])
+            code, pr_tok_1, com_tok_1 = self.gpt_chat(input_for_final_code_generation, item)
             code = utils.parse_code(code)
             pr_tok += pr_tok_1
             com_tok += com_tok_1
-
-            print("\n\n________________________")
-            print("Response from final code generation: ")
-            print(code, flush=True)
+            utils.log("Response from final code generation: ", code)
 
             score, code = self.run_sample_tests(item, code, algorithm_prompt)
 
@@ -231,16 +211,14 @@ class MapCoder(BaseStrategy):
             }
         ]
 
-        print("\n\n________________________")
-        print("Input for improving code generation: ")
-        print(input_for_code_improvement[0]['content'], flush=True)
+        utils.log("Input for improving code generation: ", input_for_code_improvement[0]['content'])
 
-        response, _, _ = self.gpt_chat(input_for_code_improvement)
-        item['api_calls'] += 1
+        response, _, _ = self.gpt_chat(input_for_code_improvement, item)
         code = utils.parse_code(response)
-
-        print("\n\n________________________")
-        print("Response from improving code generation: ")
-        print(response, flush=True)
+        utils.log("Response from improving code generation: ", response)
 
         return code
+
+    def gpt_chat(self, processed_input: List[dict], item: dict, **kwargs) -> (str, int, int):
+        item['api_calls'] = item.get('api_calls', 0) + 1
+        return self.model.prompt(processed_input=processed_input, **kwargs)

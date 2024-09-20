@@ -21,18 +21,13 @@ class Custom(MapCoder):
         # Step 1a: Generate KB exemplars
         self.update_temp_topp_param(0)
         input_kb_exemplars = self.create_kb_exemplars(item)
-        print("\n\n________________________")
-        print("Input for knowledge base and exemplars: ")
-        print(input_kb_exemplars[0]['content'], flush=True)
-        response, pr_tok, com_tok = self.gpt_chat(input_kb_exemplars)
-        item['api_calls'] = item.get('api_calls', 0) + 1
+        utils.log("Input for knowledge base and exemplars: ", input_kb_exemplars[0]['content'])
+        response, pr_tok, com_tok = self.gpt_chat(input_kb_exemplars, item)
 
         # Step 1b: Post process KB response
         self.update_temp_topp_param(1)
         response = self.post_process_response(response)
-        print("\n\n________________________")
-        print("Response from knowledge base and exemplars: ")
-        print(response, flush=True)
+        utils.log("Response from knowledge base and exemplars: ", response)
         response = utils.parse_xml(response)
         algorithm_prompt = f"## Relevant Algorithm to solve the next problem:\n{response['algorithm']}"
         sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}\n"

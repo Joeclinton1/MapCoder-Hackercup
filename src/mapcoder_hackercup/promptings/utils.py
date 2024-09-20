@@ -137,3 +137,9 @@ def load_prompts(prompts_file):
     """Load the YAML file containing the prompt templates."""
     with open(prompts_file, 'r') as file:
         return yaml.safe_load(file)
+
+
+def log(header, content):
+    print("\n\n________________________")
+    print(header)
+    print(content, flush=True)
