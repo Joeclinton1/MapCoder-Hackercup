@@ -150,7 +150,7 @@ class BaseStrategy(object):
                 print(
                     f'completed {i+1}/{num_items}, '
                     f'Solved: {self.results[i]["is_solved"]},'
-                    f'Solved Sample: {any(self.results[i]["is_solved_sample"])}, '
+                    f'Solved Sample: {self.results[i]["is_solved_sample"]==1}, '
                 )
 
             # break
