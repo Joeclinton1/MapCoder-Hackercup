@@ -116,7 +116,7 @@ class MapCoder(BaseStrategy):
         verification_res = utils.parse_xml(utils.replace_tag(verification_res, 'confidence'))
         return verification_res
 
-    def generate_final_code(self, item, plannings, algorithm_prompt, sample_io_prompt, pr_tok, com_tok):
+    def generate_final_code(self, item, plannings, algorithm_prompt, sample_io_prompt):
         """Generate and improve code until all test cases pass."""
 
         best_score, best_code = 0.0, ""
