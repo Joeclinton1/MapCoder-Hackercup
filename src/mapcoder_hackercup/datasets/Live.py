@@ -24,6 +24,7 @@ class LiveDataset(Dataset):
                                       ['description',   'input',         'output',         'full']):
                 with open(problem_path / file_name, 'r') as f:
                     problem_data[key] = f.read()
+            problem_data['sample_io'] = [dict(input=problem_data['input'], output=[problem_data['output']])]
 
             problem_data['name'] = problem
             data.append(problem_data)
@@ -56,7 +57,7 @@ class LiveDataset(Dataset):
         return contest_evaluate_public_tests(
             generated_code=cur_imp,
             id=item[self.id_key],
-            tests=[dict(input=item['input'], output=item['output'])],
+            tests=[dict(input=item['input'], output=[item['output']])],
             lang=language
         )
 
