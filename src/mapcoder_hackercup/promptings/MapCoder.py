@@ -10,6 +10,7 @@ from typing import List
 cwd = os.path.dirname(os.path.abspath(__file__))
 prompts_file = os.path.join(cwd, 'prompt_templates/prompts_mapcoder.yaml')
 
+
 class MapCoder(BaseStrategy):
     def __init__(
             self,

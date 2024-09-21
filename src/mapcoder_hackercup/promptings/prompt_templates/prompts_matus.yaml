@@ -1,0 +1,80 @@
+breakdown:
+  content: |
+    Consider the following problem. Develop a concise, accurate, step by step plan to program a solution, breaking it
+    down into multiple, simpler steps which can then be implemented and combined together.
+    
+    Identify appropriately which programming techniques should be used, such as dynamic programming, greedy search, 
+    recursion, binary search, among any and all others.
+    
+    If necessary, specify which new, smaller functions should be defined, and how they should be recombined to produce 
+    a working solution to the problem.
+    
+    IMPORTANT! Please do not include any code at all.
+    
+    ####################################################################################################################
+    PROBLEM
+    ####################################################################################################################
+    
+    {problem_prompt}
+
+ranking:
+  content: |
+    Given the following plans to solve the problem, rank them in order of confidence you have in their success at
+    solving the problem statement:
+    
+    {problem_prompt}
+    
+    Output the rankings to the following plans strictly in the format "0, 1, 2, 3, ..." where the plan with the highest
+    confidence comes first, indicated by it's number. Only output this ranking.
+    
+    {plans}
+
+  separator: |
+    ####################################################################################################################
+    PLAN {idx}:
+    {plan}
+
+
+coding:
+  content: |
+    Consider the following competitive programming problem. Generate {language} code to solve the problem.
+    
+    ## Problem to be solved:
+    {problem_prompt}
+    
+    ## Planning:
+    {plan}
+    
+    ## Test cases:
+    {sample_io_prompt}
+
+    ----------------
+    Important:
+    {std_input_prompt}
+    ## Your response must contain only the {language} code to solve this problem. Do not add extra explanation or words.
+
+improvement:
+  content: |
+    Consider the following competitive programming problem, solution, and test logs, written in {language}. Using the
+    provided test case output, improve upon the logic, debugging any mistakes and fixing any possible errors.
+    
+    ## Problem to be solved:
+    {problem_prompt}
+    
+    ## Exisitng code:
+    {code}
+    
+    ## Test case outcome:
+    {test_log}
+    
+    ----------------
+    Important:
+    {std_input_prompt}
+    ## Your response must contain only the {language} code to solve this problem. Do not add extra explanation or words.
+
+std_input_prompt:
+  content: |
+    ## Note: Strictly follow the input and output format.
+    The input should be taken from Standard input and output should be given to standard output. 
+    If you are writing a function then after the function definition take input using input() function then call the function with specified parameters and finally print the output of the function. 
+    Do not add extra print statement otherwise it will failed the test cases.
