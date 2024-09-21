@@ -21,15 +21,13 @@ class DirectPlanning(Custom):
     def run_single_pass(self, item: dict):
         print("", flush=True)
 
-        self.update_temp_topp_param(1)
-
         # Step 1: Generate k plans directly
+        self.update_temp_topp_param(1)
         sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}\n"
         response = self.generate_plannings_directly(item, sample_io_prompt)
         for plan in response["planning"]:
             write_debug(dict(pseudocode=plan['pseudocode']), 'planning')
-        algorithm_prompt = f"## Relevant Algorithm to solve the next problem:\n{response['algorithm']}"
-        write_debug(dict(algorithm=algorithm_prompt), 'algorithm')
+        algorithm_prompt = f""
         plannings = [x["pseudocode"] for x in response["planning"]]
 
         # Step 2: For each plan generate code. Iteratively improve code until it passes samples cases.

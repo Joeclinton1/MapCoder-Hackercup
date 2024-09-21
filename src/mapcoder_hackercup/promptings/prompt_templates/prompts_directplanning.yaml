@@ -1,14 +1,13 @@
 generate_plans:
   content: |
+    You are an expert competitive programmer, who doesn't make mistakes.
     Given the below problem, provide {mapping_k} correct and efficient pseudocode plannings to solving the competitive coding problem.
     # Problem to be solved:
     {problem_prompt}
     {sample_io_prompt}
     
     # Plannings
-    Provide, {mapping_k} correct and efficient pseudocode plannings to solving the competitive coding problem,
-    
-    # Algorithm:
+    Provide, {mapping_k} very correct and efficient pseudocode plannings to solving the competitive coding problem,
     
     ----------------
     Important:
@@ -23,9 +22,5 @@ generate_plans:
     </planning>
 
     # similarly add more plannings here...
-
-    <algorithm>
-    # Identify the overall algorithm (Brute-force, Dynamic Programming, Divide-and-conquer, Greedy, Backtracking, Recursive, Binary search, and so on) that needs to be used to solve the original problem.
-    # Write a useful tutorial about the above mentioned algorithms. Provide a high level generic tutorial for solving these types of problems. Do not generate code.
-    </algorithm>
+    
     </root>

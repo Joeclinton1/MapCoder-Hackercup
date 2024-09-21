@@ -108,7 +108,7 @@ code_improvement_input:
     ## Test Report:
     {test_log}
     ## Modified Planning:
-    ## Let's think step by step to modify {language} Code for solving this problem.
+    ## Let's think step by step to modify {language} Code for solving this problem. Taking into account what specific test cases are failing and why your code might differ from the correct reasoning given in the problem description.
 
     ----------------
     Important:
