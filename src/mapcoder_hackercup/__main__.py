@@ -128,6 +128,9 @@ LANGUAGE = args.language
 PROBLEM_IDS = args.problem_ids
 
 RUN_NAME = f"{MODEL_NAME}-{STRATEGY}-{SPLIT}-{LANGUAGE}-{TEMPERATURE[0]}-{PASS_AT_K}"
+if PROBLEM_IDS is not None:
+    RUN_NAME+=f"-{PROBLEM_IDS[0]}"
+
 os.makedirs('./outputs', exist_ok=True)
 RESULTS_PATH = f"./outputs/{RUN_NAME}.jsonl"
 
