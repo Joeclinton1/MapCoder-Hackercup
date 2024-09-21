@@ -66,8 +66,15 @@ class Matus(BaseStrategy):
                 if score > max_score:
                     max_score, max_code = score, code
 
-                improvement_prompt = self.prompts['improvement']['content'] \
+                critique_prompt = self.prompts['critique']['content'] \
                     .format(problem_prompt=problem_prompt,
+                            code=code,
+                            test_log=test_result,
+                            language=self.language)
+                critique = self.chat(critique_prompt, item, 'critique')
+
+                improvement_prompt = self.prompts['improvement']['content'] \
+                    .format(critique=critique,
                             code=code,
                             test_log=test_result,
                             std_input_prompt=self.prompts['std_input_prompt']['content'],
