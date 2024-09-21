@@ -144,7 +144,7 @@ class BaseStrategy(object):
             item["language"] = self.language
             item["task_id"] = item[self.data.id_key]
 
-            entries_to_remove = ('description', 'test_list', 'code')
+            entries_to_remove = ('description', 'test_list', 'code', 'full', 'input', 'output')
             for k in entries_to_remove:
                 item.pop(k, None)
 

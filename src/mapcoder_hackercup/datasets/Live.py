@@ -25,14 +25,11 @@ class LiveDataset(Dataset):
                 with open(problem_path / file_name, 'r') as f:
                     problem_data[key] = f.read()
             problem_data['sample_io'] = [dict(input=problem_data['input'], output=[problem_data['output']])]
-
             problem_data['name'] = problem
             data.append(problem_data)
 
-        if self.problem_ids:
-            data = [data[i] for i in self.problem_ids]
-        else:
-            self.problem_ids = list(range(len(data)))
+        if self.problem_ids is not None:
+            data = [item for item in data if item[self.id_key] in self.problem_ids]
         self.data = data
 
     def evaluate(
