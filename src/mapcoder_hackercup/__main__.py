@@ -9,7 +9,9 @@ from mapcoder_hackercup.results.Results import Results
 
 from mapcoder_hackercup.promptings.PromptingFactory import PromptingFactory
 from mapcoder_hackercup.models.ModelFactory import ModelFactory
+
 from mapcoder_hackercup.datasets.HackercupDataset import HackercupDataset
+from mapcoder_hackercup.datasets.Live import LiveDataset
 
 import argparse
 import os
@@ -25,6 +27,7 @@ parser.add_argument(
         "Full",
     ]
 )
+
 parser.add_argument(
     "--strategy", 
     type=str, 
@@ -38,6 +41,7 @@ parser.add_argument(
         "DirectPlanning"
     ]
 )
+
 parser.add_argument(
     "--model", 
     type=str, 
@@ -50,6 +54,7 @@ parser.add_argument(
         "Local"
     ]
 )
+
 parser.add_argument(
     "--temperature", 
     type=float, 
@@ -63,11 +68,13 @@ parser.add_argument(
     default=[0.95],
     nargs='+',
 )
+
 parser.add_argument(
     "--pass_at_k", 
     type=int, 
     default=1
 )
+
 parser.add_argument(
     "--language", 
     type=str, 
@@ -92,6 +99,23 @@ parser.add_argument(
     help='A list of problem ids to test from the dataset. If not included will test all problems.'
 )
 
+parser.add_argument(
+    "--dataset",
+    type=str,
+    default='Hackercup',
+    choices=[
+        'Hackercup',
+        'Live'
+    ]
+)
+
+parser.add_argument(
+    '--dir',
+    type=str,
+    default=None,
+    nargs='+'
+)
+
 args = parser.parse_args()
 
 SPLIT = args.split
@@ -109,12 +133,22 @@ RESULTS_PATH = f"./outputs/{RUN_NAME}.jsonl"
 
 print(f"#########################\nRunning start {RUN_NAME}, Time: {datetime.now()}\n##########################\n")
 
+match args.dataset:
+    case 'Hackercup':
+        dataset = HackercupDataset(problem_ids=PROBLEM_IDS, split=SPLIT)
+    case 'Live':
+        if not args.dir:
+            raise ValueError(f'Please specify the dir name!')
+        dataset = LiveDataset(problem_ids=PROBLEM_IDS, dir_name=args.dir[0])
+    case _:
+        raise ValueError(f'Please specify a valid dataset!')
+
 strategy = PromptingFactory.get_prompting_class(STRATEGY)(
     model=ModelFactory.get_model_class(MODEL_NAME)(
         temperature=TEMPERATURE[0] if TEMPERATURE else None,
         top_p=TOP_P[0] if TOP_P else None,
     ),
-    data=HackercupDataset(problem_ids=PROBLEM_IDS, split=SPLIT),
+    data=dataset,
     language=LANGUAGE,
     pass_at_k=PASS_AT_K,
     results=Results(RESULTS_PATH),

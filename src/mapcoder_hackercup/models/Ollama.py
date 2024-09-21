@@ -119,7 +119,7 @@ class Codestral(OllamaBaseModel):
 class Local(OllamaBaseModel):
     def __init__(self, *args, **kwargs):
         # Fetch the first local model
-        api_url = os.getenv("OLLAMA_API_URL")
+        api_url = os.getenv("OLLAMA_API_URL") or "http://windows-6absj2b:11434"
         first_model = requests.get(f"{api_url}/api/tags").json()["models"][0]["model"]
         kwargs['model_name'] = first_model
         super().__init__(*args, **kwargs)
