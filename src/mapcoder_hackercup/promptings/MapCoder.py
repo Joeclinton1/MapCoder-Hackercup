@@ -111,7 +111,7 @@ class MapCoder(BaseStrategy):
         )
 
         utils.log("Input for planning verification: ", input_for_verification)
-        verification_res, _, _ = self.chat(input_for_verification, item)
+        verification_res = self.chat(input_for_verification, item)
 
         verification_res = utils.parse_xml(utils.replace_tag(verification_res, 'confidence'))
         return verification_res
