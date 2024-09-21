@@ -34,7 +34,8 @@ parser.add_argument(
         "CoT",
         "MapCoder",
         "Custom",
-        "CodeGenOnly"
+        "CodeGenOnly",
+        "DirectPlanning"
     ]
 )
 parser.add_argument(

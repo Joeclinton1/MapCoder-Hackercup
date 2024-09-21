@@ -1,0 +1,31 @@
+generate_plans:
+  content: |
+    Given the below problem, provide {mapping_k} correct and efficient pseudocode plannings to solving the competitive coding problem.
+    # Problem to be solved:
+    {problem_prompt}
+    {sample_io_prompt}
+    
+    # Plannings
+    Provide, {mapping_k} correct and efficient pseudocode plannings to solving the competitive coding problem,
+    
+    # Algorithm:
+    
+    ----------------
+    Important:
+    Your response must follow the following xml format-
+    
+    <root>
+    <planning>
+    # Provide {mapping_k} correct, efficient and varied pseudocode plannings to solve the problem mentioned above. Write each pseudocode planning in the following format.
+    <pseudocode>
+    # Pseudocode planning to solve this problem.
+    </pseudocode>
+    </planning>
+
+    # similarly add more plannings here...
+
+    <algorithm>
+    # Identify the overall algorithm (Brute-force, Dynamic Programming, Divide-and-conquer, Greedy, Backtracking, Recursive, Binary search, and so on) that needs to be used to solve the original problem.
+    # Write a useful tutorial about the above mentioned algorithms. Provide a high level generic tutorial for solving these types of problems. Do not generate code.
+    </algorithm>
+    </root>

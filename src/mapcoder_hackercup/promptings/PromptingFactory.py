@@ -4,6 +4,7 @@ from mapcoder_hackercup.promptings.Direct import DirectStrategy
 from mapcoder_hackercup.promptings.MapCoder import MapCoder as MapCoder
 from mapcoder_hackercup.promptings.Custom import Custom
 from mapcoder_hackercup.promptings.MapCoder_CodeGenOnly import CodeGenOnly
+from mapcoder_hackercup.promptings.Custom_DirectPlanning import DirectPlanning
 
 class PromptingFactory:
     @staticmethod
@@ -18,5 +19,7 @@ class PromptingFactory:
             return Custom
         elif prompting_name == "CodeGenOnly":
             return CodeGenOnly
+        elif prompting_name == "DirectPlanning":
+            return DirectPlanning
         else:
             raise Exception(f"Unknown prompting name {prompting_name}")

@@ -35,7 +35,7 @@ class MapCoder(BaseStrategy):
         sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}\n"
         algorithm_prompt = f"## Relevant Algorithm to solve the next problem:\n{response['algorithm']}"
         plannings = self.generate_plannings(item, response, algorithm_prompt, sample_io_prompt)
-        plannings.sort(key=lambda x: x[1], reverse=True)
+        plannings = [x[0] for x in sorted(plannings, key=lambda x: x[1], reverse=True)]
 
         # Step 3: For each planning generate code. Iteratively improve code until it passes samples cases.
         code = self.generate_final_code(item, plannings, algorithm_prompt, sample_io_prompt)
@@ -120,7 +120,7 @@ class MapCoder(BaseStrategy):
         """Generate and improve code until all test cases pass."""
 
         best_score, best_code = 0.0, ""
-        for planning, confidence, example in plannings:
+        for planning in plannings:
             input_for_final_code_generation = self.prompts['code_generation_input']['content'].format(
                 language=self.language,
                 algorithm_prompt=algorithm_prompt,
@@ -179,7 +179,7 @@ class MapCoder(BaseStrategy):
         )
 
         utils.log("Input for improving code generation: ", input_for_code_improvement)
-        response, _, _ = self.chat(input_for_code_improvement, item)
+        response = self.chat(input_for_code_improvement, item)
         code = utils.parse_code(response)
         utils.log("Response from improving code generation: ", response)
 

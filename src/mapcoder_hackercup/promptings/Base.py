@@ -93,6 +93,7 @@ class BaseStrategy(object):
                         response, prompt_tokens, completion_tokens = self.run_single_pass(item)
                         break
                     except Exception as e:
+                        print(f"Exception occured with error: {e}")
                         time.sleep(5)
                         pass
 
@@ -150,7 +151,7 @@ class BaseStrategy(object):
                 print(
                     f'completed {i+1}/{num_items}, '
                     f'Solved: {self.results[i]["is_solved"]},'
-                    f'Solved Sample: {self.results[i]["is_solved_sample"]==1}, '
+                    f'Solved Sample: {self.results[i]["is_solved_sample"][-1]==1}, '
                 )
 
             # break
