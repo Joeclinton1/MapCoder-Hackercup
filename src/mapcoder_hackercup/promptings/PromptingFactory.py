@@ -21,6 +21,8 @@ class PromptingFactory:
             return Custom
         elif prompting_name == "CodeGenOnly":
             return CodeGenOnly
+        elif prompting_name == "DirectPlanning":
+            return DirectPlanning
         elif prompting_name == "Matus":
             return Matus
         else:
