@@ -39,7 +39,8 @@ parser.add_argument(
         "Custom",
         "CodeGenOnly",
         "DirectPlanning",
-        "Matus"
+        "Matus",
+        "KShotCode"
     ]
 )
 

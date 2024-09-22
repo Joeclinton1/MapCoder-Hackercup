@@ -6,6 +6,7 @@ from mapcoder_hackercup.promptings.Custom import Custom
 from mapcoder_hackercup.promptings.MapCoder_CodeGenOnly import CodeGenOnly
 from mapcoder_hackercup.promptings.Custom_DirectPlanning import DirectPlanning
 from mapcoder_hackercup.promptings.Matus import Matus
+from mapcoder_hackercup.promptings.Custom_DirectPlanning_KShotCode import KShotCode
 
 
 class PromptingFactory:
@@ -25,5 +26,7 @@ class PromptingFactory:
             return DirectPlanning
         elif prompting_name == "Matus":
             return Matus
+        elif prompting_name == "KShotCode":
+            return KShotCode
         else:
             raise Exception(f"Unknown prompting name {prompting_name}")
