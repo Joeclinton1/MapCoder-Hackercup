@@ -130,7 +130,7 @@ def get_sample_io_str(sample_io: any) -> str:
         if type(sample_io[0]) == str:
             return "\n".join(sample_io)
         if type(sample_io[0]) == dict:
-            return "\n".join([f"Input:\n{io['input']}\nExpected output:\n{io['output'][0]}" for io in sample_io])
+            return "\n".join([f"Sample Input:\n{io['input']}\nSample Output:\n{io['output'][0]}" for io in sample_io])
     return sample_io
 
 def load_prompts(prompts_file):
