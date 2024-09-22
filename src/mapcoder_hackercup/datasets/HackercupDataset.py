@@ -40,9 +40,4 @@ class HackercupDataset(Dataset):
 
     @staticmethod
     def get_prompt(item):
-        sample_io_format = ""
-        if "sample_io" in item and len(item['sample_io']) > 0:
-            sample_io = item['sample_io'][0]
-            sample_io_format = f"Sample Input:\n{sample_io['input']}\nSample Output:\n{sample_io['output'][0]}\n\n"
-
-        return f"{item['description']}\n\n{sample_io_format}Important: Follow the input/output format strictly. Read input from standard input and write output to standard output."
+        return item['description']
