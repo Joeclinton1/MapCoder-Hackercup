@@ -15,6 +15,7 @@ class Matus(BaseStrategy):
         self.prompts = utils.load_prompts(prompts_file)
         self.n_plans = kwargs.get('n_plans', 5)
         self.n_improvements = kwargs.get('n_improvements', 12)
+        self.n_zero = kwargs.get('n_zero', 3)
 
         self.pr_tok, self.com_tok = 0, 0
 
@@ -35,7 +36,8 @@ class Matus(BaseStrategy):
         return response
 
     def run_single_pass(self, item):
-        problem_prompt = self.data.get_prompt(item)
+        print('Solving problem ', item['name'])
+        problem_prompt = item['description'] #self.data.get_prompt(item)
         sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}"
 
         max_score, max_code = 0.0, ""
@@ -54,7 +56,7 @@ class Matus(BaseStrategy):
             planning_prompt = self.prompts['breakdown']['content'] \
                 .format(problem_prompt=problem_prompt, history=plan_hist_str)
 
-            plan = self.chat(planning_prompt, item, 'breakdown')
+            plan = self.chat(planning_prompt, item, 'breakdown', temperature=0.9)
             plan_hist.append(
                 self.chat(
                     self.prompts['breakdown_history']['content']
@@ -64,14 +66,17 @@ class Matus(BaseStrategy):
                 )
             )
 
-            code_prompt = self.prompts['coding']['content']\
+            code_prompt = self.prompts['coding']['content'] \
                 .format(problem_prompt=problem_prompt,
                         plan=plan,
                         sample_io_prompt=sample_io_prompt,
-                        std_input_prompt=self.prompts['std_input_prompt']['content'],
+                        std_input_prompt=self.prompts['std_input_prompt']['content']
+                            .format(language=self.language),
                         language=self.language)
 
-            code_output = self.chat(code_prompt, item, tag='code')
+            n_0 = 0
+            code_output = self.chat(code_prompt, item, tag='code', temperature=0.3)
+
             for i in range(self.n_improvements):
                 code = utils.parse_code(code_output)
                 write_debug(code, 'code')
@@ -85,21 +90,29 @@ class Matus(BaseStrategy):
                 if score > max_score:
                     max_score, max_code = score, code
 
+                if score == 0.0:
+                    n_0 += 1
+                    if n_0 >= self.n_zero:
+                        print(f'Too many zero scores, stopping...')
+                        break
+                else: n_0 = 0.0
+
                 critique_prompt = self.prompts['critique']['content'] \
                     .format(problem_prompt=problem_prompt,
                             code=code,
                             test_log=test_result,
+                            std_input_prompt=self.prompts['std_input_prompt']['content']
+                                .format(language=self.language),
+                            language=self.language)
+                critique = self.chat(critique_prompt, item, 'critique', temperature=0.7)
+
+                improvement_prompt = self.prompts['improvement']['content'] \
+                    .format(critique=critique,
+                            code=code,
+                            test_log=test_result,
                             std_input_prompt=self.prompts['std_input_prompt']['content'],
                             language=self.language)
-                critique = self.chat(critique_prompt, item, 'code')
 
-                # improvement_prompt = self.prompts['improvement']['content'] \
-                #     .format(critique=critique,
-                #             code=code,
-                #             test_log=test_result,
-                #             std_input_prompt=self.prompts['std_input_prompt']['content'],
-                #             language=self.language)
-
-                code_output = utils.parse_code(critique)  # self.chat(critique, item, tag='code'))
+                code_output = utils.parse_code(self.chat(improvement_prompt, item, tag='code', temperature=0.3))
 
         return max_code, self.pr_tok, self.com_tok

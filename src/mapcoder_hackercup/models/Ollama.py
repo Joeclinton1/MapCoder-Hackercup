@@ -114,7 +114,8 @@ class OllamaBaseModel(BaseModel):
 # Specific model classes can be defined if needed
 class Codestral(OllamaBaseModel):
     def __init__(self, *args, **kwargs):
-        kwargs['model_name'] = 'codestral:latest'
+        # kwargs['model_name'] = 'codestral:latest'
+        kwargs['model_name'] = 'deepseek-v2:16b'
         super().__init__(*args, **kwargs)
 
 class Local(OllamaBaseModel):
@@ -123,4 +124,11 @@ class Local(OllamaBaseModel):
         api_url = os.getenv("OLLAMA_API_URL") or "http://windows-6absj2b:11434"
         first_model = requests.get(f"{api_url}/api/tags").json()["models"][0]["model"]
         kwargs['model_name'] = first_model
+        super().__init__(*args, **kwargs)
+
+class Llama(OllamaBaseModel):
+    def __init__(self, *args, **kwargs):
+        # Fetch the first local model
+        api_url = os.getenv("OLLAMA_API_URL") or "http://localhost:11434"
+        kwargs['model_name'] = 'llama3.1:70b-instruct-q3_K_M'
         super().__init__(*args, **kwargs)

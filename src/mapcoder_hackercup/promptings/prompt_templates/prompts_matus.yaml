@@ -2,11 +2,7 @@ breakdown:
   content: |
     You are an expert competitive programmer, who doesn't make mistakes.
     
-    Consider the following problem. Develop a concise, accurate, step by step plan to program a solution, breaking it
-    down into multiple, simpler steps which can then be implemented and combined together.
-    
-    Identify appropriately which programming techniques should be used, such as dynamic programming, greedy search, 
-    recursion, binary search, among any and all others.
+    Produce a correct and efficient pseudocode plannings to solving the competitive coding problem.
     
     If necessary, specify which new, smaller functions should be defined, and how they should be recombined to produce 
     a working solution to the problem.
@@ -21,17 +17,14 @@ breakdown:
 
   plan_hist_desc: |
     Summaries of previous approaches which did not work and failed miserably include:
-    ----------------
 
   separator: |
-    Plan {idx}: {plan}
-    ----------------
+    ##Plan
+    {idx}: {plan}
 
 breakdown_history:
   content: |
-    Summarise the following plan to solve a competitive coding problem in a very short paragraph. Try to describe the
-    core idea behind how the plan worked, delivering a short and concise response. Assume that the reader already has
-    the context as to what the problem is. If any new functions were defined, briefly mention their function.
+    Summarise the following failed plan to solve a competitive coding problem in a very short paragraph.
     
     {plan}
 
@@ -55,28 +48,23 @@ coding:
 
 critique:
   content: |
-    Consider the following competitive programming problem, solution and test outputs, written in {language}. Analyse
-    why the test cases failed, and focus on making a single change to the code which will result in an improvement to
-    performance. Important - you must code comment your change INSIDE the code, alongside your reasoning for it.
+    Consider the following competitive programming problem, solution and test outputs. Write a short paragraph analysing
+    why the test cases failed, and suggest a fix which will result in an improvement in performance.
     
-    ## Problem to be solved:
+    ## Problem:
     {problem_prompt}
     
-    ## Exisitng code:
+    ## Code:
     {code}
     
-    ## Test case outcome:
+    ## Results:
     {test_log}
-    
-    ----------------
-    {std_input_prompt}
 
 improvement:
   content: |
-    Look at the following solution to a competitive programming problem. Improve on the solution by addressing the
-    criticisms raised, implementing fixes and changing the code in such a way that it produces a better outcome, solving
-    more test cases. Add or change comments in the code where appropriate, justifying it's use in line with the
-    critiques.
+    Look at the following solution to a competitive programming problem. Consider the produced critique, implement the
+    fixes and change the code in so that it produces a better outcome. Add, change or remove comments from the code
+    where relevant.
     
     ## Critique:
     {critique}
