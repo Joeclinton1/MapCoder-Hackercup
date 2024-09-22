@@ -51,7 +51,7 @@ class OllamaBaseModel(BaseModel):
             "num_predict": max_tokens,
             "frequency_penalty": frequency_penalty,
             "presence_penalty": presence_penalty,
-            # "num_ctx": 8192
+            "num_ctx": 4096
         }
 
     def prompt(self, processed_input: list[dict], **kwargs):
@@ -87,10 +87,11 @@ class OllamaBaseModel(BaseModel):
                 prompt += f"Assistant: {content}\n"
 
         # Build the payload
+        self.model_params.update(kwargs)
         payload = {
             "model": self.model_name,
             "prompt": prompt,
-            "options": self.model_params.update(kwargs),
+            "options":self.model_params,
             "stream": False
         }
 
