@@ -88,13 +88,6 @@ class BaseStrategy(object):
                 cur_imp = ""
 
             while cur_pass < self.pass_at_k and not is_solved:
-                # for _ in range(10):
-                #     try:
-                response, prompt_tokens, completion_tokens = self.run_single_pass(item)
-                    #     break
-                    # except Exception as e:
-                    #     time.sleep(5)
-                    #     pass
                 for _ in range(10):
                     try:
                         response, prompt_tokens, completion_tokens = self.run_single_pass(item)
@@ -158,7 +151,7 @@ class BaseStrategy(object):
                 print(
                     f'completed {i+1}/{num_items}, '
                     f'Solved: {self.results[i]["is_solved"]},'
-                    f'Solved Sample: {self.results[i]["is_solved_sample"]==1}, '
+                    f'Solved Sample: {self.results[-1]["is_solved_sample"]==1}, '
                 )
 
             # break
