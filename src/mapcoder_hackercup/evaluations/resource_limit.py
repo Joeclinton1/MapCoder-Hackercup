@@ -14,11 +14,11 @@ class ResourceLimits:
     msgqueue: int = 0  # RLIMIT_MSGQUEUE
     rtprio: int = 0  # RLIMIT_RTPRIO
     stack: int = -1  # RLIMIT_STACK
-    cpu: int = 2  # RLIMIT_CPU, CPU time, in seconds.
+    cpu: int = 100  # RLIMIT_CPU, CPU time, in seconds.
     nproc: int = 1  # RLIMIT_NPROC
     _as: int = 2 * 1024 ** 3  # RLIMIT_AS set to 2GB by default
     locks: int = 0  # RLIMIT_LOCKS
-    # rttime: int = 2  # RLIMIT_RTTIME, Timeout for real-time tasks.
+    rttime: int = 100  # RLIMIT_RTTIME, Timeout for real-time tasks.
 
     def fields(self):
         for field in fields(self):

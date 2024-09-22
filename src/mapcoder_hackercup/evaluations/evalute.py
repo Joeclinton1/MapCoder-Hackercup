@@ -39,11 +39,14 @@ def xcode_evaluate(
 
     assert lang in LANGUAGE_MAPPING, f"language must be inside the supported language list: {LANGUAGE_MAPPING.keys()}"
 
+    limits = limits_by_lang[LANGUAGE_MAPPING[lang]]
+    limits["cpu"] = 100
+    limits["rttime"] = 100
     results, _, _ = api_comm.execute_code(
         language=LANGUAGE_MAPPING[lang],
         source_code=generated_code,
         unittests=unittest_db[src_uid],
-        limits=limits_by_lang[LANGUAGE_MAPPING[lang]],
+        limits= limits,
         task_id=src_uid,
     )
 
