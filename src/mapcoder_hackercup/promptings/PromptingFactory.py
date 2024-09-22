@@ -3,7 +3,6 @@ from mapcoder_hackercup.promptings.Direct import DirectStrategy
 
 from mapcoder_hackercup.promptings.MapCoder import MapCoder as MapCoder
 from mapcoder_hackercup.promptings.Custom import Custom
-from mapcoder_hackercup.promptings.MapCoder_CodeGenOnly import CodeGenOnly
 from mapcoder_hackercup.promptings.Custom_DirectPlanning import DirectPlanning
 from mapcoder_hackercup.promptings.Matus import Matus
 
@@ -19,8 +18,6 @@ class PromptingFactory:
             return DirectStrategy
         elif prompting_name == "Custom":
             return Custom
-        elif prompting_name == "CodeGenOnly":
-            return CodeGenOnly
         elif prompting_name == "DirectPlanning":
             return DirectPlanning
         elif prompting_name == "Matus":

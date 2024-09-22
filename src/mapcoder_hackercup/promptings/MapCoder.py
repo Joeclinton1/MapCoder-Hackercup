@@ -195,3 +195,8 @@ class MapCoder(BaseStrategy):
         self.pr_tok += pr_tok
         self.com_tok += com_tok
         return response
+
+    def run_single_pass_no_planning(self, item: dict, plan: str):
+        sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}\n"
+        code = self.generate_final_code(item, [plan], "", sample_io_prompt)
+        return code, self.pr_tok, self.com_tok

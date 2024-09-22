@@ -9,11 +9,9 @@ prompts_file = os.path.join(cwd, 'prompt_templates/prompts_custom.yaml')
 
 NUM_STAGES = 3
 class Custom(MapCoder):
-    def __init__(self, k: int = 3, t: int = 5, temps=None, top_ps = None, *args, **kwargs):
+    def __init__(self, k: int = 3, t: int = 5, *args, **kwargs):
         super().__init__(k, t, *args, **kwargs)
         self.prompts = utils.load_prompts(prompts_file)
-        self.temps = [] if temps is None else temps
-        self.top_ps = [] if top_ps is None else top_ps
 
     def run_single_pass(self, item: dict):
         print("", flush=True)
@@ -43,3 +41,7 @@ class Custom(MapCoder):
         if len(self.top_ps) == NUM_STAGES:
             params["top_p"] = self.top_ps[stage]
         self.model.model_params.update(params)
+
+    def run_single_pass_no_planning(self, item: dict, plan: str):
+        self.update_temp_topp_param(2)
+        return super().run_single_pass_no_planning(item, plan)

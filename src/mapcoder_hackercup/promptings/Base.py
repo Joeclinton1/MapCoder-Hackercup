@@ -20,7 +20,8 @@ class BaseStrategy(object):
         results: Results,
         verbose: bool = True,
         temps: list = None,
-        top_ps: list = None
+        top_ps: list = None,
+        plan: str = None
     ):
         self.model = model
         self.data = data
@@ -28,12 +29,18 @@ class BaseStrategy(object):
         self.results = results
         self.language = language
         self.verbose = verbose
+        self.temps = [] if temps is None else temps
+        self.top_ps = [] if top_ps is None else top_ps
+        self.plan = plan
 
     def gpt_chat(self, processed_input: List[dict], **kwargs) -> (str, int, int):
         return self.model.prompt(processed_input=processed_input, **kwargs)
 
     def run_single_pass(self, item: dict):
         pass
+
+    def run_single_pass_no_planning(self, item: dict, plan: str):
+        return self.run_single_pass(item)
 
     def run(self):
         num_items = len(self.data)
@@ -90,7 +97,10 @@ class BaseStrategy(object):
             while cur_pass < self.pass_at_k and not is_solved:
                 for _ in range(10):
                     try:
-                        response, prompt_tokens, completion_tokens = self.run_single_pass(item)
+                        if self.plan is None:
+                            response, prompt_tokens, completion_tokens = self.run_single_pass(item)
+                        else:
+                            response, prompt_tokens, completion_tokens = self.run_single_pass_no_planning(item, self.plan)
                         break
                     except Exception as e:
                         print(f"Exception occured with error: {e}")

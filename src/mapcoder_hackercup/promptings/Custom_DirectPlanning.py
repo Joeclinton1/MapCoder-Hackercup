@@ -11,12 +11,10 @@ prompts_file_pai = os.path.join(cwd, 'prompt_templates/prompts_directplanning.ya
 
 NUM_STAGES = 2
 class DirectPlanning(Custom):
-    def __init__(self, k: int = 3, t: int = 5, temps=None, top_ps = None, *args, **kwargs):
+    def __init__(self, k: int = 3, t: int = 5, *args, **kwargs):
         super().__init__(k, t, *args, **kwargs)
         self.prompts = utils.load_prompts(prompts_file)
         self.prompts2 = utils.load_prompts(prompts_file_pai)
-        self.temps = [] if temps is None else temps
-        self.top_ps = [] if top_ps is None else top_ps
 
     def run_single_pass(self, item: dict):
         print("", flush=True)

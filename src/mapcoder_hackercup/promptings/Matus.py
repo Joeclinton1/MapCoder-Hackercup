@@ -45,41 +45,53 @@ class Matus(BaseStrategy):
         for i in range(self.n_plans):
             print(f' --- Attempt {i} --- ')
             print(f' Generating plan ')
-
             plan = self.chat(planning_prompt, item, 'breakdown')
-            code_prompt = self.prompts['coding']['content']\
+            max_score, max_code = self.generate_and_improve_code(
+                item, plan, max_score, max_code, problem_prompt, sample_io_prompt
+            )
+
+        return max_code, self.pr_tok, self.com_tok
+
+    def generate_and_improve_code(self, item, plan, max_score, max_code, problem_prompt, sample_io_prompt):
+        code_prompt = self.prompts['coding']['content'] \
+            .format(problem_prompt=problem_prompt,
+                    plan=plan,
+                    sample_io_prompt=sample_io_prompt,
+                    std_input_prompt=self.prompts['std_input_prompt']['content'],
+                    language=self.language)
+
+        code_output = self.chat(code_prompt, item, tag='code')
+        for i in range(self.n_improvements):
+            code = utils.parse_code(code_output)
+            score, test_result = self.data.evaluate_sample_io(item, code, self.language)
+            print(f' Attempt {i + 1}, score {score}')
+
+            if score == 1.0:
+                return code, self.pr_tok, self.com_tok
+
+            if score > max_score:
+                max_score, max_code = score, code
+
+            critique_prompt = self.prompts['critique']['content'] \
                 .format(problem_prompt=problem_prompt,
-                        plan=plan,
-                        sample_io_prompt=sample_io_prompt,
+                        code=code,
+                        test_log=test_result,
+                        language=self.language)
+            critique = self.chat(critique_prompt, item, 'critique')
+
+            improvement_prompt = self.prompts['improvement']['content'] \
+                .format(critique=critique,
+                        code=code,
+                        test_log=test_result,
                         std_input_prompt=self.prompts['std_input_prompt']['content'],
                         language=self.language)
 
-            code_output = self.chat(code_prompt, item, tag='code')
-            for i in range(self.n_improvements):
-                code = utils.parse_code(code_output)
-                score, test_result = self.data.evaluate_sample_io(item, code, self.language)
-                print(f' Attempt {i + 1}, score {score}')
+            code_output = utils.parse_code(self.chat(improvement_prompt, item, tag='code'))
+        return max_score, max_code
 
-                if score == 1.0:
-                    return code, self.pr_tok, self.com_tok
-
-                if score > max_score:
-                    max_score, max_code = score, code
-
-                critique_prompt = self.prompts['critique']['content'] \
-                    .format(problem_prompt=problem_prompt,
-                            code=code,
-                            test_log=test_result,
-                            language=self.language)
-                critique = self.chat(critique_prompt, item, 'critique')
-
-                improvement_prompt = self.prompts['improvement']['content'] \
-                    .format(critique=critique,
-                            code=code,
-                            test_log=test_result,
-                            std_input_prompt=self.prompts['std_input_prompt']['content'],
-                            language=self.language)
-
-                code_output = utils.parse_code(self.chat(improvement_prompt, item, tag='code'))
-
-        return max_code, self.pr_tok, self.com_tok
+    def run_single_pass_no_planning(self, item: dict, plan: str):
+        problem_prompt = self.data.get_prompt(item)
+        sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}\n"
+        write_debug(plan, "plan")
+        _, code = self.generate_and_improve_code(item, plan, 0.0, "", problem_prompt, sample_io_prompt)
+        return code, self.pr_tok, self.com_tok

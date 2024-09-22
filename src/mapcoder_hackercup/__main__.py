@@ -37,7 +37,6 @@ parser.add_argument(
         "CoT",
         "MapCoder",
         "Custom",
-        "CodeGenOnly",
         "DirectPlanning",
         "Matus"
     ]
@@ -117,6 +116,13 @@ parser.add_argument(
     nargs='+'
 )
 
+parser.add_argument(
+    '--plan',
+    type=str,
+    default=None,
+    help='If set prompt strategy will skip planning stage and use this plan instead'
+)
+
 args = parser.parse_args()
 
 SPLIT = args.split
@@ -154,7 +160,8 @@ strategy = PromptingFactory.get_prompting_class(STRATEGY)(
     pass_at_k=PASS_AT_K,
     results=Results(RESULTS_PATH),
     temps = TEMPERATURE,
-    top_ps = TOP_P
+    top_ps = TOP_P,
+    plan = args.plan
 )
 
 strategy.run()
