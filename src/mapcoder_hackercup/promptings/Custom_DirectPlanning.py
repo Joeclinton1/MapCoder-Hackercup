@@ -19,6 +19,9 @@ class DirectPlanning(Custom):
     def run_single_pass(self, item: dict):
         print("", flush=True)
 
+        # Step 0: Improve problem prompt
+        # self.improve_problem_prompt(item)
+
         # Step 1: Generate k plans directly
         self.update_temp_topp_param(1)
         sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}\n"

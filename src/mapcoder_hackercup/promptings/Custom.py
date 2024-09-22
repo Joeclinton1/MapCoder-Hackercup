@@ -2,6 +2,7 @@ import os
 
 from .MapCoder import MapCoder
 from . import utils
+from ..results import write_debug
 
 # Path to the prompts YAML file
 cwd = os.path.dirname(os.path.abspath(__file__))
@@ -15,6 +16,8 @@ class Custom(MapCoder):
 
     def run_single_pass(self, item: dict):
         print("", flush=True)
+        # # Step 0: Improve problem prompt
+        # self.improve_problem_prompt(item)
 
         # Step 1: Generate KB exemplars and algorithm
         self.update_temp_topp_param(0)
@@ -42,6 +45,17 @@ class Custom(MapCoder):
             params["top_p"] = self.top_ps[stage]
         self.model.model_params.update(params)
 
+    def improve_problem_prompt(self, item):
+        input_for_problem_prompt_rewrite = self.prompts['problem_prompt_rewrite']['content'].format(
+            problem_prompt=self.data.get_prompt(item),
+        )
+
+        improved_problem = self.chat(input_for_problem_prompt_rewrite, item)
+        write_debug(dict(improved_problem=improved_problem), "rewrite_prompt")
+        item["description"] = improved_problem
+
+
     def run_single_pass_no_planning(self, item: dict, plan: str):
+        # self.improve_problem_prompt(item)
         self.update_temp_topp_param(2)
         return super().run_single_pass_no_planning(item, plan)

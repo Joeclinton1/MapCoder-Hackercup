@@ -88,9 +88,9 @@ code_generation_input:
     {algorithm_prompt}
     ## Problem to be solved:
     {problem_prompt}
+    {sample_io_prompt}
     ## Planning:
     {planning}
-    {sample_io_prompt}
     ## Let's think step by step.
 
     ----------------
@@ -104,6 +104,7 @@ code_improvement_input:
     {algorithm_prompt}
     ## Problem to be solved:
     {problem_prompt}
+    ## Code Generated
     {response}
     ## Test Report:
     {test_log}
@@ -114,3 +115,21 @@ code_improvement_input:
     Important:
     {std_input_prompt}
     ## Your response must contain the modified planning and then the {language} code inside <code> block to solve this problem.
+
+problem_prompt_rewrite:
+  content: |
+    You are given a competitive programming problem below. Extract the specified information from the prompt:
+    
+    # Problem:
+    {problem_prompt}
+    
+    ----------------
+    # Important:
+    Your output must extract the following information in this exact format:
+    
+    Setup: Copy exactly all details provided describing how the task is setup.
+    Task: Copy exactly all details about what the task to solve is.
+    Input format: What the input looks like (e.g., numbers, arrays).
+    Output format: What the output should be (e.g., print a number, list).
+    Constraints: The limits for the inputs (e.g., how large numbers can be).
+    Sample Explanations: Sample explanations of each tests case (each on a new line) that step by step walk through examples
