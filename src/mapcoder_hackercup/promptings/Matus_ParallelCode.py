@@ -34,8 +34,8 @@ class ParallelCode(Matus):
 
         max_score, max_code = 0.0, ""
 
-        print(f' Generating {NUM_PARALLEL} plans ')
-        plans = self.run_func_parallel_and_collect(gen_plan)
+        print(f' Generating {NUM_PARALLEL+2} plans ')
+        plans = self.run_func_parallel_and_collect(gen_plan, NUM_PARALLEL+2)
 
         for i, plan in enumerate(plans):
             print(f' --- Attempt {i} --- ')
@@ -99,7 +99,6 @@ class ParallelCode(Matus):
             if score>=best_score:
                 best_score = score
                 best_code = code
-                print(best_score, best_code)
 
             if (score == 0.0 or score == 1.0) and func == gen_initial_code:
                 break
@@ -111,9 +110,9 @@ class ParallelCode(Matus):
         return best_score, best_code
 
 
-    def run_func_parallel_and_collect(self, func):
+    def run_func_parallel_and_collect(self, func, num_parallel=NUM_PARALLEL):
         # Running the code generation in parallel
-        with concurrent.futures.ThreadPoolExecutor(max_workers=NUM_PARALLEL) as executor:
-            futures = [executor.submit(func) for _ in range(NUM_PARALLEL)]
+        with concurrent.futures.ThreadPoolExecutor(max_workers=num_parallel) as executor:
+            futures = [executor.submit(func) for _ in range(num_parallel)]
             results = [future.result() for future in concurrent.futures.as_completed(futures)]
         return results
