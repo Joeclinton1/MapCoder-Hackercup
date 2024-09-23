@@ -70,7 +70,7 @@ def contest_evaluate(
     assert lang in LANGUAGE_MAPPING, f"language must be inside the supported language list: {LANGUAGE_MAPPING.keys()}"
 
     limits = limits_by_lang[LANGUAGE_MAPPING[lang]]
-    limits["cpu"] = 40
+    limits["cpu"] = 30
     results, _, _ = api_comm.execute_code(
         language=LANGUAGE_MAPPING[lang],
         source_code=generated_code,
@@ -80,13 +80,13 @@ def contest_evaluate(
     )
 
     if results == "error":
-        return "error"
+        return "error", ""
 
     if results[0]['exec_outcome'] == ExecOutcome.PASSED.value:
-        return True
+        return True, results[0]['result']
     elif results[0]['exec_outcome'] == ExecOutcome.WRONG_ANSWER.value:
-        return score_output_cases(results[0]['result'], tests[0]["output"][0])
-    return results[0]['exec_outcome']
+        return score_output_cases(results[0]['result'], tests[0]["output"][0]), results[0]['result']
+    return results[0]['exec_outcome'], results[0]['result']
 
 
 def contest_evaluate_public_tests(

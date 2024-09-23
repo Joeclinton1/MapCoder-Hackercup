@@ -1,0 +1,13 @@
+For each test case, receive the input X_i, ignore it and return 0. That is it. This is a very easy question.
+
+# Input Format
+Input begins with an integer \(T\), the number of test cases. Each case starts with a line that contains the integer \(N\). Then \(N\) lines follow, the \(i\)th of which contains the integers \(X_i\).
+
+# Output Format
+For the \(i\)th test case, print "`Case #i:` " followed by 0.
+
+# Sample Explanation
+
+In the first case, the input is 8, we ignore it and print Case #1: 0
+
+in the second case, the input 5, we ignore it and print Case #2: 0

@@ -79,6 +79,7 @@ class BaseStrategy(object):
                 item = copy.deepcopy(self.results[i])
                 cur_pass = len(item["source_codes"])
                 is_solved = item["is_solved"]
+                output = item["output"]
                 cur_imp = item["source_codes"][-1]
             else:
                 item = copy.deepcopy(item)
@@ -92,6 +93,7 @@ class BaseStrategy(object):
 
                 cur_pass = 0
                 is_solved = False
+                output = ""
                 cur_imp = ""
 
             while cur_pass < self.pass_at_k and not is_solved:
@@ -132,7 +134,7 @@ class BaseStrategy(object):
                     item["sample_actual_output"].append(sample_actual_output)
 
 
-                is_solved = self.data.evaluate(
+                is_solved, output = self.data.evaluate(
                     item=item,
                     cur_imp=cur_imp,
                     language=self.language
@@ -146,6 +148,7 @@ class BaseStrategy(object):
             item["is_solved"] = is_solved
             item["language"] = self.language
             item["task_id"] = item[self.data.id_key]
+            item["full_output"] = output
 
             entries_to_remove = ('description', 'test_list', 'code', 'full', 'input', 'output')
             for k in entries_to_remove:
