@@ -46,8 +46,8 @@ def output_results(results_path, dataset):
             output_filename = os.path.join(output_dir, f"{task_id}_output.txt")
             with open(output_filename, 'w') as f:
                 f.write(output)
-        except:
-            pass
+        except Exception as e:
+            print(f"Error occured writing file: {e}")
 
     print(f"Output written to folder: {output_dir}")
 

@@ -8,6 +8,7 @@ from mapcoder_hackercup.models.Base import BaseModel
 from mapcoder_hackercup.datasets.Dataset import Dataset
 from mapcoder_hackercup.results.Results import Results
 from mapcoder_hackercup.utils.parse import parse_response
+from mapcoder_hackercup.gen_comp_out import output_results
 
 
 class BaseStrategy(object):
@@ -168,3 +169,5 @@ class BaseStrategy(object):
                 )
 
             # break
+        # output the results to an output folder
+        output_results(self.results.result_path[:-1], self.data)
