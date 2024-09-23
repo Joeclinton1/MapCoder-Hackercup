@@ -129,3 +129,11 @@ class Deepseek(OllamaBaseModel):
     def __init__(self, *args, **kwargs):
         kwargs['model_name'] = 'deepseek-coder-v2:lite '
         super().__init__(*args, **kwargs)
+
+
+class Llama(OllamaBaseModel):
+    def __init__(self, *args, **kwargs):
+        # Fetch the first local model
+        api_url = "http://192.165.134.27:12646"
+        kwargs['model_name'] = 'llama3.1:70b-instruct-q3_K_M'
+        super().__init__(api_url=api_url, *args, **kwargs)

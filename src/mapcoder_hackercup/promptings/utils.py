@@ -111,6 +111,10 @@ def parse_code(response: str) -> str:
     else:
         code_str = response
 
+    # Weird indentation error fix for python, count how many spaces there are, then strip
+    n_spaces = len(code_str) - len(code_str.lstrip())
+    code_str = code_str.replace('\n' + ' ' * n_spaces, '\n')
+
     return code_str.strip()
 
 

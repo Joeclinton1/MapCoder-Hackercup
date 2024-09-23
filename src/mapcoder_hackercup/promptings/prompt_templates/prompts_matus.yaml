@@ -1,25 +1,37 @@
 breakdown:
   content: |
-    Consider the following problem. Develop a concise, accurate, step by step plan to program a solution, breaking it
-    down into multiple, simpler steps which can then be implemented and combined together.
+    You are an expert competitive programmer, who doesn't make mistakes.
     
-    Identify appropriately which programming techniques should be used, such as dynamic programming, greedy search, 
-    recursion, binary search, among any and all others.
+    Produce a correct and efficient pseudocode plannings to solving the competitive coding problem.
     
     If necessary, specify which new, smaller functions should be defined, and how they should be recombined to produce 
     a working solution to the problem.
     
     IMPORTANT! Please do not include any code at all.
     
+    {history}
+    
     ## PROBLEM
     
     {problem_prompt}
 
+  plan_hist_desc: |
+    Summaries of previous approaches which did not work and failed miserably include:
+
+  separator: |
+    ##Plan
+    {idx}: {plan}
+
+breakdown_history:
+  content: |
+    Summarise the following failed plan to solve a competitive coding problem in a very short paragraph.
+    
+    {plan}
 
 coding:
   content: |
-    Consider the following competitive programming problem. Generate {language} code to solve the problem, adding short,
-    concise and relevant comments explaining the various stages of the plan.
+    Consider the following competitive programming problem. Generate {language} code to solve the problem, adding
+    concise relevant comments explaining how various statements in code align with the plan.
     
     ## Problem to be solved:
     {problem_prompt}
@@ -31,32 +43,28 @@ coding:
     {sample_io_prompt}
 
     ----------------
-    Important:
     {std_input_prompt}
-    ## Your response must contain only the {language} code to solve this problem. Do not add extra explanation or words.
+
 
 critique:
   content: |
-    Consider the following competitive programming problem, solution and test outputs, written in {language}. Analyse
-    why the test cases failed, any bugs, and summarize what changes need to be made to the code in order for it to
-    improve. You shouldn't re-implement the problem, any code included in your response should showcase small, specific
-    changes to be made.
+    Consider the following competitive programming problem, solution and test outputs. Write a short paragraph analysing
+    why the test cases failed, and suggest a fix which will result in an improvement in performance.
     
-    ## Problem to be solved:
+    ## Problem:
     {problem_prompt}
     
-    ## Exisitng code:
+    ## Code:
     {code}
     
-    ## Test case outcome:
+    ## Results:
     {test_log}
 
 improvement:
   content: |
-    Look at the following solution to a competitive programming problem. Improve on the solution by addressing the
-    criticisms raised, implementing fixes and changing the code in such a way that it produces a better outcome, solving
-    more test cases. Add or change comments in the code where appropriate, justifying it's use in line with the
-    critiques.
+    Look at the following solution to a competitive programming problem. Consider the produced critique, implement the
+    fixes and change the code in so that it produces a better outcome. Add, change or remove comments from the code
+    where relevant.
     
     ## Critique:
     {critique}
@@ -68,13 +76,17 @@ improvement:
     {test_log}
     
     ----------------
-    Important:
     {std_input_prompt}
-    ## Your response must contain only the {language} code to solve this problem. Do not add extra explanation or words.
+
 
 std_input_prompt:
   content: |
-    ## Note: Strictly follow the input and output format.
     The input should be taken from Standard input and output should be given to standard output. 
     If you are writing a function then after the function definition take input using input() function then call the function with specified parameters and finally print the output of the function. 
     Do not add extra print statement otherwise it will failed the test cases.
+    
+    If you are writing the code as a function, make sure to CALL it so that it executes.
+    
+    ## IMPORTANT: Strictly follow the input and output format. Do not include any other text, including explanation.
+    Only output a single code box with your code in {language}. If you do not, you will fail at your task.
+    ONLY USE THE LIBRARIES THAT ARE PROVIDED IN PYTHON BY DEFAULT
