@@ -77,11 +77,14 @@ class Matus(BaseStrategy):
         return max_code, self.pr_tok, self.com_tok
 
     def generate_code(self, item, plan, max_score, max_code, problem_prompt, sample_io_prompt):
+        std_input_prompt = self.prompts['std_input_prompt']['content']\
+            .format(language=self.language, language_upper=self.language.upper())
+
         code_prompt = self.prompts['coding']['content'] \
             .format(problem_prompt=problem_prompt,
                     plan=plan,
                     sample_io_prompt=sample_io_prompt,
-                    std_input_prompt=self.prompts['std_input_prompt']['content'].format(language=self.language),
+                    std_input_prompt=std_input_prompt,
                     language=self.language)
 
         n_0 = 0
@@ -110,8 +113,7 @@ class Matus(BaseStrategy):
                 .format(problem_prompt=problem_prompt,
                         code=code,
                         test_log=test_result,
-                        std_input_prompt=self.prompts['std_input_prompt']['content']
-                            .format(language=self.language),
+                        std_input_prompt=std_input_prompt,
                         language=self.language)
             critique = self.chat(critique_prompt, item, 'critique', temperature=0.7)
 
@@ -119,7 +121,7 @@ class Matus(BaseStrategy):
                 .format(critique=critique,
                         code=code,
                         test_log=test_result,
-                        std_input_prompt=self.prompts['std_input_prompt']['content'],
+                        std_input_prompt=std_input_prompt,
                         language=self.language)
 
             code_output = utils.parse_code(self.chat(improvement_prompt, item, tag='code', temperature=0.3))

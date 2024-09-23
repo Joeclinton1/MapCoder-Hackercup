@@ -28,7 +28,7 @@ class ParallelCode(Matus):
             return self.chat(planning_prompt, item, 'breakdown')
 
         problem_prompt = self.data.get_prompt(item)
-        planning_prompt = self.prompts['breakdown']['content']\
+        planning_prompt = self.prompts['breakdown_simple']['content']\
             .format(problem_prompt=problem_prompt)
         sample_io_prompt=f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}"
 
@@ -41,15 +41,18 @@ class ParallelCode(Matus):
             print(f' --- Attempt {i} --- ')
             print('Generating code')
             score, code = self.generate_code(
-                item, plan, max_score, max_code, problem_prompt, sample_io_prompt
+                item, plan, problem_prompt, sample_io_prompt
             )
-            if score > max_score:
+            if score >= max_score:
                 max_score, max_code = score, code
 
             if score == 1.0:
                 break
         return max_code, self.pr_tok, self.com_tok
-    def generate_code(self, item, plan, max_score, max_code, problem_prompt, sample_io_prompt):
+    def generate_code(self, item, plan, problem_prompt, sample_io_prompt):
+        std_input_prompt = self.prompts['std_input_prompt']['content']\
+            .format(language=self.language, language_upper=self.language.upper())
+
         # Function to generate code and evaluate it
         test_log = None
         best_score, best_code = 0.0, ""
@@ -58,7 +61,7 @@ class ParallelCode(Matus):
                 .format(problem_prompt=problem_prompt,
                         plan=plan,
                         sample_io_prompt=sample_io_prompt,
-                        std_input_prompt=self.prompts['std_input_prompt']['content'],
+                        std_input_prompt=std_input_prompt,
                         language=self.language)
 
             code_output = self.chat(code_prompt, item, tag='code')
@@ -74,13 +77,14 @@ class ParallelCode(Matus):
                 planning=plan,
                 test_log=test_log,
                 code=best_code,
-                std_input_prompt=self.prompts['std_input_prompt']['content'],
+                std_input_prompt=std_input_prompt,
             )
 
             response = self.chat(input_for_code_improvement, item, tag='improve')
             code = utils.parse_code(response)
             score, test_result = self.data.evaluate_sample_io(item, code, self.language)
             return score, code, test_result
+
         prev_score = 0.0
         for i in range(4):
             func, label = (gen_initial_code, "Initial Code Generation") if i == 0 else (improve_code, "Improve Code")
@@ -95,6 +99,7 @@ class ParallelCode(Matus):
             if score>=best_score:
                 best_score = score
                 best_code = code
+                print(best_score, best_code)
 
             if (score == 0.0 or score == 1.0) and func == gen_initial_code:
                 break

@@ -22,6 +22,23 @@ breakdown:
     ##Plan
     {idx}: {plan}
 
+breakdown_simple:
+  content: |
+    Consider the following problem. Develop a concise, accurate, step by step plan to program a solution, breaking it
+    down into multiple, simpler steps which can then be implemented and combined together.
+    
+    Identify appropriately which programming techniques should be used, such as dynamic programming, greedy search, 
+    recursion, binary search, among any and all others.
+    
+    If necessary, specify which new, smaller functions should be defined, and how they should be recombined to produce 
+    a working solution to the problem.
+    
+    IMPORTANT! Please do not include any code at all.
+    
+    ## PROBLEM
+    
+    {problem_prompt}
+
 breakdown_history:
   content: |
     Summarise the following failed plan to solve a competitive coding problem in a very short paragraph.
@@ -89,4 +106,4 @@ std_input_prompt:
     
     ## IMPORTANT: Strictly follow the input and output format. Do not include any other text, including explanation.
     Only output a single code box with your code in {language}. If you do not, you will fail at your task.
-    ONLY USE THE LIBRARIES THAT ARE PROVIDED IN PYTHON BY DEFAULT
+    ONLY USE THE LIBRARIES THAT ARE PROVIDED IN {language_upper} BY DEFAULT
