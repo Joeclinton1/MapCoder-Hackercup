@@ -3,6 +3,8 @@ import json
 from mapcoder_hackercup.datasets.HackercupDataset import HackercupDataset
 from mapcoder_hackercup.datasets.Live import LiveDataset
 
+from mapcoder_hackercup.constants.lang_mappings import language_to_extension
+
 # Function to handle the outputting process
 def output_results(results_path, dataset):
     # Load the results from the JSONL file
@@ -37,7 +39,8 @@ def output_results(results_path, dataset):
             )
 
         # Write source code to a file
-        source_code_filename = os.path.join(output_dir, f"{task_id}_source_code.py")
+        extension = language_to_extension.get(problem["language"], 'txt')  # Default to .txt if not found
+        source_code_filename = os.path.join(output_dir, f"{task_id}_source_code.{extension}")
         with open(source_code_filename, 'w') as f:
             f.write(source_code)
 
