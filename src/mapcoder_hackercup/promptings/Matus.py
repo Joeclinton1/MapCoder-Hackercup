@@ -49,10 +49,10 @@ class Matus(BaseStrategy):
             score, code = self.generate_code(
                 item, plan, max_score, max_code, problem_prompt, sample_io_prompt
             )
-            if score == 1.0:
-                break
             if score > max_score:
                 max_score, max_code = score, code
+            if score == 1.0:
+                break
 
         return max_code, self.pr_tok, self.com_tok
 

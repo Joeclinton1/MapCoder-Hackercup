@@ -134,8 +134,9 @@ TOP_P = args.top_p
 PASS_AT_K = args.pass_at_k
 LANGUAGE = args.language
 PROBLEM_IDS = args.problem_ids
+DATASET = SPLIT if args.dataset == 'Hackercup' else args.dataset
 
-RUN_NAME = f"{MODEL_NAME}-{STRATEGY}-{SPLIT}-{LANGUAGE}-{TEMPERATURE[0]}-{PASS_AT_K}"
+RUN_NAME = f"{MODEL_NAME}-{STRATEGY}-{DATASET}-{LANGUAGE}-{TEMPERATURE[0]}-{PASS_AT_K}"
 os.makedirs('./outputs', exist_ok=True)
 RESULTS_PATH = f"./outputs/{RUN_NAME}.jsonl"
 

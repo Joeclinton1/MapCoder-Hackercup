@@ -36,7 +36,7 @@ improve_plan_and_code:
     ## Improved Planning
     - Improve the plan to fix your critiques
     ## Code
-    {language} code inside <code> block to solve this problem
+    {language} code inside <code> block to solve this problem. Provide the ENTIRE code, not just the fixed section.
     
     Important:
     {std_input_prompt}

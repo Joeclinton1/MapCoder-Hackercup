@@ -9,8 +9,8 @@ cwd = os.path.dirname(os.path.abspath(__file__))
 prompts_file = os.path.join(cwd, 'prompt_templates/prompts_matus.yaml')
 prompts_file_2 = os.path.join(cwd, 'prompt_templates/prompts_parallelcode.yaml')
 
-NUM_PARALLEL = 4
-IMPROVE_PLAN = False
+NUM_PARALLEL = 5
+IMPROVE_PLAN = True
 
 utils.log = lambda a, b: None
 class ParallelCode(Matus):
@@ -43,10 +43,11 @@ class ParallelCode(Matus):
             score, code = self.generate_code(
                 item, plan, max_score, max_code, problem_prompt, sample_io_prompt
             )
-            if score == 1.0:
-                break
             if score > max_score:
                 max_score, max_code = score, code
+
+            if score == 1.0:
+                break
         return max_code, self.pr_tok, self.com_tok
     def generate_code(self, item, plan, max_score, max_code, problem_prompt, sample_io_prompt):
         # Function to generate code and evaluate it
@@ -80,15 +81,27 @@ class ParallelCode(Matus):
             code = utils.parse_code(response)
             score, test_result = self.data.evaluate_sample_io(item, code, self.language)
             return score, code, test_result
-        funcs_labels = [(gen_initial_code, "Initial Code Generation"), (improve_code, "Improve Code")]
-        for func, label in funcs_labels[:IMPROVE_PLAN+1]:
+        prev_score = 0.0
+        for i in range(4):
+            func, label = (gen_initial_code, "Initial Code Generation") if i == 0 else (improve_code, "Improve Code")
             results = self.run_func_parallel_and_collect(func)
-            best_score, best_code, test_report = max(results, key=lambda x: x[0])
+            score, code, test_report = max(results, key=lambda x: x[0])
 
             scores = ",".join([str(r[0]) for r in results])
             print(f" {label}:")
             print(f' Scores: {scores}')
-            print(f' Best Score: {best_score}\n')
+            print(f' Best Score: {score}\n')
+
+            if score>=best_score:
+                best_score = score
+                best_code = code
+
+            if (score == 0.0 or score == 1.0) and func == gen_initial_code:
+                break
+
+            if [r[0] for r in results].count(score)<NUM_PARALLEL//2 or score<=0.5 or score<=prev_score:
+                break
+            prev_score = score
 
         return best_score, best_code
 
