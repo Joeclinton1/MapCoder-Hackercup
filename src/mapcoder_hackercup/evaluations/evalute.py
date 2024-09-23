@@ -28,75 +28,6 @@ with open(unittest_file) as ut_rp:
 
 api_comm = APICommunication(server_url=os.getenv('XCODE_SERVER_URL', 'http://windows-6absj2b:5000'))
 
-
-def xcode_evaluate(
-    generated_code: str,
-    src_uid: str,
-    lang: str
-):
-
-    assert src_uid in unittest_db, "Can not find the task id or source id"
-
-    assert lang in LANGUAGE_MAPPING, f"language must be inside the supported language list: {LANGUAGE_MAPPING.keys()}"
-
-    limits = limits_by_lang[LANGUAGE_MAPPING[lang]]
-    limits["cpu"] = 100
-    limits["rttime"] = 100
-    results, _, _ = api_comm.execute_code(
-        language=LANGUAGE_MAPPING[lang],
-        source_code=generated_code,
-        unittests=unittest_db[src_uid],
-        limits= limits,
-        task_id=src_uid,
-    )
-
-    if results == "error":
-        return False
-
-    passed = True
-    for result in results:
-        if result['exec_outcome'] != ExecOutcome.PASSED.value:
-            passed = False
-            break
-
-    return passed
-
-
-def xcode_execute_internal_test(
-    generated_code: str,
-    tests: List[dict],
-    src_uid: str,
-    lang: str
-):
-    results, _, _ = api_comm.execute_code(
-        language=LANGUAGE_MAPPING[lang],
-        source_code=generated_code,
-        unittests=tests,
-        limits=limits_by_lang[LANGUAGE_MAPPING[lang]],
-        task_id=src_uid,
-        stop_on_first_fail=False
-    )
-
-    passed = True
-    passed_feedback = []
-    failed_feedback = []
-
-    idx = 0
-    try:
-        for idx, result in enumerate(results):
-            if result['exec_outcome'] == ExecOutcome.PASSED.value:
-                passed_feedback.append(tests[idx])
-            if result['exec_outcome'] != ExecOutcome.PASSED.value:
-                failed_feedback.append(tests[idx])
-                passed = False
-    except:
-        passed = False
-        failed_feedback.extend(tests[idx:])
-
-    feedback = f'Tested passed: \n{json.dumps(passed_feedback)}\n\nTests failed: \n{json.dumps(failed_feedback)}'
-
-    return passed, feedback
-
 def score_output_cases(output, expected_output):
     passed = 0
     failed = 0
@@ -138,11 +69,13 @@ def contest_evaluate(
 ):
     assert lang in LANGUAGE_MAPPING, f"language must be inside the supported language list: {LANGUAGE_MAPPING.keys()}"
 
+    limits = limits_by_lang[LANGUAGE_MAPPING[lang]]
+    limits["cpu"] = 40
     results, _, _ = api_comm.execute_code(
         language=LANGUAGE_MAPPING[lang],
         source_code=generated_code,
         unittests=tests,
-        limits=limits_by_lang[LANGUAGE_MAPPING[lang]],
+        limits=limits,
         task_id=id,
     )
 
@@ -162,11 +95,14 @@ def contest_evaluate_public_tests(
     id: int,
     tests: List[dict],
 ):
+    limits = limits_by_lang[LANGUAGE_MAPPING[lang]]
+    limits["cpu"] = 2.5
+
     results, _, _ = api_comm.execute_code(
         language=LANGUAGE_MAPPING[lang],
         source_code=generated_code,
         unittests=tests,
-        limits=limits_by_lang[LANGUAGE_MAPPING[lang]],
+        limits=limits,
         task_id=id,
         stop_on_first_fail=False
     )
