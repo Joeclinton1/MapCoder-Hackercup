@@ -26,7 +26,7 @@ class LiveDataset(Dataset):
                     problem_data[key] = f.read()
             problem_data['sample_io'] = [dict(input=problem_data['input'], output=[problem_data['output']])]
             problem_data['sample_io'] = [dict(input=problem_data['input'], output=[problem_data['output']])]
-            problem_data['test_list'] = [dict(input=problem_data['full'], output="")]
+            problem_data['test_list'] = [dict(input=problem_data['full'], output=[""])]
             problem_data['name'] = problem
             data.append(problem_data)
 
