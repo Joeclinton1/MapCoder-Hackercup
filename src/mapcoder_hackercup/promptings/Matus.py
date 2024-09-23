@@ -46,11 +46,13 @@ class Matus(BaseStrategy):
             print(f' --- Attempt {i} --- ')
             print(f' Generating plan ')
             plan = self.chat(planning_prompt, item, 'breakdown')
-            max_score, max_code = self.generate_code(
+            score, code = self.generate_code(
                 item, plan, max_score, max_code, problem_prompt, sample_io_prompt
             )
-            if max_score == 1.0:
+            if score == 1.0:
                 break
+            if score > max_score:
+                max_score, max_code = score, code
 
         return max_code, self.pr_tok, self.com_tok
 

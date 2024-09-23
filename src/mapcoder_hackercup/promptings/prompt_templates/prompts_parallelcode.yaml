@@ -1,0 +1,43 @@
+improve_code:
+  content: |
+    Given a competitive programming problem you have generated {language} code to solve the problem. But the generated code cannot pass sample test cases. Improve your code to solve the problem correctly.
+    ## Problem to be solved:
+    {problem_prompt}
+    ## Code Generated
+    {response}
+    ## Test Report:
+    {test_log}
+    ## Modified Planning:
+    ## Let's think step by step to modify {language} Code for solving this problem. Taking into account what specific test cases are failing and why your code might differ from the correct reasoning given in the problem description.
+
+    ----------------
+    Important:
+    {std_input_prompt}
+    ## Your response must contain the modified planning and then the {language} code inside <code> block to solve this problem.
+
+improve_plan_and_code:
+  content: |
+    Given a competitive programming problem you have generated {language} code to solve the problem. But the generated code cannot pass sample test cases.
+    Improve the planning and then generate code to solve the problem correctly.
+    ## Problem to be solved:
+    {problem_prompt}
+    ## Planning
+    {planning}
+    ## Code Generated
+    {code}
+    ## Test Report:
+    {test_log}
+    
+    ----------------
+    Important:
+    Your output must be in the following format:
+    ## Critique
+    - For each test case output that does not match expected output, think step by step to understand why the plan failed to solve it. Refer to the Sample Explanations for help.
+    ## Improved Planning
+    - Improve the plan to fix your critiques
+    ## Code
+    {language} code inside <code> block to solve this problem
+    
+    Important:
+    {std_input_prompt}
+    ## Your response must contain the critique, modified planning and then the {language} code inside <code> block to solve this problem.
