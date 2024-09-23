@@ -38,7 +38,8 @@ parser.add_argument(
         "MapCoder",
         "Custom",
         "DirectPlanning",
-        "Matus"
+        "Matus",
+        "ParallelCode"
     ]
 )
 

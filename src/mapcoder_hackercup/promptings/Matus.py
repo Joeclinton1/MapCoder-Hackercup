@@ -46,7 +46,7 @@ class Matus(BaseStrategy):
             print(f' --- Attempt {i} --- ')
             print(f' Generating plan ')
             plan = self.chat(planning_prompt, item, 'breakdown')
-            max_score, max_code = self.generate_and_improve_code(
+            max_score, max_code = self.generate_code(
                 item, plan, max_score, max_code, problem_prompt, sample_io_prompt
             )
             if max_score == 1.0:
@@ -54,7 +54,7 @@ class Matus(BaseStrategy):
 
         return max_code, self.pr_tok, self.com_tok
 
-    def generate_and_improve_code(self, item, plan, max_score, max_code, problem_prompt, sample_io_prompt):
+    def generate_code(self, item, plan, max_score, max_code, problem_prompt, sample_io_prompt):
         code_prompt = self.prompts['coding']['content'] \
             .format(problem_prompt=problem_prompt,
                     plan=plan,
@@ -95,5 +95,5 @@ class Matus(BaseStrategy):
         problem_prompt = self.data.get_prompt(item)
         sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}\n"
         write_debug(plan, "plan")
-        _, code = self.generate_and_improve_code(item, plan, 0.0, "", problem_prompt, sample_io_prompt)
+        _, code = self.generate_code(item, plan, 0.0, "", problem_prompt, sample_io_prompt)
         return code, self.pr_tok, self.com_tok
