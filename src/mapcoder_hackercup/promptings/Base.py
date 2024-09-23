@@ -157,11 +157,12 @@ class BaseStrategy(object):
             else:
                 self.results.add_result(item)
 
+            print([x["is_solved_sample"] for x in self.results])
             if self.verbose:
                 print(
                     f'completed {i+1}/{num_items}, '
                     f'Solved: {self.results[i]["is_solved"]},'
-                    f'Solved Sample: {self.results[i]["is_solved_sample"]==1}, '
+                    f'Solved Sample: {self.results[i]["is_solved_sample"][0]==1}'
                 )
 
             # break
