@@ -2,7 +2,7 @@ from mapcoder_hackercup.models.Gemini import Gemini
 from mapcoder_hackercup.models.OpenAI import ChatGPT
 from mapcoder_hackercup.models.OpenAI import GPT4
 from mapcoder_hackercup.models.Ollama import Codestral
-from mapcoder_hackercup.models.Ollama import Local
+from mapcoder_hackercup.models.Ollama import Local, Llama
 
 class ModelFactory:
     @staticmethod
@@ -17,5 +17,7 @@ class ModelFactory:
             return Codestral
         elif model_name == "Local":
             return Local
+        elif model_name == "Llama":
+            return Llama
         else:
             raise Exception(f"Unknown model name {model_name}")
