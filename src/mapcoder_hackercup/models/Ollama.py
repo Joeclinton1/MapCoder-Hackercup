@@ -124,3 +124,8 @@ class Local(OllamaBaseModel):
         first_model = requests.get(f"{api_url}/api/tags").json()["models"][0]["model"]
         kwargs['model_name'] = first_model
         super().__init__(*args, **kwargs)
+
+class Deepseek(OllamaBaseModel):
+    def __init__(self, *args, **kwargs):
+        kwargs['model_name'] = 'deepseek-coder-v2:lite '
+        super().__init__(*args, **kwargs)

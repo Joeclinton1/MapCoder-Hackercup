@@ -52,7 +52,8 @@ parser.add_argument(
         "GPT4",
         "Gemini",
         "Codestral",
-        "Local"
+        "Local",
+        "Deepseek"
     ]
 )
 
