@@ -71,7 +71,7 @@ def contest_evaluate(
     assert lang in LANGUAGE_MAPPING, f"language must be inside the supported language list: {LANGUAGE_MAPPING.keys()}"
 
     limits = limits_by_lang[LANGUAGE_MAPPING[lang]]
-    limits["cpu"] = 30
+    limits["cpu"] = 40
     results, _, _ = api_comm.execute_code(
         language=LANGUAGE_MAPPING[lang],
         source_code=generated_code,
@@ -97,7 +97,7 @@ def contest_evaluate_public_tests(
     tests: List[dict],
 ):
     limits = limits_by_lang[LANGUAGE_MAPPING[lang]]
-    limits["cpu"] = 2.5
+    limits["cpu"] = 1.5
 
     results, _, _ = api_comm.execute_code(
         language=LANGUAGE_MAPPING[lang],
