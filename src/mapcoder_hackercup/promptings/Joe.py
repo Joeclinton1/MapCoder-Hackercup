@@ -12,9 +12,11 @@ cwd = os.path.dirname(os.path.abspath(__file__))
 prompts_file = os.path.join(cwd, 'prompt_templates/prompts_joe.yaml')
 algorithms_file = os.path.join(cwd, 'prompt_templates/algorithm_list.yaml')
 lang_specific_file = os.path.join(cwd, 'prompt_templates/lang_specific_tips.yaml')
+
 NUM_PARALLEL = 5
 NUM_SETS = 3
 NUM_TRICKS_PER_SET = 3
+MAX_IMPROVEMENT_TRIES = 0
 
 class Joe(Matus):
     def __init__(self, *args, **kwargs):
@@ -23,11 +25,13 @@ class Joe(Matus):
         self.pr_tok, self.com_tok = 0, 0
         super(Matus, self).__init__(*args, **kwargs)
         self.sample_io_prompt = None
+        self.sample_explanation = None
         self.lang_specific_tips = utils.load_prompts(lang_specific_file)
 
     def run_single_pass(self, item):
         self.sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}"
         problem = self.data.get_prompt(item)
+        self.sample_explanation = problem.split("# sample explanation\n", 1)[-1]
 
         # Step 1: Generate k tricks
         print(f"Generating {NUM_SETS} sets of {NUM_TRICKS_PER_SET} tricks for how to solve the problem \n")
@@ -40,14 +44,27 @@ class Joe(Matus):
         # Step 3: Generate NUM_PARALLEL codes for each plan in parallel and keep track of best scoring codes
         max_score, max_code = 0.0, ""
         for i, (trick, plan) in enumerate(plans):
+
+            # Step 3a: Generate initial code
             print(f' --- Attempt {i} --- ')
             print(f'Trick: {trick}')
-            score, code = self.generate_code(item, trick, plan, problem)
-            if score >= max_score:
-                max_score, max_code = score, code
-            if score == 1.0:
-                break
+            score, code, test_report = self.generate_code(item, trick, plan, problem)
+
+            prev_score = None
+            # Step 3b: Improve code on test cases
+            for j in range(MAX_IMPROVEMENT_TRIES):
+                if score >= max_score:
+                    max_score, max_code = score, code
+                if score == 1.0:
+                    break
+                if score == prev_score:
+                    print(f'Score is not improving, stopping...')
+                    break
+
+                code, score, test_result = self.fix_code_lines_failing_test_case(item, problem, max_code, test_report)
+
         return max_code, self.pr_tok, self.com_tok
+
     def generate_tricks(self, item, problem):
         def parse_tricks(response):
             raw_xml = utils.replace_tag(response, 'trick')
@@ -109,11 +126,85 @@ class Joe(Matus):
             results2 = results
         score, code, test_report = max(results2, key=lambda x: x[0])
 
-        scores = ",".join([str(r[0]) for r in results])
-        print(f' Scores: {scores}')
+        print(f' Scores: {",".join([str(r[0]) for r in results])}')
         print(f' Best Score: {score}\n')
 
-        return score, code
+        return score, code, test_report
+
+    def fix_code_lines_failing_test_case(self, item, problem, best_code, test_result):
+        print(" ## Modifying code")
+
+        # Step 1. Get the expected and actual output of the test case that failed
+        expected_actual = self.get_first_failed_case(test_result)
+
+        # Step 2: Add line numbers to the code, so the llm can reference them during debugging
+        code_lines = best_code.split('\n')
+        numbered_code = '\n'.join([f"{i}: {line}" for i, line in enumerate(code_lines)])
+
+        # Step 3: Generate NUM_PARALLEL//2+1 code modifications to fix test case
+        def modify_code_and_evaluate(_):
+            # Step 3a: Call the chat function to get modified lines
+            mod_reasoning, mod_lines = self.modify_code_lines(problem, expected_actual, item, numbered_code)
+            self.log_modification(mod_reasoning, mod_lines, code_lines)
+
+            # Step 3b: Replace original code file lines with modified code lines and join
+            for num, new in mod_lines:
+                old = code_lines[num]
+                indent = old[:len(old) - len(old.lstrip())]
+                code_lines[num] = indent + new.lstrip()
+            code = "\n".join(code_lines)
+
+            write_debug(dict(code=code), type_='code')
+
+            # Step 3c: Reevaluate code_lines
+            score, test_result_new = self.data.evaluate_sample_io(item, code, self.language)
+
+            return score, code, test_result_new
+
+        results = self.run_func_parallel_and_collect(modify_code_and_evaluate, num_parallel=NUM_PARALLEL//2+1)
+        best_score, best_code, test_result = max(results, key=lambda x: x[0])
+
+        print(f' Scores: {",".join([str(r[0]) for r in results])}')
+        print(f' Best Score: {best_score}\n')
+
+        return best_code, best_score, test_result
+
+    def modify_code_lines(self, problem, expected_actual, item, numbered_code):
+        modify_prompt = self.prompts['modify'].format(
+            problem_prompt=problem,
+            sample_io_prompt=self.sample_io_prompt,
+            language=self.language,
+            expected=expected_actual[0],
+            actual=expected_actual[1],
+            numbered_code=numbered_code
+        )
+        mod_raw_xml = self.chat(modify_prompt, item, tag='modify_lines', temperature=0.2, top_p=1.0)
+        mod_raw_xml = utils.replace_tag(mod_raw_xml, 'num')
+        mod_raw_xml = utils.replace_tag(mod_raw_xml, 'code')
+        mod_xml = utils.parse_xml_element(mod_raw_xml)
+        mod_reasoning = mod_xml.find("explanation").text
+        mod_lines = mod_xml.findall('change')
+        mod_lines = [
+            [int(l.find('num').text.strip()), l.find('code').text]
+            for l in mod_lines
+        ]
+        return mod_reasoning, mod_lines
+
+    def log_modification(self, mod_reasoning, mod_lines, code_lines):
+        logging_dict = {'explanation': '\n'+mod_reasoning.strip()}
+        print(f"Modification Explanation: {mod_reasoning}")
+        for num, new in mod_lines:
+            logging_dict[f'line_{num}'] = f'\nOld: {code_lines[num]}\nNew: {new}'
+        write_debug(logging_dict, 'modify')
+
+    @staticmethod
+    def get_first_failed_case(test_result):
+        result_lines = test_result.split('\n')
+        i,j = result_lines.index('Expected Output:')+1, result_lines.index('Your output:')+1
+        num_cases = j-i
+        for idx in range(num_cases):
+            if result_lines[i + idx] != result_lines[j + idx]:
+                return result_lines[i + idx], result_lines[j + idx]
 
     def run_func_parallel_and_collect(self, func, num_parallel=NUM_PARALLEL):
         # Running the code generation in parallel
@@ -139,3 +230,11 @@ class Joe(Matus):
         score, code = self.generate_code(item, "", plan, problem)
         return code, self.pr_tok, self.com_tok
 
+    def run_single_pass_code_improvement_only(self, item: dict, code_dir: str):
+        with open(code_dir, 'r') as f:
+            code = f.read()
+        score, test_result = self.data.evaluate_sample_io(item, code, self.language)
+        print(f"Starting Score: {score}")
+        problem = self.data.get_prompt(item)
+        code, _, _ = self.fix_code_lines_failing_test_case(item, problem, code, test_result)
+        return code, self.pr_tok, self.com_tok

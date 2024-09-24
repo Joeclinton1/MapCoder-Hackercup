@@ -70,3 +70,40 @@ coding: |
   Encapsulate logic in functions.
   
   ## Your response must contain only the {language} code to solve this problem. Do not add extra explanation or words.
+
+modify: |
+  You are an expert competitive programmer.
+  You have generated code for a competitive programming problem however it does not pass the given test case.
+  Using the provided Sample Explanations of the test cases, explain step by step how it should be working and identify what specifically in your code is causing this test case to fail.
+  # Problem:
+  {problem_prompt}
+  {sample_io_prompt}
+  # Failed test case 
+  Expected output: {expected}
+  Actual output: {actual}
+  # Code (with line numbers):
+  {numbered_code}
+  
+  ----------------
+  Important:
+  Explain reasoning inside the <explanation> tag and include <change> tags for each line change. 
+  A line change corresponds to exactly one modified line, so a range is not allowed. Code should contain only the code for that line.
+  Multiple line changes require multiple <change> tags. <num>x</num> is allowed, but <num>x-y</num> is not since this is a range.
+  Your response must follow the following xml format exactly-
+  <root>
+  <explanation>
+  # Step by step reasoning, using Sample Explanation of test case, to explain why the code is failing the test case and how to fix. Describe changes with plain text only. No Code.
+  </explanation>
+  
+  <change>
+  <num>
+  # Line number (one line at a time, range is NOT allowed)
+  </num>
+  <code>
+  # Changed line code.
+  </code>
+  </change>
+  
+  # similarly add more line changes here
+  
+  </root>
