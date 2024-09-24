@@ -17,41 +17,16 @@ class ParallelCode(Matus):
     def __init__(self, *args, **kwargs):
         self.prompts = utils.load_prompts(prompts_file)
         self.prompts2 = utils.load_prompts(prompts_file_2)
-        # self.n_plans = kwargs.get('n_plans', 7)
+        self.n_plans = kwargs.get('n_plans', 7)
+        self.n_same = kwargs.get('n_same', 1)
 
         self.pr_tok, self.com_tok = 0, 0
 
         super(Matus, self).__init__(*args, **kwargs)
 
-    def run_single_pass(self, item):
-        def gen_plan():
-            return self.chat(planning_prompt, item, 'breakdown')
-
-        problem_prompt = self.data.get_prompt(item)
-        planning_prompt = self.prompts['breakdown_simple']['content']\
-            .format(problem_prompt=problem_prompt)
-        sample_io_prompt=f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}"
-
-        max_score, max_code = 0.0, ""
-
-        print(f' Generating {NUM_PARALLEL+2} plans ')
-        plans = self.run_func_parallel_and_collect(gen_plan, NUM_PARALLEL+2)
-
-        for i, plan in enumerate(plans):
-            print(f' --- Attempt {i} --- ')
-            print('Generating code')
-            score, code = self.generate_code(
-                item, plan, problem_prompt, sample_io_prompt
-            )
-            if score >= max_score:
-                max_score, max_code = score, code
-
-            if score == 1.0:
-                break
-        return max_code, self.pr_tok, self.com_tok
     def generate_code(self, item, plan, problem_prompt, sample_io_prompt):
-        std_input_prompt = self.prompts['std_input_prompt']['content']\
-            .format(language=self.language, language_upper=self.language.upper())
+        std_input_prompt = self.prompts['std_input_prompt_old']['content']\
+            .format(language=self.language)
 
         # Function to generate code and evaluate it
         test_log = None
@@ -85,9 +60,11 @@ class ParallelCode(Matus):
             score, test_result = self.data.evaluate_sample_io(item, code, self.language)
             return score, code, test_result
 
+        n_same = 0
         prev_score = 0.0
         for i in range(4):
-            func, label = (gen_initial_code, "Initial Code Generation") if i == 0 else (improve_code, "Improve Code")
+            func, label, p = (gen_initial_code, "Initial Code Generation", NUM_PARALLEL) \
+                if i == 0 else (improve_code, "Improve Code", NUM_PARALLEL//2+1)
             results = self.run_func_parallel_and_collect(func)
             score, code, test_report = max(results, key=lambda x: x[0])
 
@@ -100,11 +77,19 @@ class ParallelCode(Matus):
                 best_score = score
                 best_code = code
 
-            if (score == 0.0 or score == 1.0) and func == gen_initial_code:
+            if score == 1.0:
                 break
 
-            if [r[0] for r in results].count(score)<NUM_PARALLEL//2 or score<=0.5 or score<=prev_score:
-                break
+            if score == prev_score:
+                if n_same >= self.n_same:
+                    print(f'Score is not improving, stopping...')
+                    break
+                n_same += 1
+            else:
+                n_same = 0.0
+
+            # if [r[0] for r in results].count(score)<NUM_PARALLEL//2:
+            #     break
             prev_score = score
 
         return best_score, best_code

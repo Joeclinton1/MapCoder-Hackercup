@@ -2,7 +2,7 @@ breakdown:
   content: |
     You are an expert competitive programmer, who doesn't make mistakes.
     
-    Produce a correct and efficient pseudocode plannings to solving the competitive coding problem.
+    Produce a correct and efficient pseudocode planning to solving the competitive coding problem.
     
     If necessary, specify which new, smaller functions should be defined, and how they should be recombined to produce 
     a working solution to the problem.
@@ -107,3 +107,10 @@ std_input_prompt:
     ## IMPORTANT: Strictly follow the input and output format. Do not include any other text, including explanation.
     Only output a single code box with your code in {language}. If you do not, you will fail at your task.
     ONLY USE THE LIBRARIES THAT ARE PROVIDED IN {language_upper} BY DEFAULT
+
+std_input_prompt_old:
+  content: |
+    ## Note: Strictly follow the input and output format.
+    The input should be taken from Standard input and output should be given to standard output. 
+    If you are writing a function then after the function definition take input using input() function then call the function with specified parameters and finally print the output of the function. 
+    Do not add extra print statement otherwise it will failed the test cases.

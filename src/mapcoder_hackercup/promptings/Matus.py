@@ -67,7 +67,7 @@ class Matus(BaseStrategy):
             )
 
             score, code = self.generate_code(
-                item, plan, max_score, max_code, problem_prompt, sample_io_prompt
+                item, plan, problem_prompt, sample_io_prompt
             )
             if score > max_score:
                 max_score, max_code = score, code
@@ -76,9 +76,11 @@ class Matus(BaseStrategy):
 
         return max_code, self.pr_tok, self.com_tok
 
-    def generate_code(self, item, plan, max_score, max_code, problem_prompt, sample_io_prompt):
+    def generate_code(self, item, plan, problem_prompt, sample_io_prompt):
         std_input_prompt = self.prompts['std_input_prompt']['content']\
             .format(language=self.language, language_upper=self.language.upper())
+
+        max_score, max_code = 0.0, ""
 
         code_prompt = self.prompts['coding']['content'] \
             .format(problem_prompt=problem_prompt,
