@@ -26,20 +26,6 @@ class ParallelCode(Matus):
 
         super(Matus, self).__init__(*args, **kwargs)
 
-    def chat(self, input: str, item: dict, tag='', **kwargs) -> (str, int, int):
-        item['api_calls'] = item.get('api_calls', 0) + 1
-        response, pr_tok, com_tok = self.model.prompt(
-            processed_input=[{"role": "user", "content": input}],
-            **kwargs
-        )
-
-        self.pr_tok += pr_tok
-        self.com_tok += com_tok
-
-        write_debug(input, tag + '_' + 'prompt')
-        write_debug(response, tag)
-        return response
-
     def run_single_pass(self, item):
         def gen_plan():
             return self.chat(planning_prompt, item, 'breakdown')
