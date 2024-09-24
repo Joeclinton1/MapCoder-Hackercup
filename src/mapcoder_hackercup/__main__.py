@@ -127,6 +127,14 @@ parser.add_argument(
     help='If set prompt strategy will skip planning stage and use this plan instead'
 )
 
+parser.add_argument(
+    '--code_dir',
+    type=str,
+    default=None,
+    help='If set prompt strategy will skip straight to improving the code at the provided directory.'
+)
+
+
 args = parser.parse_args()
 
 SPLIT = args.split
@@ -166,7 +174,8 @@ strategy = PromptingFactory.get_prompting_class(STRATEGY)(
     results=Results(RESULTS_PATH),
     temps = TEMPERATURE,
     top_ps = TOP_P,
-    plan = args.plan
+    plan = args.plan,
+    code_dir = args.code_dir
 )
 
 strategy.run()

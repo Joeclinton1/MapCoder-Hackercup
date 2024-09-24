@@ -22,7 +22,8 @@ class BaseStrategy(object):
         verbose: bool = True,
         temps: list = None,
         top_ps: list = None,
-        plan: str = None
+        plan: str = None,
+        code_dir: str = None
     ):
         self.model = model
         self.data = data
@@ -33,6 +34,7 @@ class BaseStrategy(object):
         self.temps = [] if temps is None else temps
         self.top_ps = [] if top_ps is None else top_ps
         self.plan = plan
+        self.code_dir = code_dir
 
     def gpt_chat(self, processed_input: List[dict], **kwargs) -> (str, int, int):
         return self.model.prompt(processed_input=processed_input, **kwargs)
@@ -43,38 +45,15 @@ class BaseStrategy(object):
     def run_single_pass_no_planning(self, item: dict, plan: str):
         return self.run_single_pass(item)
 
+    def run_single_pass_code_improvement_only(self, item: dict, code: str):
+        return self.run_single_pass(item)
+
     def run(self):
         num_items = len(self.data)
         num_success = 0
 
         for i, item in enumerate(self.data):
             print("", flush=True, end="")
-
-            # if i < len(self.results):
-            #     is_passing = self.results[i]["is_solved"]
-            #     """
-            #     if not is_passing:
-            #         for response in self.results[i]["source_codes"]:
-            #             cur_imp = response
-            #             # parse_response(
-            #             #     response,
-            #             #     item["entry_point"]
-            #             # )
-            #             is_passing = self.data.evaluate(
-            #                 item=item,
-            #                 cur_imp=cur_imp,
-            #                 language=self.language
-            #             )
-            #             if is_passing:
-            #                 break
-            #     """
-            #     if is_passing:
-            #         num_success += 1
-
-            #     if self.verbose:
-            #         print(f'completed {i+1}/{num_items}, Solved: {is_passing}, number of success = {num_success}/{i+1}, acc = {round(num_success/(i+1)*100, 2)}')
-
-            #     continue
 
             if i < len(self.results):
                 item = copy.deepcopy(self.results[i])
@@ -100,10 +79,13 @@ class BaseStrategy(object):
             while cur_pass < self.pass_at_k and not is_solved:
                 for _ in range(10):
                     try:
-                        if self.plan is None:
-                            response, prompt_tokens, completion_tokens = self.run_single_pass(item)
-                        else:
+                        if self.plan is not None:
                             response, prompt_tokens, completion_tokens = self.run_single_pass_no_planning(item, self.plan)
+                        elif self.code_dir is not None:
+                            result = self.run_single_pass_code_improvement_only(item, self.code_dir)
+                            response, prompt_tokens, completion_tokens = result
+                        else:
+                            response, prompt_tokens, completion_tokens = self.run_single_pass(item)
                         break
                     except Exception as e:
                         print(f"Exception occured with error: {e}")
