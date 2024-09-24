@@ -9,6 +9,7 @@ from mapcoder_hackercup.constants.paths import DATA_DIR
 from .api_comm import APICommunication
 from .exec_outcome import ExecOutcome
 from mapcoder_hackercup.constants.lang_mappings import LANGUAGE_MAPPING
+from ..results import write_debug
 
 limits_by_lang_cfg_file = f"{os.path.dirname(__file__)}/limits_by_lang.yaml"
 
@@ -110,7 +111,7 @@ def contest_evaluate_public_tests(
     input = tests[0]['input']
     expected_output = tests[0]['output'][0]
     output = results[0]['result']
-
+    write_debug(results[0],type_="output")
     if results[0]['exec_outcome'] == ExecOutcome.PASSED.value:
         return 1, "All tests passed!"
     elif results[0]['exec_outcome'] == ExecOutcome.WRONG_ANSWER.value:
