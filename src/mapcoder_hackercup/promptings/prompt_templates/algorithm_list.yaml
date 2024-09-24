@@ -1,0 +1,201 @@
+algorithm_list: |
+  Binary Search
+  Two Pointers
+  Sliding Window
+  Fast Fourier Transform
+  Dijkstra's Algorithm
+  Floyd-Warshall Algorithm
+  Union-Find Structure
+  Binary Indexed Tree
+  Segment Trees Usage
+  Depth-First Search
+  Breadth-First Search
+  Topological Sort
+  Dynamic Programming
+  Memoization Technique
+  Greedy Algorithms
+  Backtracking Technique
+  Bitmasking Technique
+  Meet in the Middle
+  Euler Tour Technique
+  Heavy-Light Decomposition
+  Suffix Arrays Construction
+  Suffix Automaton
+  Manacher's Algorithm
+  Knuth-Morris-Pratt
+  Rabin-Karp Algorithm
+  Z-Algorithm Usage
+  Aho-Corasick Automaton
+  Tarjan's Algorithm
+  Kosaraju's Algorithm
+  Hopcroft-Karp Algorithm
+  Dinic's Algorithm
+  Ford-Fulkerson Method
+  Bellman-Ford Algorithm
+  Prim's Algorithm
+  Kruskal's Algorithm
+  Johnson's Algorithm
+  Inclusion-Exclusion Principle
+  Fast Exponentiation Method
+  Matrix Exponentiation
+  Randomized Algorithms
+  Probabilistic Counting
+  Bloom Filters
+  Sieve of Eratosthenes
+  Sieve of Atkin
+  Chinese Remainder Theorem
+  Extended Euclidean Algorithm
+  Fermat's Little Theorem
+  Lucas Theorem
+  Number Theoretic Transform
+  Euler's Totient Function
+  Möbius Inversion
+  Fast Möbius Transform
+  Counting Sort
+  Radix Sort
+  Bucket Sort
+  Quick Sort
+  Merge Sort
+  Heap Sort
+  Floyd's Cycle Detection
+  Prüfer Sequence
+  Discrete Logarithm
+  Eulerian Path Detection
+  Hamiltonian Path Techniques
+  Bipartite Matching
+  Max Flow Min Cut
+  Link-Cut Trees
+  Fenwick Trees Implementation
+  Persistent Data Structures
+  Implicit Treap
+  Cartesian Tree
+  Binary Search Tree
+  AVL Tree
+  Red-Black Tree
+  Splay Tree
+  Skip List Usage
+  B-Tree
+  Trie Data Structure
+  Suffix Trees Construction
+  Interval Tree Usage
+  Range Tree
+  K-D Tree
+  Quad Tree
+  R-Tree
+  Rope Data Structure
+  Wavelet Tree
+  Segment Tree Beats
+  Lazy Propagation Technique
+  Sweep Line Algorithm
+  Convex Hull Trick
+  Convex Optimization
+  Geometry Algorithms
+  Line Intersection
+  Polygon Triangulation
+  Rotating Calipers Method
+  Closest Pair Problem
+  Computational Geometry
+  Binary Lifting Technique
+  Lowest Common Ancestor
+  Euler Tour LCA
+  Heavy Path Decomposition
+  Centroid Decomposition
+  Tree DP
+  Knuth Optimization
+  Divide and Conquer
+  Sparse Tables Usage
+  Range Minimum Query
+  Range Maximum Query
+  2D Prefix Sums
+  Fast I/O Techniques
+  Bit Manipulation Tricks
+  Gray Code
+  Hamming Distance
+  Bitmask DP
+  XOR Tricks
+  Counting Bits
+  Bit Reversal
+  Fast Walsh Transform
+  Monte Carlo Methods
+  Las Vegas Algorithms
+  Reservoir Sampling
+  Hashing Techniques
+  Double Hashing
+  Rolling Hash
+  Polynomial Hash
+  Cuckoo Hashing
+  Perfect Hashing
+  Bitset Manipulation
+  Fast Matrix Multiplication
+  Strassen's Algorithm
+  Polynomial Multiplication
+  Polynomial Interpolation
+  Lagrange Interpolation
+  Bézout's Identity
+  Modular Inversion
+  Modular Arithmetic
+  Modular Exponentiation
+  Wilson's Theorem
+  Legendre's Formula
+  Pigeonhole Principle
+  Probabilistic Methods
+  Recursion with Memoization
+  Iterative Deepening
+  Dynamic Programming Trees
+  Dynamic Programming Graphs
+  Dynamic Programming Bitmask
+  Dynamic Programming Convex Hull
+  Shortest Path Faster Algorithm
+  Yen's Algorithm
+  Bidirectional Search
+  Simulated Annealing
+  Genetic Algorithms
+  Tabu Search
+  Ant Colony Optimization
+  Hill Climbing
+  Branch and Bound
+  Integer Programming
+  Linear Programming
+  Knapsack Variants
+  Subset Sum Problem
+  Coin Change Problem
+  Partition Problem
+  Longest Increasing Subsequence
+  Longest Common Subsequence
+  Edit Distance
+  String Matching
+  Pattern Searching
+  Binary Patterns
+  Palindromic Substrings
+  Anagram Detection
+  Permutation Generation
+  Combination Generation
+  Recursive Backtracking
+  Iterative Backtracking
+  Primality Testing
+  Pollard's Rho Algorithm
+  Miller-Rabin Test
+  AKS Primality Test
+  Factorization Algorithms
+  Pollard's p-1 Method
+  Fermat Factorization
+  Elliptic Curve Factorization
+  Quadratic Sieve
+  Number Field Sieve
+  RSA Encryption Algorithms
+  Diffie-Hellman Method
+  Modular Sieve
+  Factorial Modulo
+  Catalan Numbers
+  Fibonacci Numbers
+  Lucas Numbers
+  Bellman-Held-Karp
+  Floyd's Tortoise
+  Hierholzer's Algorithm
+  Edmonds-Karp Algorithm
+  Hopcroft-Karp Algorithm
+  Gale-Shapley Algorithm
+  Ford-Fulkerson Method
+  Dinic's Algorithm
+  Johnson's Algorithm
+  Tarjan's SCC

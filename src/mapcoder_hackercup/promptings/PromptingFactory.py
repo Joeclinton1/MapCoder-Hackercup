@@ -6,6 +6,7 @@ from mapcoder_hackercup.promptings.Custom import Custom
 from mapcoder_hackercup.promptings.Custom_DirectPlanning import DirectPlanning
 from mapcoder_hackercup.promptings.Matus import Matus
 from mapcoder_hackercup.promptings.Matus_ParallelCode import ParallelCode
+from mapcoder_hackercup.promptings.Joe import Joe
 
 class PromptingFactory:
     @staticmethod
@@ -24,5 +25,7 @@ class PromptingFactory:
             return Matus
         elif prompting_name == "ParallelCode":
             return ParallelCode
+        elif prompting_name == "Joe":
+            return Joe
         else:
             raise Exception(f"Unknown prompting name {prompting_name}")

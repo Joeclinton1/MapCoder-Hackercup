@@ -30,8 +30,9 @@ def xml_to_dict(element):
             result[child.tag] = child.text
     return result
 
-
-def parse_xml(response: str) -> dict:
+def parse_xml_element(response: str) ->ET.Element:
+    return parse_xml(response, use_dict=False)
+def parse_xml(response: str, use_dict=True) -> dict:
     if '```xml' in response:
         response = response.replace('```xml', '')
     if '```' in response:
@@ -44,7 +45,7 @@ def parse_xml(response: str) -> dict:
             root = ET.fromstring('<root>\n' + response + '\n</root>')
         except:
             root = ET.fromstring('<root>\n' + response)
-    return xml_to_dict(root)
+    return xml_to_dict(root) if use_dict else root
 
 
 def parse_code(response: str) -> str:

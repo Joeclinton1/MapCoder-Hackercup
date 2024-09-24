@@ -39,7 +39,8 @@ parser.add_argument(
         "Custom",
         "DirectPlanning",
         "Matus",
-        "ParallelCode"
+        "ParallelCode",
+        "Joe"
     ]
 )
 

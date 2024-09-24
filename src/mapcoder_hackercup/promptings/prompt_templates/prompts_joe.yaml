@@ -1,0 +1,72 @@
+trick: |
+  You are an expert competitive programmer.
+  Determine the best possible time complexity taking into account all constraints and all details provided in the problem statement
+  Identify {num_tricks} different but all similar tricks to solving the following competitive coding problem correctly and efficiently.
+  For each trick, be concise, and focus on the crux of how it uses a given algorithm to solve the problem. Provided is a list of algorithms to help:
+  
+  # List of competitive coding algorithms
+  {algorithms_list}
+  
+  # Problem to be solved:
+  {problem_prompt}
+  
+  # Complexity
+  1. With the largest input in mind (as given by constraints), calculate step by step what time complexity is required.
+  3. Is an O(1) Math algorithm possible? Are approximate solutions allowed?
+  
+  # Tricks
+  identify {num_tricks} different possible tricks to solving the following competitive coding problem correctly and efficiently.
+  For each trick state it's time complexity, which must be less than the complexity determined initially.
+  ----------------
+  Important:
+  Your response must contain the time complexity followed by {num_tricks} tricks. You must use this exact XML format:
+  <root>
+  <complexity>
+  # 1. Max input determined time complexity. 2. Constant time possible? Approximations allowed?
+  </complexity>
+  <tricks>
+  <trick>
+  # Clever trick for solving problem, time complexity and memory complexity
+  </trick>
+  </tricks
+  
+  # similarly add more tricks here...
+    
+  </root>
+
+planning: |
+  Given a competitive programming Problem and a Trick for how to solve, generate a concrete pseudocode planning to solve the problem.
+  # Problem
+  {problem_prompt}
+  {sample_io_prompt}
+  # Trick
+  {trick}
+  # Planning:
+  
+  ----------------
+  # Ensure correctness:
+  - Cover common edge cases (e.g., empty inputs, smallest/largest values, edge boundary cases).
+  - Handle all branches and conditions correctly; double-check loop bounds and recursive depth.
+  - Keep time and space complexity within constraints, and optimize for worst-case scenarios.
+  - Avoid off-by-one errors by carefully handling loop conditions and boundaries.
+  - Use appropriate data structures (e.g., sets, dictionaries) to improve look-up and access times.
+  Important: You should give only the planning to solve the problem. Do not add extra explanation or words. DO NOT GENERATE ANY CODE!
+
+coding: |
+  You are an expert competitive programmer.
+  Given a competitive programming problem and a trick to use, generate concise but correct {language} code to solve the problem.
+  # Problem:
+  {problem_prompt}
+  {sample_io_prompt}
+  # Trick:
+  {trick}
+  # Planning:
+  {planning}
+  ## Let's think step by step.
+
+  ----------------
+  Important:
+  {lang_specific_tips}
+  Encapsulate logic in functions.
+  
+  ## Your response must contain only the {language} code to solve this problem. Do not add extra explanation or words.

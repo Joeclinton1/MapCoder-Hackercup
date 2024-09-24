@@ -62,8 +62,4 @@ class LiveDataset(Dataset):
 
     @staticmethod
     def get_prompt(item):
-        return f"""{item['description']}\n
-        Sample Input:\n{item['input']}
-        Sample Output:\n{item['output']}\n
-        Important: Follow the input/output format strictly. Read input from standard input and write output to standard output.
-        """
+        return item['description']
