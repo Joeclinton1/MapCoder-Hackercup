@@ -66,7 +66,10 @@ class ParallelCode(Matus):
             func, label, p = (gen_initial_code, "Initial Code Generation", NUM_PARALLEL) \
                 if i == 0 else (improve_code, "Improve Code", NUM_PARALLEL//2+1)
             results = self.run_func_parallel_and_collect(func)
-            score, code, test_report = max(results, key=lambda x: x[0])
+            results2 = [x for x in results if not (isinstance(x[0], int) and x[0]==0)]
+            if len(results2)==0:
+                results2 = results
+            score, code, test_report = max(results2, key=lambda x: x[0])
 
             scores = ",".join([str(r[0]) for r in results])
             print(f" {label}:")
@@ -77,7 +80,7 @@ class ParallelCode(Matus):
                 best_score = score
                 best_code = code
 
-            if score == 1.0:
+            if (score == 1.0 or score == 0.0):
                 break
 
             if score == prev_score:
