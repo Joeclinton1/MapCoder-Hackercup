@@ -3,6 +3,7 @@ import os
 from .Matus import Matus
 from . import utils
 import concurrent.futures
+from ..results import write_debug
 
 # Path to the prompts YAML file
 cwd = os.path.dirname(os.path.abspath(__file__))
@@ -10,7 +11,7 @@ prompts_file = os.path.join(cwd, 'prompt_templates/prompts_matus.yaml')
 prompts_file_2 = os.path.join(cwd, 'prompt_templates/prompts_parallelcode.yaml')
 
 NUM_PARALLEL = 5
-IMPROVE_PLAN = True
+IMPROVE_PLAN = False
 
 utils.log = lambda a, b: None
 class ParallelCode(Matus):
@@ -18,11 +19,53 @@ class ParallelCode(Matus):
         self.prompts = utils.load_prompts(prompts_file)
         self.prompts2 = utils.load_prompts(prompts_file_2)
         self.n_plans = kwargs.get('n_plans', 7)
-        self.n_same = kwargs.get('n_same', 1)
+        self.n_improvements = kwargs.get('n_improvements', 4)
+        self.n_same = kwargs.get('n_same', 0)
 
         self.pr_tok, self.com_tok = 0, 0
 
         super(Matus, self).__init__(*args, **kwargs)
+
+    def chat(self, input: str, item: dict, tag='', **kwargs) -> (str, int, int):
+        item['api_calls'] = item.get('api_calls', 0) + 1
+        response, pr_tok, com_tok = self.model.prompt(
+            processed_input=[{"role": "user", "content": input}],
+            **kwargs
+        )
+
+        self.pr_tok += pr_tok
+        self.com_tok += com_tok
+
+        write_debug(input, tag + '_' + 'prompt')
+        write_debug(response, tag)
+        return response
+
+    def run_single_pass(self, item):
+        def gen_plan():
+            return self.chat(planning_prompt, item, 'breakdown')
+
+        problem_prompt = self.data.get_prompt(item)
+        planning_prompt = self.prompts['breakdown_simple']['content'] \
+            .format(problem_prompt=problem_prompt)
+        sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}"
+
+        max_score, max_code = 0.0, ""
+
+        print(f' Generating {self.n_plans} plans ')
+        plans = self.run_func_parallel_and_collect(gen_plan, num_parallel=self.n_plans)
+
+        for i, plan in enumerate(plans):
+            print(f' --- Attempt {i} --- ')
+            print('Generating code')
+            score, code = self.generate_code(
+                item, plan, problem_prompt, sample_io_prompt
+            )
+            if score >= max_score:
+                max_score, max_code = score, code
+
+            if score == 1.0:
+                break
+        return max_code, self.pr_tok, self.com_tok
 
     def generate_code(self, item, plan, problem_prompt, sample_io_prompt):
         std_input_prompt = self.prompts['std_input_prompt_old']['content']\
@@ -62,7 +105,7 @@ class ParallelCode(Matus):
 
         n_same = 0
         prev_score = 0.0
-        for i in range(4):
+        for i in range(self.n_improvements):
             func, label, p = (gen_initial_code, "Initial Code Generation", NUM_PARALLEL) \
                 if i == 0 else (improve_code, "Improve Code", NUM_PARALLEL//2+1)
             results = self.run_func_parallel_and_collect(func)
@@ -80,7 +123,7 @@ class ParallelCode(Matus):
                 best_score = score
                 best_code = code
 
-            if (score == 1.0 or score == 0.0):
+            if score == 1.0 or score <=0.5:
                 break
 
             if score == prev_score:
