@@ -26,7 +26,6 @@ class Joe(Matus):
         self.pr_tok, self.com_tok = 0, 0
         super(Matus, self).__init__(*args, **kwargs)
         self.sample_io_prompt = None
-        self.sample_explanation = None
 
         tips = utils.load_prompts(lang_specific_file)
         self.lang_specific_tips = f"# Language specific tips:\n{tips[self.language]}" if self.language in tips else ""
@@ -34,7 +33,6 @@ class Joe(Matus):
     def run_single_pass(self, item):
         self.sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}"
         problem = self.data.get_prompt(item)
-        self.sample_explanation = problem.split("# sample explanation\n", 1)[-1]
 
         # Step 1: Generate k tricks
         print(f"Generating {NUM_SETS} sets of {NUM_TRICKS_PER_SET} tricks for how to solve the problem \n")
@@ -145,20 +143,32 @@ class Joe(Matus):
     def improve_code(self, item, problem, best_code, test_result):
         print(" ## Modifying code")
 
-        # Step 1. Get the expected and actual output of the test case that failed
-        expected, actual = self.get_first_failed_case(test_result)
+        # Step 1. if case failed with wrong answer,
+        # get the expected and actual output of the test case that failed and generate prompt with it
+        # else if it failed with error generate a prompt asking to fix this error
+        if "Error Type" in test_result:
+            improvement_prompt = self.prompts['code_improvement_error'].format(
+                problem_prompt=problem,
+                sample_io_prompt=self.sample_io_prompt,
+                language=self.language,
+                error=test_result,
+                code=best_code,
+                lang_specific_tips=self.lang_specific_tips,
+            )
+        else:
+            expected, actual = self.get_first_failed_case(test_result)
+
+            improvement_prompt = self.prompts['code_improvement'].format(
+                problem_prompt=problem,
+                sample_io_prompt=self.sample_io_prompt,
+                language=self.language,
+                expected=expected,
+                actual=actual,
+                code=best_code,
+                lang_specific_tips=self.lang_specific_tips
+            )
 
         # Step 2: Generate NUM_PARALLEL//2+1 code modifications to fix test case
-        improvement_prompt = self.prompts['code_improvement'].format(
-            problem_prompt=problem,
-            sample_io_prompt=self.sample_io_prompt,
-            language=self.language,
-            expected=expected,
-            actual=actual,
-            code=best_code,
-            lang_specific_tips=self.lang_specific_tips
-        )
-
         def modify_code_and_evaluate(_):
             # Step 2a: Call the chat function to modify file
             response = self.chat(improvement_prompt, item, tag='improvement', temperature=0.9, top_p=1.0)

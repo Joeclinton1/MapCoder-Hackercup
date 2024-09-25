@@ -83,3 +83,20 @@ code_improvement: |
   {lang_specific_tips}
   
   ## Your response must contain the failed test case explanation and then the {language} code inside <code> block to solve this problem.
+
+code_improvement_error: |
+  Given a competitive programming problem you have generated {language} code to solve the problem. But the generated code fails with an error.
+  ## Problem to be solved:
+  {problem_prompt}
+  {sample_io_prompt}
+  ## Code Generated:
+  {code}
+  # Error
+  {error}
+  ## Error Explanation:
+
+  ----------------
+  Important:
+  {lang_specific_tips}
+
+  ## Your response must contain the Error Explanation and then the {language} code inside <code> block to fix the error.

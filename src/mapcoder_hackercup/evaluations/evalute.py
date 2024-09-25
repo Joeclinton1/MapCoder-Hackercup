@@ -28,6 +28,7 @@ with open(unittest_file) as ut_rp:
 
 
 api_comm = APICommunication(server_url=os.getenv('XCODE_SERVER_URL', 'http://windows-6absj2b:5000'))
+FULL_TEST_TIME = 40
 
 def score_output_cases(output, expected_output):
     passed = 0
@@ -71,7 +72,7 @@ def contest_evaluate(
     assert lang in LANGUAGE_MAPPING, f"language must be inside the supported language list: {LANGUAGE_MAPPING.keys()}"
 
     limits = limits_by_lang[LANGUAGE_MAPPING[lang]]
-    limits["cpu"] = 40
+    limits["cpu"] = FULL_TEST_TIME
     results, _, _ = api_comm.execute_code(
         language=LANGUAGE_MAPPING[lang],
         source_code=generated_code,
@@ -79,6 +80,7 @@ def contest_evaluate(
         limits=limits,
         task_id=id,
     )
+    write_debug(results[0], type_="output_full")
 
     if results == "error":
         return "error", ""
