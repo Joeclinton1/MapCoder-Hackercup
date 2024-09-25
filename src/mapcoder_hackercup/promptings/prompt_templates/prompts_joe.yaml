@@ -44,12 +44,6 @@ planning: |
   # Planning:
   
   ----------------
-  # Ensure correctness:
-  - Cover common edge cases (e.g., empty inputs, smallest/largest values, edge boundary cases).
-  - Handle all branches and conditions correctly; double-check loop bounds and recursive depth.
-  - Keep time and space complexity within constraints, and optimize for worst-case scenarios.
-  - Avoid off-by-one errors by carefully handling loop conditions and boundaries.
-  - Use appropriate data structures (e.g., sets, dictionaries) to improve look-up and access times.
   Important: You should give only the planning to solve the problem. Do not add extra explanation or words. DO NOT GENERATE ANY CODE!
 
 coding: |
@@ -70,3 +64,22 @@ coding: |
   Encapsulate logic in functions.
   
   ## Your response must contain only the {language} code to solve this problem. Do not add extra explanation or words.
+
+code_improvement: |
+  Given a competitive programming problem you have generated {language} code to solve the problem. But the generated code cannot pass sample test cases. Improve your code to solve the problem correctly.
+  ## Problem to be solved:
+  {problem_prompt}
+  {sample_io_prompt}
+  ## Failed test case 
+  Expected output: {expected}
+  Actual output: {actual}
+  ## Code Generated:
+  {code}
+  ## Failed test case explanation:
+  ## Using the provided Sample Explanations of the test cases, explain step by step how it should be working and identify what specifically in your code is causing this test case to fail.
+  
+  ----------------
+  Important:
+  {lang_specific_tips}
+  
+  ## Your response must contain the failed test case explanation and then the {language} code inside <code> block to solve this problem.
