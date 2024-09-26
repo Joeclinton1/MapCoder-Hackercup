@@ -220,5 +220,5 @@ class Joe(Matus):
         score, test_result = self.data.evaluate_sample_io(item, code, self.language)
         print(f"Starting Score: {score}")
         problem = self.data.get_prompt(item)
-        code, _, _ = self.improve_code(item, problem, code, test_result)
+        code, _, _ = self.improve_code(item, problem, code, "", test_result)
         return code, self.pr_tok, self.com_tok
