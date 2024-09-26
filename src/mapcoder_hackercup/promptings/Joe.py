@@ -16,7 +16,7 @@ lang_specific_file = os.path.join(cwd, 'prompt_templates/lang_specific_tips.yaml
 NUM_PARALLEL = 7
 NUM_SETS = 2
 NUM_TRICKS_PER_SET = 2
-MAX_IMPROVEMENT_TRIES = 3
+MAX_IMPROVEMENT_TRIES = 1
 THRESH_FOR_IMPROVEMENT = 0.5
 
 class Joe(Matus):
