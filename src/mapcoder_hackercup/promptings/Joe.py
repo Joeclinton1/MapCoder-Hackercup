@@ -139,7 +139,7 @@ class Joe(Matus):
         results2 = [x for x in results if not (isinstance(x[0], int) and x[0] == 0)]
         if len(results2) == 0:
             results2 = results
-        score, code, test_report = max(results2, key=lambda x: x[0])
+        score, code, test_report = self.holistic_get_best_result(results2)
 
         print(f' Scores: {",".join([str(r[0]) for r in results])}')
         print(f' Best Score: {score}\n')
@@ -174,14 +174,23 @@ class Joe(Matus):
             return score, code, test_result_new
 
         results = self.run_func_parallel_and_collect(modify_code_and_evaluate, num_parallel=NUM_PARALLEL)
-        best_score, best_code, test_result = max(results, key=lambda x: x[0])
+        best_score, best_code, test_result = self.holistic_get_best_result(results)
 
         print(f' Scores: {",".join([str(r[0]) for r in results])}')
         print(f' Best Score: {best_score}\n')
 
         return best_score, best_code, test_result
 
-    def run_func_parallel_and_collect(self, func, num_parallel=NUM_PARALLEL):
+    @staticmethod
+    def holistic_get_best_result(results):
+        # Instead of max score being returned use the average of the top two scores.
+        results.sort(key=lambda x: x[0], reverse=True)
+        best_score, best_code, test_result = results[0]
+        average_top_two_score = (results[0][0]+results[1][0])/2
+        return average_top_two_score, best_code, test_result
+
+    @staticmethod
+    def run_func_parallel_and_collect( func, num_parallel=NUM_PARALLEL):
         # Running the code generation in parallel
         with concurrent.futures.ThreadPoolExecutor(max_workers=num_parallel) as executor:
             futures = [executor.submit(func, i) for i in range(num_parallel)]
