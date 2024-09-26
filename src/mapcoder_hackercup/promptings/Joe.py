@@ -55,7 +55,6 @@ class Joe(Matus):
 
                 if score >= sol["score"]:
                     sol = dict(score=score, code=code, plan=plan, test_report=test_report)
-                    max_score, max_code = score, code
                 if score == 1.0:
                     return sol["code"], self.pr_tok, self.com_tok
                 if score == 0.999:
@@ -64,18 +63,19 @@ class Joe(Matus):
             print(f"--Best score so far: {sol['score']}--\n ## Improving best code: \n")
             # Step 4: For the best scoring plan seen so far. Improve its results.
             for j in range(MAX_IMPROVEMENT_TRIES):
-                score, code, test_result = self.improve_code(
+                score, code, test_report = self.improve_code(
                     item, problem, sol['code'], sol["plan"], sol["test_report"]
                 )
 
                 if score >= sol["score"]:
-                    max_score, max_code = score, code
+                    sol = dict(score=score, code=code, plan=sol["plan"], test_report=test_report)
+
                 if score == 1.0:
                     return sol["code"], self.pr_tok, self.com_tok
 
             # Step 5: do the entire NUM_SETS x NUM_TRICKS_PER_SET number of plan attempts again
 
-        return max_code, self.pr_tok, self.com_tok
+        return sol["code"], self.pr_tok, self.com_tok
 
     def generate_tricks(self, item, problem):
         def parse_tricks(response):
