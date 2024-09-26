@@ -48,7 +48,7 @@ planning: |
 
 coding: |
   You are an expert competitive programmer.
-  Given a competitive programming problem and a trick to use, generate concise but correct {language} code to solve the problem.
+  Given a competitive programming problem and a trick to use, generate correct {language} code to solve the problem.
   # Problem:
   {problem_prompt}
   {sample_io_prompt}

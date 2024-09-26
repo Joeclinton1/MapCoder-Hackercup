@@ -34,7 +34,7 @@ class Joe(Matus):
         self.sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}"
         problem = self.data.get_prompt(item)
 
-        max_score, max_code = 0.0, ""
+        sol = dict(score=0.0, code="", plan="", test_report="")
 
         for i in range(2):
             print(f"SHOT {i}\n-----------------------------------")
@@ -53,22 +53,25 @@ class Joe(Matus):
                 print(f'Trick: {trick}')
                 score, code, test_report = self.generate_code(item, trick, plan, problem)
 
-                if score >= max_score:
+                if score >= sol["score"]:
+                    sol = dict(score=score, code=code, plan=plan, test_report=test_report)
                     max_score, max_code = score, code
                 if score == 1.0:
-                    return max_code, self.pr_tok, self.com_tok
+                    return sol["code"], self.pr_tok, self.com_tok
                 if score == 0.999:
                     break
 
-            print(f"--Best score so far: {max_score}--\n ## Improving best code: \n")
+            print(f"--Best score so far: {sol['score']}--\n ## Improving best code: \n")
             # Step 4: For the best scoring plan seen so far. Improve its results.
             for j in range(MAX_IMPROVEMENT_TRIES):
-                score, code, test_result = self.improve_code(item, problem, max_code, plan, test_report)
+                score, code, test_result = self.improve_code(
+                    item, problem, sol['code'], sol["plan"], sol["test_report"]
+                )
 
-                if score >= max_score:
+                if score >= sol["score"]:
                     max_score, max_code = score, code
                 if score == 1.0:
-                    return max_code, self.pr_tok, self.com_tok
+                    return sol["code"], self.pr_tok, self.com_tok
 
             # Step 5: do the entire NUM_SETS x NUM_TRICKS_PER_SET number of plan attempts again
 
@@ -170,7 +173,7 @@ class Joe(Matus):
 
             return score, code, test_result_new
 
-        results = self.run_func_parallel_and_collect(modify_code_and_evaluate, num_parallel=5) # // 2 + 1
+        results = self.run_func_parallel_and_collect(modify_code_and_evaluate, num_parallel=NUM_PARALLEL)
         best_score, best_code, test_result = max(results, key=lambda x: x[0])
 
         print(f' Scores: {",".join([str(r[0]) for r in results])}')
@@ -199,7 +202,7 @@ class Joe(Matus):
     def run_single_pass_no_planning(self, item: dict, plan: str):
         self.sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}"
         problem = self.data.get_prompt(item)
-        score, code = self.generate_code(item, "", plan, problem)
+        score, code, _ = self.generate_code(item, "", plan, problem)
         return code, self.pr_tok, self.com_tok
 
     def run_single_pass_code_improvement_only(self, item: dict, code_dir: str):
