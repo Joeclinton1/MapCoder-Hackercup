@@ -188,7 +188,9 @@ class Joe(Matus):
         best_score, best_code, test_result = results[0]
         if best_score == 1.0 or len(results) == 1:
             return best_score, best_code, test_result
-        average_top_two_score = (results[0][0]+results[1][0])/2
+        # weighted holistic scoring so that the second-best score is taken into account
+        # intuition is that if the second-best score is low but top is high then the plan is not actually good
+        average_top_two_score = results[0][0]*0.6+results[1][0]*0.4
         return average_top_two_score, best_code, test_result
 
     @staticmethod
