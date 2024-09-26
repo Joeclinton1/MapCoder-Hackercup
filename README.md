@@ -108,6 +108,11 @@ python -m mapcoder_hackercup --model Codestral --problem_ids ready_go_part_2
 python -m mapcoder_hackercup --model Local --temperature 0.7 0.6 0 --top_p 0.7 0.8 1
 ```
 
+6. Running one problem from practice round on Joe strategy and ideal settings
+```
+python -m mapcoder_hackercup --model Codestral --strategy Joe --language C++ --top_p 0.9 --dataset Live --dir contestData --problem_ids "Line of Delivery (Part 2)"
+```
+
 ## Citation
 ```
 @article{islam2024mapcoder,

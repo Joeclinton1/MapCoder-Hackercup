@@ -39,8 +39,14 @@ class OllamaBaseModel(BaseModel):
         max_tokens=32768,
         frequency_penalty=0,
         presence_penalty=0,
+        gpu='4090'
     ):
         self.api_url = api_url or os.getenv("OLLAMA_API_URL") or "http://windows-6absj2b:11434"
+        if gpu == "A100":
+            self.api_url = os.getenv("OLLAMA_API_URL_A100")
+            if not self.api_url:
+                raise EnvironmentError("Environment variable 'OLLAMA_API_URL_A100' must be set.")
+
         self.model_name = model_name or os.getenv("OLLAMA_MODEL")
         assert self.model_name is not None, "Model name must be provided as model config or environment variable `OLLAMA_MODEL`"
 
@@ -119,24 +125,19 @@ class Codestral(OllamaBaseModel):
 
 class Local(OllamaBaseModel):
     def __init__(self, *args, **kwargs):
-        # Fetch the first local model
-        api_url = os.getenv("OLLAMA_API_URL") or "http://windows-6absj2b:11434"
-        first_model = requests.get(f"{api_url}/api/tags").json()["models"][0]["model"]
-        kwargs['model_name'] = first_model
         super().__init__(*args, **kwargs)
+        first_model = requests.get(f"{self.api_url}/api/tags").json()["models"][0]["model"]
+        kwargs['model_name'] = first_model
+
 
 class Deepseek(OllamaBaseModel):
     def __init__(self, *args, **kwargs):
-        kwargs['model_name'] = 'deepseek-coder-v2:lite '
         super().__init__(*args, **kwargs)
+        self.model_name = 'deepseek-coder-v2:lite'
 
 
 class Llama(OllamaBaseModel):
     def __init__(self, *args, **kwargs):
         # Fetch the required API URL from the environment variable, raise exception if not set
-        api_url = os.getenv("OLLAMA_API_URL_A100")
-        if not api_url:
-            raise EnvironmentError("Environment variable 'OLLAMA_API_URL_A100' must be set.")
-
         kwargs['model_name'] = 'llama3.1:70b-instruct-q3_K_M'
-        super().__init__(api_url=api_url, *args, **kwargs)
+        super().__init__(*args, **kwargs)

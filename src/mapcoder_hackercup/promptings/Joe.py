@@ -13,7 +13,7 @@ prompts_file = os.path.join(cwd, 'prompt_templates/prompts_joe.yaml')
 algorithms_file = os.path.join(cwd, 'prompt_templates/algorithm_list.yaml')
 lang_specific_file = os.path.join(cwd, 'prompt_templates/lang_specific_tips.yaml')
 
-NUM_PARALLEL = 7
+NUM_PARALLEL = 35
 NUM_SETS = 2
 NUM_TRICKS_PER_SET = 2
 MAX_IMPROVEMENT_TRIES = 1

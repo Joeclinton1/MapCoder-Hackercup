@@ -134,6 +134,15 @@ parser.add_argument(
     help='If set prompt strategy will skip straight to improving the code at the provided directory.'
 )
 
+parser.add_argument(
+    '--gpu',
+    type=str,
+    default='4090',
+    choices=[
+        '4090',
+        'A100'
+    ]
+)
 
 args = parser.parse_args()
 
@@ -167,6 +176,7 @@ strategy = PromptingFactory.get_prompting_class(STRATEGY)(
     model=ModelFactory.get_model_class(MODEL_NAME)(
         temperature=TEMPERATURE[0] if TEMPERATURE else None,
         top_p=TOP_P[0] if TOP_P else None,
+        gpu=args.gpu
     ),
     data=dataset,
     language=LANGUAGE,
