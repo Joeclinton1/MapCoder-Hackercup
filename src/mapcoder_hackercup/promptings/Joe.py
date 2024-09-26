@@ -13,10 +13,10 @@ prompts_file = os.path.join(cwd, 'prompt_templates/prompts_joe.yaml')
 algorithms_file = os.path.join(cwd, 'prompt_templates/algorithm_list.yaml')
 lang_specific_file = os.path.join(cwd, 'prompt_templates/lang_specific_tips.yaml')
 
-NUM_PARALLEL = 5
-NUM_SETS = 4
+NUM_PARALLEL = 7
+NUM_SETS = 2
 NUM_TRICKS_PER_SET = 2
-MAX_IMPROVEMENT_TRIES = 4
+MAX_IMPROVEMENT_TRIES = 3
 THRESH_FOR_IMPROVEMENT = 0.5
 
 class Joe(Matus):
@@ -34,40 +34,43 @@ class Joe(Matus):
         self.sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}"
         problem = self.data.get_prompt(item)
 
-        # Step 1: Generate k tricks
-        print(f"Generating {NUM_SETS} sets of {NUM_TRICKS_PER_SET} tricks for how to solve the problem \n")
-        complexities, tricks = self.generate_tricks(item, problem)
-
-        # Step 2: For each trick generate a high level plan
-        print(f"Generating {NUM_SETS*NUM_TRICKS_PER_SET} plans for how to solve the problem \n")
-        plans = self.generate_plans(item, problem, tricks)
-
-        # Step 3: Generate NUM_PARALLEL codes for each plan in parallel and keep track of best scoring codes
         max_score, max_code = 0.0, ""
-        for i, (trick, plan) in enumerate(plans):
 
-            # Step 3a: Generate initial code
-            print(f' --- Attempt {i} --- ')
-            print(f'Trick: {trick}')
-            score, code, test_report = self.generate_code(item, trick, plan, problem)
+        for i in range(2):
+            print(f"SHOT {i}\n-----------------------------------")
+            # Step 1: Generate k tricks
+            print(f"Generating {NUM_SETS} sets of {NUM_TRICKS_PER_SET} tricks for how to solve the problem \n")
+            complexities, tricks = self.generate_tricks(item, problem)
 
-            prev_score = None
-            # Step 3b: Improve code on test cases
-            for j in range(MAX_IMPROVEMENT_TRIES):
+            # Step 2: For each trick generate a high level plan
+            print(f"Generating {NUM_SETS*NUM_TRICKS_PER_SET} plans for how to solve the problem \n")
+            plans = self.generate_plans(item, problem, tricks)
+
+            # Step 3: Generate NUM_PARALLEL codes for each plan in parallel and keep track of best scoring codes
+            for i, (trick, plan) in enumerate(plans):
+
+                print(f' --- Attempt {i} --- ')
+                print(f'Trick: {trick}')
+                score, code, test_report = self.generate_code(item, trick, plan, problem)
+
                 if score >= max_score:
                     max_score, max_code = score, code
+                if score == 1.0:
+                    return max_code, self.pr_tok, self.com_tok
+                if score == 0.999:
+                    break
 
+            print(f"--Best score so far: {max_score}--\n ## Improving best code: \n")
+            # Step 4: For the best scoring plan seen so far. Improve its results.
+            for j in range(MAX_IMPROVEMENT_TRIES):
+                score, code, test_result = self.improve_code(item, problem, max_code, plan, test_report)
+
+                if score >= max_score:
+                    max_score, max_code = score, code
                 if score == 1.0:
                     return max_code, self.pr_tok, self.com_tok
 
-                if score <= 0.5:
-                    break
-                if prev_score is not None and score <= prev_score:
-                    print(f'Score is not improving, stopping...')
-                    break
-
-                prev_score = score
-                score, code, test_result = self.improve_code(item, problem, max_code, plan, test_report)
+            # Step 5: do the entire NUM_SETS x NUM_TRICKS_PER_SET number of plan attempts again
 
         return max_code, self.pr_tok, self.com_tok
 
