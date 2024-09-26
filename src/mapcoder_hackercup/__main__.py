@@ -54,7 +54,7 @@ parser.add_argument(
         "Gemini",
         "Codestral",
         "Local",
-        "Deepseek"
+        "Deepseek",
         "Llama"
     ]
 )
