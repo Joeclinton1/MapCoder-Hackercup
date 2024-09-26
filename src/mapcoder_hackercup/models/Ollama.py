@@ -51,7 +51,7 @@ class OllamaBaseModel(BaseModel):
             "num_predict": max_tokens,
             "frequency_penalty": frequency_penalty,
             "presence_penalty": presence_penalty,
-            "num_ctx": 4096
+            "num_ctx": 3072
         }
 
     def prompt(self, processed_input: list[dict], **kwargs):
