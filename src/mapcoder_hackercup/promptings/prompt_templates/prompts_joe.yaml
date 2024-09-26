@@ -65,38 +65,52 @@ coding: |
   
   ## Your response must contain only the {language} code to solve this problem. Do not add extra explanation or words.
 
-code_improvement: |
-  Given a competitive programming problem you have generated {language} code to solve the problem. But the generated code cannot pass sample test cases. Improve your code to solve the problem correctly.
+improve_plan_and_code: |
+
+  Given a competitive programming problem you have generated {language} code to solve the problem. But the generated code cannot pass sample test cases.
+  Improve the planning and then generate code to solve the problem correctly.
   ## Problem to be solved:
   {problem_prompt}
-  {sample_io_prompt}
-  ## Failed test case 
-  Expected output: {expected}
-  Actual output: {actual}
-  ## Code Generated:
+  ## Planning
+  {planning}
+  ## Code Generated
   {code}
-  ## Failed test case explanation:
-  ## Using the provided Sample Explanations of the test cases, explain step by step how it should be working and identify what specifically in your code is causing this test case to fail.
+  ## Test Report:
+  {test_log}
+  
+  ----------------
+  Important:
+  Your output must be in the following format:
+  ## Planning Improvement
+  1. Identify the first failed test case and relevant Sample Explanation
+  2. Explain step by step why your plan or Code failed on this test case
+  3. Modify the plan to pass the test cases
+  
+  ## Code
+  {language} code inside <code> block to solve this problem. Provide the ENTIRE code, not just the fixed section.
+  
+  ----------------
+  {lang_specific_tips}
+  Encapsulate logic in functions.
+  
+  ## Your response must contain the Planning Improvement and then the {language} code inside <code> block to solve this problem.
+
+improve_plan_and_code_error: |
+  Given a competitive programming problem you have generated {language} code to solve the problem. But the generated code fails with an error on the full test input.
+  Improve the planning and then generate code to solve the problem correctly.
+  ## Problem to be solved:
+  {problem_prompt}
+  ## Planning
+  {planning}
+  ## Code Generated
+  {code}
+  ## Error:
+  {test_log}
+  ## Modified Planning:
+  ## Let's think step by step to modify {language} Code for solving this problem. Taking into account the error given.
   
   ----------------
   Important:
   {lang_specific_tips}
   
-  ## Your response must contain the failed test case explanation and then the {language} code inside <code> block to solve this problem.
-
-code_improvement_error: |
-  Given a competitive programming problem you have generated {language} code to solve the problem. But the generated code fails with an error.
-  ## Problem to be solved:
-  {problem_prompt}
-  {sample_io_prompt}
-  ## Code Generated:
-  {code}
-  # Error
-  {error}
-  ## Error Explanation:
-
-  ----------------
-  Important:
-  {lang_specific_tips}
-
-  ## Your response must contain the Error Explanation and then the {language} code inside <code> block to fix the error.
+  ## Your response must contain the Planning Improvement and then the {language} code inside <code> block to solve this problem.

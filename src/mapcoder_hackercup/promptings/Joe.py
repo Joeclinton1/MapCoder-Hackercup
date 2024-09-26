@@ -67,7 +67,7 @@ class Joe(Matus):
                     break
 
                 prev_score = score
-                score, code, test_result = self.improve_code(item, problem, max_code, test_report)
+                score, code, test_result = self.improve_code(item, problem, max_code, plan, test_report)
 
         return max_code, self.pr_tok, self.com_tok
 
@@ -140,33 +140,21 @@ class Joe(Matus):
 
         return score, code, test_report
 
-    def improve_code(self, item, problem, best_code, test_result):
+    def improve_code(self, item, problem, best_code, plan, test_result):
         print(" ## Modifying code")
 
-        # Step 1. if case failed with wrong answer,
-        # get the expected and actual output of the test case that failed and generate prompt with it
-        # else if it failed with error generate a prompt asking to fix this error
-        if "Error Type" in test_result:
-            improvement_prompt = self.prompts['code_improvement_error'].format(
-                problem_prompt=problem,
-                sample_io_prompt=self.sample_io_prompt,
-                language=self.language,
-                error=test_result,
-                code=best_code,
-                lang_specific_tips=self.lang_specific_tips,
-            )
-        else:
-            expected, actual = self.get_first_failed_case(test_result)
-
-            improvement_prompt = self.prompts['code_improvement'].format(
-                problem_prompt=problem,
-                sample_io_prompt=self.sample_io_prompt,
-                language=self.language,
-                expected=expected,
-                actual=actual,
-                code=best_code,
-                lang_specific_tips=self.lang_specific_tips
-            )
+        # Step 1. Create code improvement prompt.
+        improvement_prompt = self.prompts['improve_plan_and_code_error'] \
+            if "Error Type" in test_result \
+            else self.prompts['improve_plan_and_code']
+        improvement_prompt = improvement_prompt.format(
+            problem_prompt=problem,
+            planning=plan,
+            language=self.language,
+            test_log=test_result,
+            code=best_code,
+            lang_specific_tips=self.lang_specific_tips,
+        )
 
         # Step 2: Generate NUM_PARALLEL//2+1 code modifications to fix test case
         def modify_code_and_evaluate(_):
@@ -186,15 +174,6 @@ class Joe(Matus):
         print(f' Best Score: {best_score}\n')
 
         return best_score, best_code, test_result
-
-    @staticmethod
-    def get_first_failed_case(test_result):
-        result_lines = test_result.split('\n')
-        i,j = result_lines.index('Expected Output:')+1, result_lines.index('Your output:')+1
-        num_cases = j-i
-        for idx in range(num_cases):
-            if result_lines[i + idx] != result_lines[j + idx]:
-                return result_lines[i + idx], result_lines[j + idx]
 
     def run_func_parallel_and_collect(self, func, num_parallel=NUM_PARALLEL):
         # Running the code generation in parallel
