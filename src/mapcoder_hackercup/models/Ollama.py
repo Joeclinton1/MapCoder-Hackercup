@@ -133,7 +133,10 @@ class Deepseek(OllamaBaseModel):
 
 class Llama(OllamaBaseModel):
     def __init__(self, *args, **kwargs):
-        # Fetch the first local model
-        api_url = "http://192.165.134.27:12646"
+        # Fetch the required API URL from the environment variable, raise exception if not set
+        api_url = os.getenv("OLLAMA_API_URL_A100")
+        if not api_url:
+            raise EnvironmentError("Environment variable 'OLLAMA_API_URL_A100' must be set.")
+
         kwargs['model_name'] = 'llama3.1:70b-instruct-q3_K_M'
         super().__init__(api_url=api_url, *args, **kwargs)
