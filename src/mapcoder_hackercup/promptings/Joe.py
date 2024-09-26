@@ -186,7 +186,7 @@ class Joe(Matus):
         # Instead of max score being returned use the average of the top two scores.
         results.sort(key=lambda x: x[0], reverse=True)
         best_score, best_code, test_result = results[0]
-        if best_score == 1.0:
+        if best_score == 1.0 or len(results) == 1:
             return best_score, best_code, test_result
         average_top_two_score = (results[0][0]+results[1][0])/2
         return average_top_two_score, best_code, test_result
