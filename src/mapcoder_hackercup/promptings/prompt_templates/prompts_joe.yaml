@@ -48,15 +48,13 @@ planning: |
 
 coding: |
   You are an expert competitive programmer.
-  Given a competitive programming problem and a trick to use, generate correct {language} code to solve the problem.
+  Given a competitive programming problem and a trick and plan for solving, generate correct {language} code to solve the problem.
   # Problem:
   {problem_prompt}
-  {sample_io_prompt}
   # Trick:
   {trick}
   # Planning:
   {planning}
-  ## Let's think step by step.
 
   ----------------
   Important:
@@ -82,9 +80,8 @@ improve_plan_and_code: |
   Important:
   Your output must be in the following format:
   ## Planning Improvement
-  1. Identify the first failed test case and relevant Sample Explanation
-  2. Explain step by step why your plan or Code failed on this test case
-  3. Modify the plan to pass the test cases
+  1. Concisely identify the first failed test case and explain, using Sample Explanation, why your plan failed on this test case.
+  2. Concisely suggest a modification to the plan
   
   ## Code
   {language} code inside <code> block to solve this problem. Provide the ENTIRE code, not just the fixed section.

@@ -123,7 +123,6 @@ class Joe(Matus):
             problem_prompt=problem_prompt,
             trick=trick,
             planning = plan,
-            sample_io_prompt=self.sample_io_prompt,
             language=self.language,
             lang_specific_tips=self.lang_specific_tips
         )
