@@ -14,7 +14,7 @@ prompts_file = os.path.join(cwd, 'prompt_templates/prompts_joe.yaml')
 algorithms_file = os.path.join(cwd, 'prompt_templates/algorithm_list.yaml')
 lang_specific_file = os.path.join(cwd, 'prompt_templates/lang_specific_tips.yaml')
 
-NUM_PARALLEL = 7
+NUM_PARALLEL = 3
 NUM_SETS = 2
 NUM_TRICKS_PER_SET = 2
 MAX_IMPROVEMENT_TRIES = 1
@@ -36,7 +36,7 @@ class Joe(Matus):
         problem = self.data.get_prompt(item)
 
         sol = dict(score=0.0, code="", plan="", test_report="")
-        num_shots = round(10/math.sqrt(NUM_PARALLEL))
+        num_shots = round(10//NUM_PARALLEL)
         for i in range(num_shots):
             print(f"SHOT {i}\n-----------------------------------")
             # Step 1: Generate k tricks
@@ -136,10 +136,7 @@ class Joe(Matus):
 
         write_debug(code_prompt, 'code_prompt')
         results = self.run_func_parallel_and_collect(gen_code)
-        results2 = [x for x in results if not (isinstance(x[0], int) and x[0] == 0)]
-        if len(results2) == 0:
-            results2 = results
-        score, code, test_report = self.holistic_get_best_result(results2)
+        score, code, test_report = self.holistic_get_best_result(results)
 
         print(f' Scores: {",".join([str(r[0]) for r in results])}')
         print(f' Best Score: {score}\n')
@@ -188,6 +185,15 @@ class Joe(Matus):
         best_score, best_code, test_result = results[0]
         if best_score == 1.0 or len(results) == 1:
             return best_score, best_code, test_result
+
+        # if the best score == 0, then it might be 0 meaning error or 0.0 meaning just wrong answer
+        # a wrong answer solution is better than error so we will remove the 0 solutions
+        if best_score == 0:
+            results2 = [x for x in results if not (isinstance(x[0], int) and x[0] == 0)]
+            if len(results2) == 0:
+                results2 = results
+            best_score, best_code, test_result = results2[0]
+
         # weighted holistic scoring so that the second-best score is taken into account
         # intuition is that if the second-best score is low but top is high then the plan is not actually good
         average_top_two_score = results[0][0]*0.6+results[1][0]*0.4
