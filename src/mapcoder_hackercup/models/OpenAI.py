@@ -48,28 +48,28 @@ class OpenAIBaseModel(BaseModel):
     """
 
     def __init__(
-        self,
-        api_type=None,
-        api_base=None,
-        api_version=None,
-        api_key=None,
-        engine_name=None,
-        model_name=None,
-        temperature=0,
-        top_p=0.95,
-        frequency_penalty=0,
-        presence_penalty=0,
+            self,
+            api_type=None,
+            api_base=None,
+            api_version=None,
+            api_key=None,
+            engine_name=None,
+            model_name=None,
+            temperature=0,
+            top_p=0.95,
+            frequency_penalty=0,
+            presence_penalty=0,
     ):
         api_type = api_type or os.getenv("API_TYPE")
 
-        azure_vars = self.read_azure_env_vars()  if api_type == "azure" else {
+        azure_vars = self.read_azure_env_vars() if api_type == "azure" else {
             "api_version": None,
             "api_base": None,
             "api_key": None,
             "model": None
         }
         openai_vars = self.read_openai_env_vars() if api_type == "openai" else {
-            "api_version":None, 
+            "api_version": None,
             "api_base": None,
             "api_key": None,
             "model": None
@@ -83,7 +83,7 @@ class OpenAIBaseModel(BaseModel):
         # assert model_name is not None, "Model/Engine must be provided as model config or environment variable `OPENAI_MODEL`/`AZURE_ENGINE_NAME`"
 
         assert api_key is not None, "API Key must be provided as model config or environment variable (`OPENAI_API_KEY` or `AZURE_API_KEY`)"
-        
+
         if api_type == "azure":
             assert api_base is not None, "API URL must be provided as model config or environment variable (`AZURE_API_BASE`)"
             assert api_version is not None, "API version must be provided as model config or environment variable (`AZURE_API_VERSION`)"
@@ -95,8 +95,9 @@ class OpenAIBaseModel(BaseModel):
                 azure_endpoint=api_base
             )
         else:
-            self.openai = OpenAI(api_key=api_key)
-        
+            print(api_key, api_base)
+            self.openai = OpenAI(api_key=api_key, base_url=api_base)
+
         # GPT parameters
         self.model_params = {}
         self.model_params["model"] = model_name
@@ -105,7 +106,6 @@ class OpenAIBaseModel(BaseModel):
         self.model_params["max_tokens"] = None
         self.model_params["frequency_penalty"] = frequency_penalty
         self.model_params["presence_penalty"] = presence_penalty
-
 
     @staticmethod
     def read_azure_env_vars():
@@ -128,17 +128,18 @@ class OpenAIBaseModel(BaseModel):
 
 class OpenAIModel(OpenAIBaseModel):
     def __init__(
-        self,
-        api_type=None,
-        api_base=None,
-        api_version=None,
-        api_key=None,
-        engine_name=None,
-        model_name=None,
-        temperature=0.32,
-        top_p=0.95,
-        frequency_penalty=0,
-        presence_penalty=0,
+            self,
+            api_type=None,
+            api_base=None,
+            api_version=None,
+            api_key=None,
+            engine_name=None,
+            model_name=None,
+            temperature=0.32,
+            top_p=0.95,
+            frequency_penalty=0,
+            presence_penalty=0,
+            gpu=''
     ):
         super().__init__(
             api_type=api_type,
@@ -152,21 +153,20 @@ class OpenAIModel(OpenAIBaseModel):
             frequency_penalty=frequency_penalty,
             presence_penalty=presence_penalty,
         )
-    
+
     def summarize_response(self, response):
         """Returns the first reply from the "assistant", if available"""
         if (
-            "choices" in response
-            and isinstance(response["choices"], list)
-            and len(response["choices"]) > 0
-            and "message" in response["choices"][0]
-            and "content" in response["choices"][0]["message"]
-            and response["choices"][0]["message"]["role"] == "assistant"
+                "choices" in response
+                and isinstance(response["choices"], list)
+                and len(response["choices"]) > 0
+                and "message" in response["choices"][0]
+                and "content" in response["choices"][0]["message"]
+                and response["choices"][0]["message"]["role"] == "assistant"
         ):
             return response["choices"][0]["message"]["content"]
 
         return response
-
 
     # @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(5))
     def prompt(self, processed_input: list[dict]):
@@ -205,4 +205,11 @@ class GPT4(OpenAIModel):
 class ChatGPT(OpenAIModel):
     def prompt(self, processed_input: list[dict]):
         self.model_params["model"] = "GPT-35-TURBO-1106"
+        return super().prompt(processed_input)
+
+
+class CodestralVLLM(OpenAIModel):
+    def prompt(self, processed_input: list[dict], **kwargs):
+        self.model_params.update(kwargs)
+        self.model_params["model"] = 'ArthurGprog/Codestral-22B-v0.1-FIM-Fix-GPTQ'
         return super().prompt(processed_input)

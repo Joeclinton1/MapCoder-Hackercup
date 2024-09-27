@@ -1,6 +1,7 @@
 from mapcoder_hackercup.models.Gemini import Gemini
 from mapcoder_hackercup.models.OpenAI import ChatGPT
 from mapcoder_hackercup.models.OpenAI import GPT4
+from mapcoder_hackercup.models.OpenAI import CodestralVLLM
 from mapcoder_hackercup.models.Ollama import Codestral
 from mapcoder_hackercup.models.Ollama import Local
 from mapcoder_hackercup.models.Ollama import Deepseek
@@ -23,5 +24,7 @@ class ModelFactory:
             return Llama
         elif model_name == "Deepseek":
             return Deepseek
+        elif model_name == "CodestralVLLM":
+            return CodestralVLLM
         else:
             raise Exception(f"Unknown model name {model_name}")
