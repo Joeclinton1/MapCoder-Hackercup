@@ -7,6 +7,7 @@ from mapcoder_hackercup.utils.token_count import token_count
 
 dotenv.load_dotenv()
 
+
 class OllamaBaseModel(BaseModel):
     """
     Ollama Model interface.
@@ -31,15 +32,15 @@ class OllamaBaseModel(BaseModel):
     """
 
     def __init__(
-        self,
-        api_url=None,
-        model_name=None,
-        temperature=0,
-        top_p=0.95,
-        max_tokens=32768,
-        frequency_penalty=0,
-        presence_penalty=0,
-        gpu='4090'
+            self,
+            api_url=None,
+            model_name=None,
+            temperature=0,
+            top_p=0.95,
+            max_tokens=32768,
+            frequency_penalty=0,
+            presence_penalty=0,
+            gpu='4090'
     ):
         self.api_url = api_url or os.getenv("OLLAMA_API_URL") or "http://windows-6absj2b:11434"
         if gpu == "A100":
@@ -97,7 +98,7 @@ class OllamaBaseModel(BaseModel):
         payload = {
             "model": self.model_name,
             "prompt": prompt,
-            "options":self.model_params,
+            "options": self.model_params,
             "stream": False
         }
 
@@ -117,11 +118,13 @@ class OllamaBaseModel(BaseModel):
 
         return response_content, prompt_tokens, completion_tokens
 
+
 # Specific model classes can be defined if needed
 class Codestral(OllamaBaseModel):
     def __init__(self, *args, **kwargs):
         kwargs['model_name'] = 'codestral:latest'
         super().__init__(*args, **kwargs)
+
 
 class Local(OllamaBaseModel):
     def __init__(self, *args, **kwargs):
@@ -141,3 +144,6 @@ class Llama(OllamaBaseModel):
         # Fetch the required API URL from the environment variable, raise exception if not set
         kwargs['model_name'] = 'llama3.1:70b-instruct-q3_K_M'
         super().__init__(*args, **kwargs)
+
+    def prompt(self, processed_input: list[dict], temperature=0.7, **kwargs):
+        return super().prompt(processed_input, temperature=temperature * 0.7, **kwargs)
