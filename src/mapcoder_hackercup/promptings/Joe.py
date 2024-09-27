@@ -1,3 +1,4 @@
+import math
 import os
 
 from .Matus import Matus
@@ -13,7 +14,7 @@ prompts_file = os.path.join(cwd, 'prompt_templates/prompts_joe.yaml')
 algorithms_file = os.path.join(cwd, 'prompt_templates/algorithm_list.yaml')
 lang_specific_file = os.path.join(cwd, 'prompt_templates/lang_specific_tips.yaml')
 
-NUM_PARALLEL = 35
+NUM_PARALLEL = 7
 NUM_SETS = 2
 NUM_TRICKS_PER_SET = 2
 MAX_IMPROVEMENT_TRIES = 1
@@ -35,8 +36,8 @@ class Joe(Matus):
         problem = self.data.get_prompt(item)
 
         sol = dict(score=0.0, code="", plan="", test_report="")
-
-        for i in range(2):
+        num_shots = round(10/math.sqrt(NUM_PARALLEL))
+        for i in range(num_shots):
             print(f"SHOT {i}\n-----------------------------------")
             # Step 1: Generate k tricks
             print(f"Generating {NUM_SETS} sets of {NUM_TRICKS_PER_SET} tricks for how to solve the problem \n")
