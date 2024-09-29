@@ -24,7 +24,6 @@ from typing import List, Dict
 # Path to the prompts YAML file
 cwd = os.path.dirname(os.path.abspath(__file__))
 prompts_file = os.path.join(cwd, 'prompt_templates/prompts_zac.yaml')
-# algorithms_file = os.path.join(cwd, 'prompt_templates/algorithm_list.yaml')
 lang_specific_file = os.path.join(cwd, 'prompt_templates/lang_specific_tips.yaml')
 
 NUM_PARALLEL = 7
@@ -58,7 +57,7 @@ class Zac(Matus):
             print(f"Generating {NUM_SETS} sets of {NUM_PLANS_PER_SET} plans for how to solve the problem \n")
             all_plans = self.generate_plans(item, problem)
 
-            # Skipping 
+            # Skipping this 
             # Step 2: For each plan generate a high level plan
             # print(f"Generating {NUM_SETS*NUM_planS_PER_SET} plans for how to solve the problem \n")
             # plans = self.generate_plans(item, problem, plans)
@@ -137,31 +136,12 @@ class Zac(Matus):
         write_debug(plan_prompt, 'plan_prompt')
 
         outputs = self.run_func_parallel_and_collect(gen_plans, num_parallel=NUM_SETS)
-
-        # print(" Complexity Targets:")
-        # for i, (complexity, plans_xml) in enumerate(outputs):
-        #     complexities.append(complexity.text)
-        #     print(f"Set {i}: {complexities[-1]}")
-        #     plans.extend([t.text for t in plans_xml])
         
         return outputs 
 
-    # def generate_plans(self, item, problem, plans):
-    #     def gen_plan(i):
-    #         plan_prompt = self.prompts['planning'].format(
-    #             problem_prompt=problem,
-    #             sample_io_prompt=self.sample_io_prompt,
-    #             plan=plans[i]
-    #         )
-    #         write_debug(plan_prompt, 'plan_prompt')
-    #         return [plans[i], self.chat(plan_prompt, item, 'plan', temperature=0.7)]
-
-    #     plans = self.run_func_parallel_and_collect(gen_plan ,num_parallel=len(plans))
-    #     return plans
 
     def generate_code(self, item, plan, complexity, problem_prompt):
         print(f" Generating Code:")
-
 
         code_prompt = self.prompts['coding'].format(
             problem=problem_prompt,
@@ -189,11 +169,6 @@ class Zac(Matus):
 
     def improve_code(self, item, problem, best_code, plan, test_result):
         print(" ## Modifying code")
-
-        # Step 1. Create code improvement prompt.
-        # improvement_prompt = self.prompts['improve_plan_and_code_error'] \
-        #     if "Error Type" in test_result \
-        #     else self.prompts['improve_plan_and_code']
 
         improvement_prompt = self.prompts['improve_plan_and_code']
 
@@ -267,20 +242,7 @@ class Zac(Matus):
         write_debug(response, tag)
         return response
 
-    # def run_single_pass_no_planning(self, item: dict, plan: str):
-    #     self.sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}"
-    #     problem = self.data.get_prompt(item)
-    #     score, code, _ = self.generate_code(item, "", plan, problem)
-    #     return code, self.pr_tok, self.com_tok
 
-    # def run_single_pass_code_improvement_only(self, item: dict, code_dir: str):
-    #     with open(code_dir, 'r') as f:
-    #         code = f.read()
-    #     score, test_result = self.data.evaluate_sample_io(item, code, self.language)
-    #     print(f"Starting Score: {score}")
-    #     problem = self.data.get_prompt(item)
-    #     code, _, _ = self.improve_code(item, problem, code, "", test_result)
-    #     return code, self.pr_tok, self.com_tok
 
 
 
