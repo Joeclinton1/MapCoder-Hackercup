@@ -1,0 +1,103 @@
+easy_plans: |
+  ### 
+
+hard_plans: |
+  You are an expert competitive programmer.
+  You shall come up with {num_plans} solutions for a problem, starting with the most naive approach and its time and memory complexity, progressively suggesting alternative plans and their improved time complexity. 
+  As you suggest more plans, you should think about diverse approaches or "tricks" that might help.
+  You should consider how certain notable algorithms or mathematical approaches may help. 
+  
+  # Problem to be solved:
+  {problem_prompt}
+
+  # plans
+  Each plan must be self-contained as they will only be seen individually. If you reference previous plans you must explain it in full. 
+  
+  # Complexity
+  When calculating the complexity of an plan, think step by step. You must consider the input limits of the problem. 
+  Once you have calculated this, write 1. Time complexity 2. Memory complexity
+
+  
+  ----------------
+  Important:
+  You must use this exact XML format:
+  <root>
+    <plans> 
+      <plan>
+        <title>
+        # plan title 
+        <explanation> 
+        # plan explained 
+        </explanation>
+        <complexity>
+        # step by step complexity analysis
+        # 1. Memory complexity
+        # 2. Time complexity 
+        </complexity>
+      </plan>
+      # etc., 
+    </plans>
+  </root> 
+  Do NOT use XML comments!
+
+coding: | 
+  You are given a code contest problem, and a plan for solving it. 
+
+  problem description:
+  =============
+  {problem}
+  =============
+
+  solution plan:
+  ======
+  {plan}
+  ======
+
+  solution complexity:
+  ==========
+  {complexity}
+  ==========
+
+  Your goal is to generate a valid Python code that correctly solves the code contest problem. 
+
+  Guidelines:
+  - You must divide the generated code into small sub-functions, with meaningful names and functionality. Variables names should also be meaningful. Comments should be used. 
+  - Double-check the generated code. It should generalize to any valid input, and not just the provided examples.
+  - Make sure to include all the necessary module imports, properly initialize the variables, and address the problem constraints.
+  - The code needs to be self-contained, and executable as-is.
+
+
+  The generated code must follow this structure:
+  ```
+  def f1(...):
+      ...
+      return ...
+
+  def f2(...):
+      ...
+      return ...
+  ...
+
+  if __name__ == "__main__":
+      ...
+  ```
+  ----------------
+  Important:
+  {lang_specific_tips}
+
+  Only write in Python, please include all text in comments. 
+
+
+improve_plan_and_code: |
+
+  Given a competitive programming problem you have generated {language} code to solve the problem. But the generated code cannot pass sample test cases.
+  Check the solution plan and check the implementation, thinking step by step.
+  Then, generate code to solve the problem correctly.
+  ## Problem to be solved:
+  {problem_prompt}
+  ## Solution plan
+  {plan}
+  ## Code Generated
+  {code}
+  ## Test Report:
+  {test_log}

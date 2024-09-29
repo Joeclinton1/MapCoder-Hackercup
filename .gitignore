@@ -10,3 +10,13 @@ logs/*
 
 test.ipynb
 /outputs/
+
+.venv
+debug/*
+.DS_Store
+data/Live/*
+src/mapcoder_hackercup.egg-info/dependency_links.txt
+src/mapcoder_hackercup.egg-info/PKG-INFO
+src/mapcoder_hackercup.egg-info/requires.txt
+src/mapcoder_hackercup.egg-info/SOURCES.txt
+src/mapcoder_hackercup.egg-info/top_level.txt
