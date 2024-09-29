@@ -57,12 +57,7 @@ class Zac(Matus):
             print(f"Generating {NUM_SETS} sets of {NUM_PLANS_PER_SET} plans for how to solve the problem \n")
             all_plans = self.generate_plans(item, problem)
 
-            # Skipping this 
-            # Step 2: For each plan generate a high level plan
-            # print(f"Generating {NUM_SETS*NUM_planS_PER_SET} plans for how to solve the problem \n")
-            # plans = self.generate_plans(item, problem, plans)
-
-            # Step 3: Generate NUM_PARALLEL codes for each plan in parallel and keep track of best scoring codes
+            # Step 2: Generate NUM_PARALLEL codes for each plan in parallel and keep track of best scoring codes
             for plan_set in all_plans: 
                 
                 for i, (plan_dict) in enumerate(plan_set):
@@ -84,7 +79,7 @@ class Zac(Matus):
 
             print(f"--Best score so far: {sol['score']}--\n ## Improving best code: \n")
 
-            # Step 4: For the best scoring plan seen so far. Improve its results.
+            # Step 3: For the best scoring plan seen so far. Improve its results.
             for j in range(MAX_IMPROVEMENT_TRIES):
                 score, code, test_report = self.improve_code(
                     item, problem, sol['code'], sol["plan"], sol["test_report"]
@@ -96,7 +91,7 @@ class Zac(Matus):
                 if score == 1.0:
                     return sol["code"], self.pr_tok, self.com_tok
 
-            # Step 5: do the entire NUM_SETS x NUM_planS_PER_SET number of plan attempts again
+            # Step 4: do the entire NUM_SETS x NUM_PLANS_PER_SET number of plan attempts again
 
         return sol["code"], self.pr_tok, self.com_tok
 
