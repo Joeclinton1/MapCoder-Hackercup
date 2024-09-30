@@ -97,6 +97,8 @@ improve_plan_and_code: |
   {problem_prompt}
   ## Solution plan
   {plan}
+  ## Complexity
+  {complexity}
   ## Code Generated
   {code}
   ## Test Report:

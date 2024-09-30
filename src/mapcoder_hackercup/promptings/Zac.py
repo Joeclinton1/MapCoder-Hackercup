@@ -6,10 +6,12 @@
 # We could keep track of how many workers we have in parallel, and if any are free we can assign them to regenerate plans w/ deduction
 
 # Or, we could also do more "exploration" when a solution is nearly correct.
-# So, we would be developing this tree where liekly branches are exploited and then exploration happens if stuck
+# So, we would be developing this tree where likely branches are exploited and then exploration happens if stuck
 # Simultaneusly, we continue exploring alternative branches 
 
 # Another plan I have is to tell the LLM what level hardness the problem is, so for Q1/2 we expect to find simpler algorithms with much nicer time complexity (so it shouldn't overthink it)
+
+# TODO: We can start from the fastest time complexity solutions, implement them multiple times in parallel, and if failing, go to slower solution, until the naive solution
 
 import os
 
@@ -30,7 +32,8 @@ NUM_PARALLEL = 7
 NUM_SETS = 2
 NUM_PLANS_PER_SET = 3
 MAX_IMPROVEMENT_TRIES = 1
-THRESH_FOR_IMPROVEMENT = 0.5
+THRESH_FOR_IMPROVEMENT = 0.3
+
 
 class Zac(Matus):
     def __init__(self, *args, **kwargs):
@@ -47,7 +50,7 @@ class Zac(Matus):
         self.sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}"
         problem = self.data.get_prompt(item)
 
-        sol = dict(score=0.0, code="", plan="", test_report="")
+        sol = dict(score=0.0, code="", title="", plan="", complexity="", test_report="")
         # num_shots = round(14//NUM_PARALLEL)
         num_shots = 2
 
@@ -57,39 +60,50 @@ class Zac(Matus):
             print(f"Generating {NUM_SETS} sets of {NUM_PLANS_PER_SET} plans for how to solve the problem \n")
             all_plans = self.generate_plans(item, problem)
 
-            # Step 2: Generate NUM_PARALLEL codes for each plan in parallel and keep track of best scoring codes
-            for plan_set in all_plans: 
-                
-                for i, (plan_dict) in enumerate(plan_set):
+            # Step 2: Generate NUM_PARALLEL codes for each plan in parallel, in order from fastest to slowest plan of all sets 
+            ordered_plans = [] 
 
-                    plan = plan_dict['explanation']
-                    complexity = plan_dict['complexity']
+            # We order plans from fastest to slowest, taking the fastest from each set, then the 2nd fastest, etc., 
+            # Fastest plans are last in the list
+            for m in range(len(all_plans), -1 , -1):
+                for i in range(len(all_plans)):
+                    ordered_plans.append(all_plans[i][m])
 
-                    print(f' --- Attempt {i} --- ')
-                    print(f'plan: {plan}')
+            for i, (plan_dict) in enumerate(ordered_plans):
+                                
+                title = plan_dict['title']
+                plan = plan_dict['explanation']
+                complexity = plan_dict['complexity']
 
-                    score, code, test_report = self.generate_code(item, plan, complexity, problem)
+                print(f' --- Attempt {i} --- ')
+                print(f'Attempting plan {title} of complexity: \n {complexity} \n -------')
+                # print(f'plan: {plan}')
 
-                    if score >= sol["score"]:
-                        sol = dict(score=score, code=code, plan=plan, test_report=test_report)
-                    if score == 1.0:
-                        return sol["code"], self.pr_tok, self.com_tok
-                    if score == 0.999:
-                        break
+                score, code, test_report = self.generate_code(item, title, plan, complexity, problem)
 
-            print(f"--Best score so far: {sol['score']}--\n ## Improving best code: \n")
-
-            # Step 3: For the best scoring plan seen so far. Improve its results.
-            for j in range(MAX_IMPROVEMENT_TRIES):
-                score, code, test_report = self.improve_code(
-                    item, problem, sol['code'], sol["plan"], sol["test_report"]
-                )
+                print(f'Achieved score of {score} on sample cases \n ------- ')
 
                 if score >= sol["score"]:
-                    sol = dict(score=score, code=code, plan=sol["plan"], test_report=test_report)
-
+                    sol = dict(score=score, code=code, title=title, plan=plan, complexity=complexity, test_report=test_report)
                 if score == 1.0:
+                    print(f'Solved sample cases! Proceeding to run full test.')
+                    # Perhaps if we have multiple fully-solving solutions, we can choose the best one by speed & memory 
                     return sol["code"], self.pr_tok, self.com_tok
+                if score >= THRESH_FOR_IMPROVEMENT:
+                    # We have a promising solution 
+                    # We instantly check if we can improve it to fully passing, generating parallel code improvements
+                    print(f'Passed {THRESH_FOR_IMPROVEMENT} of sample cases, indicating promising solution. Proceeding to solution improvement...')
+                    for j in range(MAX_IMPROVEMENT_TRIES):
+                        score, code, test_report = self.improve_code(
+                            item, problem, sol['code'], sol["title"], sol["plan"], sol["complexity"], sol["test_report"]
+                        )
+
+                        if score >= sol["score"]:
+                            sol = dict(score=score, code=code, title=sol["title"], plan=sol["plan"], complexity=sol["complexity"], test_report=test_report)
+
+                        if score == 1.0:
+                            print(f'Solution improved and passes all sample cases!')
+                            return sol["code"], self.pr_tok, self.com_tok
 
             # Step 4: do the entire NUM_SETS x NUM_PLANS_PER_SET number of plan attempts again
 
@@ -107,7 +121,7 @@ class Zac(Matus):
             tree = utils.parse_xml_element(response)
         
             # Find all <plan> elements under <plans>
-            plans = tree.find('plans').findall('plan') # list of plans 
+            plans = tree.find('plans').findall('plan') # list of plans -> ordered from slowest to fastest solution (if correct)
 
             # Loop through each <plan> and extract the <explanation> and <complexity> fields
             for plan in plans:
@@ -115,7 +129,8 @@ class Zac(Matus):
                 explanation = plan.find('explanation').text.strip()
                 complexity = plan.find('complexity').text.strip()
                 plans_list.append({
-                    'explanation': title + ': ' + explanation,
+                    'title': title,
+                    'explanation': explanation,
                     'complexity': complexity
                 })
 
@@ -135,12 +150,12 @@ class Zac(Matus):
         return outputs 
 
 
-    def generate_code(self, item, plan, complexity, problem_prompt):
+    def generate_code(self, item, title, plan, complexity, problem_prompt):
         print(f" Generating Code:")
 
         code_prompt = self.prompts['coding'].format(
             problem=problem_prompt,
-            plan=plan,
+            plan=title + ': ' + plan,
             complexity=complexity,
             language=self.language,
             lang_specific_tips=self.lang_specific_tips
@@ -162,17 +177,19 @@ class Zac(Matus):
         return score, code, test_report
 
 
-    def improve_code(self, item, problem, best_code, plan, test_result):
+    def improve_code(self, item, problem, code, title, plan, complexity, test_result):
+        
         print(" ## Modifying code")
 
         improvement_prompt = self.prompts['improve_plan_and_code']
 
         improvement_prompt = improvement_prompt.format(
             problem_prompt=problem,
-            plan=plan, # i.e., plan 
+            plan=title + ': ' + plan,
+            complexity=complexity,
             language=self.language,
             test_log=test_result,
-            code=best_code,
+            code=code,
             lang_specific_tips=self.lang_specific_tips,
         )
 
