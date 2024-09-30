@@ -62,7 +62,7 @@ class LiveDataset(Dataset):
         )
 
         # evaluate
-        if results[0] == 1:
+        if results[0] == 1 and evaluate_on_full_if_passed:
             results2 = contest_evaluate(
                 generated_code=cur_imp,
                 id=item[self.id_key],

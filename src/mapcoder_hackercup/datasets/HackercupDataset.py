@@ -30,13 +30,28 @@ class HackercupDataset(Dataset):
         item: dict,
         cur_imp: str,
         language: str,
+        evaluate_on_full_if_passed=True
     ):
-        return contest_evaluate_public_tests(
+
+        results = contest_evaluate_public_tests(
             generated_code=cur_imp,
             id=item[self.id_key],
             tests=item["sample_io"],
             lang=language,
         )
+
+        # evaluate
+        if results[0] == 1 and evaluate_on_full_if_passed:
+            results2 = contest_evaluate(
+                generated_code=cur_imp,
+                id=item[self.id_key],
+                tests=item["test_list"],
+                lang=language
+            )
+            if not isinstance(results2, float):
+                return 0.999, f"Program passes Sample Cases, but fails on full input with error: `{results2[1]}`," \
+                              f" Error Type: {results2[0]}"
+        return results
 
     @staticmethod
     def get_prompt(item):
