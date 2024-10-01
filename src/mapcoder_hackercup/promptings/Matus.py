@@ -162,7 +162,7 @@ class Matus(BaseStrategy):
         print(f"Starting Score: {score}")
         problem = self.data.get_prompt(item)
         results = utils.run_func_parallel_and_collect(improve_code, 7)
-        best_score, xbest_code, test_result = utils.holistic_get_best_result(results)
+        best_score, best_code, test_result = utils.holistic_get_best_result(results)
         print(f' Scores: {",".join([str(r[0]) for r in results])}')
         print(f' Best Score: {best_score}\n')
 

@@ -93,7 +93,7 @@ class MapCoder(BaseStrategy):
             utils.log("Input for our problem planning using example {example_no}:", input_for_problem_planning)
             planning = self.chat(input_for_problem_planning, item)
 
-            utils.log(f"Response from our problem planning (example {example_no}): ",planning)
+            utils.log(f"Response from our problem planning (example {example_no}): ", planning)
 
             verification_res = self.verify_planning(item, planning)
             utils.log("Response from planning verification (example {example_no}): ", verification_res)
@@ -189,7 +189,7 @@ class MapCoder(BaseStrategy):
     def chat(self, input: str, item: dict, **kwargs) -> (str, int, int):
         item['api_calls'] = item.get('api_calls', 0) + 1
         response, pr_tok, com_tok = self.model.prompt(
-            processed_input= [{"role": "user","content": input}],
+            processed_input=[{"role": "user", "content": input}],
             **kwargs
         )
         self.pr_tok += pr_tok
@@ -200,3 +200,26 @@ class MapCoder(BaseStrategy):
         sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}\n"
         code = self.generate_final_code(item, [plan], "", sample_io_prompt)
         return code, self.pr_tok, self.com_tok
+
+    def run_single_pass_code_improvement_only(self, item: dict, improvement_dict: dict, curr_pass: int):
+
+        print(f"Testing wrong plan improvement #{curr_pass}")
+        wrong_code = improvement_dict[f"wrong_code{curr_pass + 1}"]
+        wrong_plan = improvement_dict[f"wrong_plan{curr_pass + 1}"]
+        score, test_result = self.data.evaluate_sample_io(item, wrong_code, self.language)
+        trick = improvement_dict[f"trick"]
+        # trick = wrong_plan
+        def improve_code(_):
+            code = self.improve_code(item, wrong_code, test_result, trick)
+            # Step 3c: Reevaluate code_lines
+            score, test_result_new = self.data.evaluate_sample_io(item, code, self.language)
+            return score, code, test_result_new
+
+
+        print(f"Starting Score: {score}")
+        results = utils.run_func_parallel_and_collect(improve_code, 7)
+        best_score, best_code, test_result = utils.holistic_get_best_result(results)
+        print(f' Scores: {",".join([str(r[0]) for r in results])}')
+        print(f' Best Score: {best_score}\n')
+
+        return best_code, self.pr_tok, self.com_tok

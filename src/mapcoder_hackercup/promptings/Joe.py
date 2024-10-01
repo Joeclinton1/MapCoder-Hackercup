@@ -226,6 +226,10 @@ class Joe(Matus):
 
         wrong_code = improvement_dict[f"wrong_code{curr_pass+1}"]
         wrong_plan = improvement_dict[f"wrong_plan{curr_pass+1}"]
+
+        # add trick for fair comparison with MapCoder
+        # trick = improvement_dict["trick"]
+        # wrong_plan = f"## Trick\n{trick}\n{wrong_plan}"
         score, test_result = self.data.evaluate_sample_io(item, wrong_code, self.language)
         print(f"Starting Score: {score}")
         problem = self.data.get_prompt(item)
