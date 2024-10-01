@@ -7,6 +7,9 @@ import concurrent.futures
 from ..results import write_debug
 import re
 import xml.etree.ElementTree as ET
+import concurrent.futures
+import threading
+
 
 # Path to the prompts YAML file
 cwd = os.path.dirname(os.path.abspath(__file__))
@@ -36,19 +39,29 @@ class Joe(Matus):
         problem = self.data.get_prompt(item)
 
         sol = dict(score=0.0, code="", plan="", test_report="")
-        num_shots = round(14//NUM_PARALLEL)
-        for i in range(num_shots):
-            print(f"SHOT {i}\n-----------------------------------")
-            # Step 1: Generate k tricks
+        num_shots = round(14 // NUM_PARALLEL)
+        stop_event = threading.Event()  # Create an event to signal when to stop other parallel executions
+
+        def single_shot(shot_index):
+            nonlocal sol
+
+            if stop_event.is_set():  # Check if the stop event has been triggered
+                return None
+
+            print(f"SHOT {shot_index}\n-----------------------------------")
+
+            # Step 1: Generate tricks
             print(f"Generating {NUM_SETS} sets of {NUM_TRICKS_PER_SET} tricks for how to solve the problem \n")
             complexities, tricks = self.generate_tricks(item, problem)
 
-            # Step 2: For each trick generate a high level plan
-            print(f"Generating {NUM_SETS*NUM_TRICKS_PER_SET} plans for how to solve the problem \n")
+            # Step 2: Generate high-level plans
+            print(f"Generating {NUM_SETS * NUM_TRICKS_PER_SET} plans for how to solve the problem \n")
             plans = self.generate_plans(item, problem, tricks)
 
-            # Step 3: Generate NUM_PARALLEL codes for each plan in parallel and keep track of best scoring codes
+            # Step 3: Generate codes for each plan and track best scores
             for i, (trick, plan) in enumerate(plans):
+                if stop_event.is_set():  # Check if another thread has already solved the problem
+                    return None
 
                 print(f' --- Attempt {i} --- ')
                 print(f'Trick: {trick}')
@@ -56,25 +69,38 @@ class Joe(Matus):
 
                 if score >= sol["score"]:
                     sol = dict(score=score, code=code, plan=plan, test_report=test_report)
+
                 if score == 1.0:
+                    stop_event.set()  # Signal other threads to stop
                     return sol["code"], self.pr_tok, self.com_tok
+
                 if score == 0.999:
                     break
 
+            # Step 4: Try improving the best code seen so far
             print(f"--Best score so far: {sol['score']}--\n ## Improving best code: \n")
-            # Step 4: For the best scoring plan seen so far. Improve its results.
             for j in range(MAX_IMPROVEMENT_TRIES):
-                score, code, test_report = self.improve_code(
-                    item, problem, sol['code'], sol["plan"], sol["test_report"]
-                )
+                if stop_event.is_set():  # Check if another thread has already solved the problem
+                    return None
+
+                score, code, test_report = self.improve_code(item, problem, sol['code'], sol["plan"],
+                                                             sol["test_report"])
 
                 if score >= sol["score"]:
                     sol = dict(score=score, code=code, plan=sol["plan"], test_report=test_report)
 
                 if score == 1.0:
+                    stop_event.set()  # Signal other threads to stop
                     return sol["code"], self.pr_tok, self.com_tok
 
-            # Step 5: do the entire NUM_SETS x NUM_TRICKS_PER_SET number of plan attempts again
+            return None  # No successful result
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=num_shots) as executor:
+            futures = [executor.submit(single_shot, i) for i in range(num_shots)]
+            for future in concurrent.futures.as_completed(futures):
+                result = future.result()
+                if result is not None:
+                    return result
 
         return sol["code"], self.pr_tok, self.com_tok
 

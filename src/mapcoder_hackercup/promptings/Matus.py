@@ -14,8 +14,8 @@ class Matus(BaseStrategy):
     def __init__(self, *args, **kwargs):
         self.prompts = utils.load_prompts(prompts_file)
         self.n_plans = kwargs.get('n_plans', 5)
-        self.n_improvements = kwargs.get('n_improvements', 12)
-        self.n_zero = kwargs.get('n_zero', 3)
+        self.n_improvements = kwargs.get('n_improvements', 8)
+        self.num_not_incr = kwargs.get('num_not_incr', 2)
 
         self.pr_tok, self.com_tok = 0, 0
 
@@ -89,7 +89,8 @@ class Matus(BaseStrategy):
                     std_input_prompt=std_input_prompt,
                     language=self.language)
 
-        n_0 = 0
+        prev_score = 0.0
+        num_not_increase = 0
         code_output = self.chat(code_prompt, item, tag='code', temperature = 0.3)
         for i in range(self.n_improvements):
             code = utils.parse_code(code_output)
@@ -104,12 +105,14 @@ class Matus(BaseStrategy):
             if score > max_score:
                 max_score, max_code = score, code
 
-            if score == 0.0:
-                n_0 += 1
-                if n_0 >= self.n_zero:
-                    print(f'Too many zero scores, stopping...')
+            if score<= prev_score:
+                num_not_increase += 1
+                if num_not_increase >= self.num_not_incr:
+                    print(f'Score not increasing too many times, stopping...')
                     break
-            else: n_0 = 0.0
+            else: num_not_increase = 0
+
+            prev_score = score
 
             critique_prompt = self.prompts['critique']['content'] \
                 .format(problem_prompt=problem_prompt,
