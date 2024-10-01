@@ -12,7 +12,7 @@ trick: |
   
   # Complexity
   1. With the largest input in mind (as given by constraints), calculate step by step what time complexity is required.
-  3. Is an O(1) Math algorithm possible? Are approximate solutions allowed?
+  2. Is an O(1) Math algorithm possible? Are approximate solutions allowed?
   
   # Tricks
   identify {num_tricks} different possible tricks to solving the following competitive coding problem correctly and efficiently.
