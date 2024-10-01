@@ -37,7 +37,7 @@ class Matus(BaseStrategy):
 
     def run_single_pass(self, item):
         print('Solving problem ', item['name'])
-        problem_prompt = item['description'] #self.data.get_prompt(item)
+        problem_prompt = item['description']  # self.data.get_prompt(item)
         sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}"
 
         max_score, max_code = 0.0, ""
@@ -77,7 +77,7 @@ class Matus(BaseStrategy):
         return max_code, self.pr_tok, self.com_tok
 
     def generate_code(self, item, plan, problem_prompt, sample_io_prompt):
-        std_input_prompt = self.prompts['std_input_prompt']['content']\
+        std_input_prompt = self.prompts['std_input_prompt']['content'] \
             .format(language=self.language, language_upper=self.language.upper())
 
         max_score, max_code = 0.0, ""
@@ -90,14 +90,14 @@ class Matus(BaseStrategy):
                     language=self.language)
 
         prev_score = 0.0
-        num_not_increase = 0
-        code_output = self.chat(code_prompt, item, tag='code', temperature = 0.3)
-        for i in range(self.n_improvements):
-            code = utils.parse_code(code_output)
-            write_debug(code, 'code')
+        num_not_increase = -1
+        code_output = self.chat(code_prompt, item, tag='code', temperature=0.3)
+        code = utils.parse_code(code_output)
+        score, test_result = self.data.evaluate_sample_io(item, code, self.language)
+        print(f' Attempt 1, score {score}')
 
-            score, test_result = self.data.evaluate_sample_io(item, code, self.language)
-            print(f' Attempt {i + 1}, score {score}')
+        for i in range(self.n_improvements):
+            write_debug(code, 'code')
 
             if score == 1.0:
                 return 1.0, code
@@ -105,32 +105,43 @@ class Matus(BaseStrategy):
             if score > max_score:
                 max_score, max_code = score, code
 
-            if score<= prev_score:
+            if score <= prev_score:
                 num_not_increase += 1
                 if num_not_increase >= self.num_not_incr:
                     print(f'Score not increasing too many times, stopping...')
                     break
-            else: num_not_increase = 0
+            else:
+                num_not_increase = 0
 
             prev_score = score
 
-            critique_prompt = self.prompts['critique']['content'] \
-                .format(problem_prompt=problem_prompt,
-                        code=code,
-                        test_log=test_result,
-                        std_input_prompt=std_input_prompt,
-                        language=self.language)
-            critique = self.chat(critique_prompt, item, 'critique', temperature=0.7)
+            score, code, test_result = self.improve_code(item, problem_prompt, code, test_result)
 
-            improvement_prompt = self.prompts['improvement']['content'] \
-                .format(critique=critique,
-                        code=code,
-                        test_log=test_result,
-                        std_input_prompt=std_input_prompt,
-                        language=self.language)
-
-            code_output = utils.parse_code(self.chat(improvement_prompt, item, tag='code', temperature=0.3))
         return max_score, max_code
+
+    def improve_code(self, item, problem_prompt, code, test_result):
+        std_input_prompt = self.prompts['std_input_prompt']['content'] \
+            .format(language=self.language, language_upper=self.language.upper())
+
+        critique_prompt = self.prompts['critique']['content'] \
+            .format(problem_prompt=problem_prompt,
+                    code=code,
+                    test_log=test_result,
+                    std_input_prompt=std_input_prompt,
+                    language=self.language)
+        critique = self.chat(critique_prompt, item, 'critique', temperature=0.7)
+
+        improvement_prompt = self.prompts['improvement']['content'] \
+            .format(critique=critique,
+                    code=code,
+                    test_log=test_result,
+                    std_input_prompt=std_input_prompt,
+                    language=self.language)
+
+        code = utils.parse_code(self.chat(improvement_prompt, item, tag='code', temperature=0.3))
+        score, test_result = self.data.evaluate_sample_io(item, code, self.language)
+
+        return score, code, test_result
 
     def run_single_pass_no_planning(self, item: dict, plan: str):
         problem_prompt = self.data.get_prompt(item)
@@ -138,3 +149,21 @@ class Matus(BaseStrategy):
         write_debug(plan, "plan")
         _, code = self.generate_code(item, plan, 0.0, "", problem_prompt, sample_io_prompt)
         return code, self.pr_tok, self.com_tok
+
+    def run_single_pass_code_improvement_only(self, item: dict, improvement_dict: dict, curr_pass: int):
+
+        print(f"Testing wrong plan improvement #{curr_pass}")
+        def improve_code(_):
+            return self.improve_code(item, problem, wrong_code, test_result)
+
+        wrong_code = improvement_dict[f"wrong_code{curr_pass + 1}"]
+        # wrong_plan = improvement_dict[f"wrong_plan{curr_pass + 1}"]
+        score, test_result = self.data.evaluate_sample_io(item, wrong_code, self.language)
+        print(f"Starting Score: {score}")
+        problem = self.data.get_prompt(item)
+        results = utils.run_func_parallel_and_collect(improve_code, 7)
+        best_score, best_code, test_result = utils.holistic_get_best_result(results)
+        print(f' Scores: {",".join([str(r[0]) for r in results])}')
+        print(f' Best Score: {best_score}\n')
+
+        return best_code, self.pr_tok, self.com_tok

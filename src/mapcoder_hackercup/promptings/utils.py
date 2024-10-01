@@ -1,6 +1,7 @@
 import re
 import xml.etree.ElementTree as ET
 import yaml
+import concurrent.futures
 
 mapping = {
     1: "one (01)",
@@ -148,3 +149,32 @@ def log(header, content):
     print("\n\n________________________")
     print(header)
     print(content, flush=True)
+
+
+def holistic_get_best_result(results):
+    # Instead of max score being returned use the average of the top two scores.
+    results.sort(key=lambda x: x[0], reverse=True)
+    best_score, best_code, test_result = results[0]
+    if best_score == 1.0 or len(results) == 1:
+        return best_score, best_code, test_result
+
+    # if the best score == 0, then it might be 0 meaning error or 0.0 meaning just wrong answer
+    # a wrong answer solution is better than error so we will remove the 0 solutions
+    if best_score == 0:
+        results2 = [x for x in results if not (isinstance(x[0], int) and x[0] == 0)]
+        if len(results2) == 0:
+            results2 = results
+        best_score, best_code, test_result = results2[0]
+
+    # weighted holistic scoring so that the second-best score is taken into account
+    # intuition is that if the second-best score is low but top is high then the plan is not actually good
+    average_top_two_score = results[0][0]*0.6+results[1][0]*0.4
+    return average_top_two_score, best_code, test_result
+
+
+def run_func_parallel_and_collect( func, num_parallel):
+    # Running the code generation in parallel
+    with concurrent.futures.ThreadPoolExecutor(max_workers=num_parallel) as executor:
+        futures = [executor.submit(func, i) for i in range(num_parallel)]
+        results = [future.result() for future in concurrent.futures.as_completed(futures)]
+    return results

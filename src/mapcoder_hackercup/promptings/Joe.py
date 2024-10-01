@@ -3,12 +3,12 @@ import os
 
 from .Matus import Matus
 from . import utils
-import concurrent.futures
 from ..results import write_debug
 import re
 import xml.etree.ElementTree as ET
 import concurrent.futures
 import threading
+import json
 
 
 # Path to the prompts YAML file
@@ -197,41 +197,12 @@ class Joe(Matus):
             return score, code, test_result_new
 
         results = self.run_func_parallel_and_collect(modify_code_and_evaluate, num_parallel=NUM_PARALLEL)
-        best_score, best_code, test_result = self.holistic_get_best_result(results)
+        best_score, best_code, test_result = utils.holistic_get_best_result(results)
 
         print(f' Scores: {",".join([str(r[0]) for r in results])}')
         print(f' Best Score: {best_score}\n')
 
         return best_score, best_code, test_result
-
-    @staticmethod
-    def holistic_get_best_result(results):
-        # Instead of max score being returned use the average of the top two scores.
-        results.sort(key=lambda x: x[0], reverse=True)
-        best_score, best_code, test_result = results[0]
-        if best_score == 1.0 or len(results) == 1:
-            return best_score, best_code, test_result
-
-        # if the best score == 0, then it might be 0 meaning error or 0.0 meaning just wrong answer
-        # a wrong answer solution is better than error so we will remove the 0 solutions
-        if best_score == 0:
-            results2 = [x for x in results if not (isinstance(x[0], int) and x[0] == 0)]
-            if len(results2) == 0:
-                results2 = results
-            best_score, best_code, test_result = results2[0]
-
-        # weighted holistic scoring so that the second-best score is taken into account
-        # intuition is that if the second-best score is low but top is high then the plan is not actually good
-        average_top_two_score = results[0][0]*0.6+results[1][0]*0.4
-        return average_top_two_score, best_code, test_result
-
-    @staticmethod
-    def run_func_parallel_and_collect( func, num_parallel=NUM_PARALLEL):
-        # Running the code generation in parallel
-        with concurrent.futures.ThreadPoolExecutor(max_workers=num_parallel) as executor:
-            futures = [executor.submit(func, i) for i in range(num_parallel)]
-            results = [future.result() for future in concurrent.futures.as_completed(futures)]
-        return results
 
     def chat(self, input: str, item: dict, tag='', **kwargs) -> (str, int, int):
         item['api_calls'] = item.get('api_calls', 0) + 1
@@ -250,11 +221,18 @@ class Joe(Matus):
         score, code, _ = self.generate_code(item, "", plan, problem)
         return code, self.pr_tok, self.com_tok
 
-    def run_single_pass_code_improvement_only(self, item: dict, code_dir: str):
-        with open(code_dir, 'r') as f:
-            code = f.read()
-        score, test_result = self.data.evaluate_sample_io(item, code, self.language)
+    def run_single_pass_code_improvement_only(self, item: dict, improvement_dict: dict, curr_pass:int):
+        print(f"Testing wrong plan improvement #{curr_pass}")
+
+        wrong_code = improvement_dict[f"wrong_code{curr_pass+1}"]
+        wrong_plan = improvement_dict[f"wrong_plan{curr_pass+1}"]
+        score, test_result = self.data.evaluate_sample_io(item, wrong_code, self.language)
         print(f"Starting Score: {score}")
         problem = self.data.get_prompt(item)
-        code, _, _ = self.improve_code(item, problem, code, "", test_result)
+        _, code, _ = self.improve_code(item, problem, wrong_code, wrong_plan, test_result)
+
         return code, self.pr_tok, self.com_tok
+
+    @staticmethod
+    def run_func_parallel_and_collect(func, num_parallel=NUM_PARALLEL):
+        return utils.run_func_parallel_and_collect(func, num_parallel)

@@ -3,6 +3,7 @@ import tiktoken
 import os
 import copy
 import time
+import json
 
 from mapcoder_hackercup.models.Base import BaseModel
 from mapcoder_hackercup.datasets.Dataset import Dataset
@@ -23,7 +24,7 @@ class BaseStrategy(object):
         temps: list = None,
         top_ps: list = None,
         plan: str = None,
-        code_dir: str = None
+        improvement_dir: str = None
     ):
         self.model = model
         self.data = data
@@ -34,7 +35,11 @@ class BaseStrategy(object):
         self.temps = [] if temps is None else temps
         self.top_ps = [] if top_ps is None else top_ps
         self.plan = plan
-        self.code_dir = code_dir
+        self.improvement_dir = improvement_dir
+
+        # Test two improvements on two separate mistakes
+        if self.improvement_dir is not None:
+            self.pass_at_k = 2
 
     def gpt_chat(self, processed_input: List[dict], **kwargs) -> (str, int, int):
         return self.model.prompt(processed_input=processed_input, **kwargs)
@@ -45,7 +50,7 @@ class BaseStrategy(object):
     def run_single_pass_no_planning(self, item: dict, plan: str):
         return self.run_single_pass(item)
 
-    def run_single_pass_code_improvement_only(self, item: dict, code: str):
+    def run_single_pass_code_improvement_only(self, item: dict, improvement_dict: dict, curr_pass: int):
         return self.run_single_pass(item)
 
     def run(self):
@@ -75,14 +80,22 @@ class BaseStrategy(object):
                 is_solved = False
                 output = ""
                 cur_imp = ""
-
             while cur_pass < self.pass_at_k and not is_solved:
                 for _ in range(10):
                     try:
                         if self.plan is not None:
                             response, prompt_tokens, completion_tokens = self.run_single_pass_no_planning(item, self.plan)
-                        elif self.code_dir is not None:
-                            result = self.run_single_pass_code_improvement_only(item, self.code_dir)
+                        elif self.improvement_dir is not None:
+                            # Open and read the JSON file
+                            with open(self.improvement_dir, 'r') as file:
+                                improvement_data = json.load(file)
+
+                            if item[self.data.id_key] in improvement_data:
+                                improvement_data = improvement_data[item[self.data.id_key]]
+                            else:
+                                break
+
+                            result = self.run_single_pass_code_improvement_only(item, improvement_data, cur_pass)
                             response, prompt_tokens, completion_tokens = result
                         else:
                             response, prompt_tokens, completion_tokens = self.run_single_pass(item)

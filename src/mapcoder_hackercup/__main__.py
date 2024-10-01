@@ -130,10 +130,10 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    '--code_dir',
+    '--improvement_dir',
     type=str,
     default=None,
-    help='If set prompt strategy will skip straight to improving the code at the provided directory.'
+    help='If set prompt strategy will skip straight to improving the code and plans at the provided directory.'
 )
 
 parser.add_argument(
@@ -159,6 +159,8 @@ PROBLEM_IDS = args.problem_ids
 DATASET = SPLIT if args.dataset == 'Hackercup' else args.dataset
 
 RUN_NAME = f"{MODEL_NAME}-{STRATEGY}-{DATASET}-{LANGUAGE}-{TEMPERATURE[0]}-{PASS_AT_K}"
+if args.improvement_dir:
+    RUN_NAME = f"{MODEL_NAME}-{STRATEGY}-{DATASET}-{LANGUAGE}-{TEMPERATURE[0]}-improvement"
 os.makedirs('./outputs', exist_ok=True)
 RESULTS_PATH = f"./outputs/{RUN_NAME}.jsonl"
 
@@ -187,7 +189,7 @@ strategy = PromptingFactory.get_prompting_class(STRATEGY)(
     temps = TEMPERATURE,
     top_ps = TOP_P,
     plan = args.plan,
-    code_dir = args.code_dir
+    improvement_dir = args.improvement_dir
 )
 
 strategy.run()
