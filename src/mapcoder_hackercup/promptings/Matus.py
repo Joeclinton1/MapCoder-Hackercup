@@ -147,7 +147,7 @@ class Matus(BaseStrategy):
         problem_prompt = self.data.get_prompt(item)
         sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}\n"
         write_debug(plan, "plan")
-        _, code = self.generate_code(item, plan, 0.0, "", problem_prompt, sample_io_prompt)
+        _, code = self.generate_code(item, plan, problem_prompt, sample_io_prompt)
         return code, self.pr_tok, self.com_tok
 
     def run_single_pass_code_improvement_only(self, item: dict, improvement_dict: dict, curr_pass: int):
