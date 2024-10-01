@@ -162,7 +162,7 @@ class Joe(Matus):
 
         write_debug(code_prompt, 'code_prompt')
         results = self.run_func_parallel_and_collect(gen_code)
-        score, code, test_report = self.holistic_get_best_result(results)
+        score, code, test_report = utils.holistic_get_best_result(results)
 
         print(f' Scores: {",".join([str(r[0]) for r in results])}')
         print(f' Best Score: {score}\n')
