@@ -93,6 +93,7 @@ class BaseStrategy(object):
                             if item[self.data.id_key] in improvement_data:
                                 improvement_data = improvement_data[item[self.data.id_key]]
                             else:
+                                print(f"'{item[self.data.id_key]}' not found in data file. SKIPPING.")
                                 break
 
                             result = self.run_single_pass_code_improvement_only(item, improvement_data, cur_pass)
@@ -101,7 +102,7 @@ class BaseStrategy(object):
                             response, prompt_tokens, completion_tokens = self.run_single_pass(item)
                         break
                     except Exception as e:
-                        print(f"Exception occured with error: {e}")
+                        print(f"An error occurred on line {e.__traceback__.tb_lineno}: {e}")
                         time.sleep(5)
                         pass
 
@@ -160,7 +161,7 @@ class BaseStrategy(object):
                 print(
                     f'completed {i+1}/{num_items}, '
                     f'Solved: {self.results[i]["is_solved"]},'
-                    f'Solved Sample: {self.results[i]["is_solved_sample"][0]>=0.999}'
+                    f'Solved Sample: {any([x>=0.999 for x in self.results[i]["is_solved_sample"]])}'
                 )
 
             # break
