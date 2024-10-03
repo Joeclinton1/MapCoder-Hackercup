@@ -14,3 +14,5 @@ pyarrow
 google-generativeai
 accelerate
 datasets
+sentence_transformers
+faiss-gpu-cu11

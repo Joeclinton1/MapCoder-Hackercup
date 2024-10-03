@@ -6,10 +6,12 @@ from mapcoder_hackercup.models.Ollama import Codestral
 from mapcoder_hackercup.models.Ollama import Local
 from mapcoder_hackercup.models.Ollama import Deepseek
 from mapcoder_hackercup.models.Ollama import Local, Llama
+from mapcoder_hackercup.models.Base import BaseModel
+from typing import Type
 
 class ModelFactory:
     @staticmethod
-    def get_model_class(model_name):
+    def get_model_class(model_name) -> Type[BaseModel]:
         if model_name == "Gemini":
             return Gemini
         elif model_name == "ChatGPT":
