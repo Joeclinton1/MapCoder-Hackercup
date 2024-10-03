@@ -218,7 +218,24 @@ class Joe(Matus):
     def run_single_pass_no_planning(self, item: dict, plan: str):
         self.sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}"
         problem = self.data.get_prompt(item)
-        score, code, _ = self.generate_code(item, "", plan, problem)
+
+        # Step 1: generate code
+        score, code, test_report = self.generate_code(item, "", plan, problem)
+        sol = dict(score=score, code=code, plan=plan, test_report=test_report)
+
+        # Step 2: Try improving the best code seen so far
+        print(f"--Best score so far: {score}--\n ## Improving best code: \n")
+        for j in range(MAX_IMPROVEMENT_TRIES):
+
+            score, code, test_report = self.improve_code(item, problem, sol['code'], sol["plan"],
+                                                         sol["test_report"])
+
+            if score >= sol["score"]:
+                sol = dict(score=score, code=code, plan=sol["plan"], test_report=test_report)
+
+            if score == 1.0:
+                return sol["code"], self.pr_tok, self.com_tok
+
         return code, self.pr_tok, self.com_tok
 
     def run_single_pass_code_improvement_only(self, item: dict, improvement_dict: dict, curr_pass:int):
