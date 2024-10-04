@@ -113,6 +113,11 @@ python -m mapcoder_hackercup --model Local --temperature 0.7 0.6 0 --top_p 0.7 0
 python -m mapcoder_hackercup --model Codestral --strategy Joe --language C++ --top_p 0.9 --dataset Live --dir contestData --problem_ids "Line of Delivery (Part 2)"
 ```
 
+6. Running all problems from practice round on Joe strategy and ideal settings, using VLLM on A100
+```
+python -m mapcoder_hackercup --model CodestralVLLM --strategy Joe --language C++ --top_p 0.9 --dataset Live --dir contestData
+```
+
 ## Citation
 ```
 @article{islam2024mapcoder,
