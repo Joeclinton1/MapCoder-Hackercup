@@ -178,6 +178,7 @@ def tags_to_faiss_index(output_file, model_name='all-MiniLM-L6-v2', index_file='
     tags_list = []
     problem_names = []
     problem_embeddings = {}
+    tag_problem_mapping = []  # New list to store metadata linking tags to problems
 
     # Iterate through each problem in the JSON file
     for problem_key, problem_data in data.items():
@@ -192,6 +193,7 @@ def tags_to_faiss_index(output_file, model_name='all-MiniLM-L6-v2', index_file='
         all_embeddings.extend(embeddings)
         all_weights.extend(weights)
         tags_list.extend(tag_texts)
+        tag_problem_mapping.extend([problem_key] * len(tag_texts))  # Add problem_key for each tag
 
         # Store embeddings for each problem to calculate the weighted average
         problem_embeddings[problem_key] = (embeddings, weights)
@@ -212,12 +214,12 @@ def tags_to_faiss_index(output_file, model_name='all-MiniLM-L6-v2', index_file='
         for embedding in embeddings_array:
             f.write('\t'.join(map(str, embedding)) + '\n')
 
-    # Save tag metadata to a TSV file
+    # Save tag metadata to a TSV file with problem linkage
     metadata_tsv_file = output_file.replace('.json', '_metadata.tsv')
     with open(metadata_tsv_file, 'w') as f:
-        f.write("Weight\tTag\n")
-        for weight, tag in zip(all_weights, tags_list):
-            f.write(f"{weight}\t{tag}\n")
+        f.write("Weight\tTag\tProblemKey\n")
+        for weight, tag, problem_key in zip(all_weights, tags_list, tag_problem_mapping):
+            f.write(f"{weight}\t{tag}\t{problem_key}\n")
 
     # Calculate weighted average embeddings for each problem and save to a separate TSV file
     avg_embeddings_tsv_file = output_file.replace('.json', '_avg_embeddings.tsv')
@@ -239,7 +241,7 @@ def tags_to_faiss_index(output_file, model_name='all-MiniLM-L6-v2', index_file='
 
     print(f"FAISS index has been created and saved to '{index_file}'.")
     print(f"Embeddings have been saved to '{embeddings_tsv_file}'.")
-    print(f"Metadata (tags) has been saved to '{metadata_tsv_file}'.")
+    print(f"Metadata (tags) with problem linkage has been saved to '{metadata_tsv_file}'.")
     print(f"Weighted average embeddings have been saved to '{avg_embeddings_tsv_file}'.")
     print(f"Metadata (problem names) for weighted averages has been saved to '{avg_metadata_tsv_file}'.")
 
