@@ -19,14 +19,26 @@ class LiveDataset(Dataset):
         for problem in os.listdir(self.path):
             problem_path = pathlib.Path(self.path) / problem
 
+            # Check if the current path is a directory
+            if not problem_path.is_dir():
+                continue
+
             problem_data = dict()
             for file_name, key in zip(['statement.txt', 'sample_in.txt', 'sample_out.txt', 'full_in.txt'],
-                                      ['description',   'input',         'output',         'full']):
+                                      ['description', 'input', 'output', 'full']):
                 with open(problem_path / file_name, 'r') as f:
                     problem_data[key] = f.read()
+
+            # Check if 'full_out.txt' exists and use it if it does
+            full_out_path = problem_path / 'full_out.txt'
+            if full_out_path.exists():
+                with open(full_out_path, 'r') as f:
+                    full_output = f.read()
+            else:
+                full_output = ""
+
             problem_data['sample_io'] = [dict(input=problem_data['input'], output=[problem_data['output']])]
-            problem_data['sample_io'] = [dict(input=problem_data['input'], output=[problem_data['output']])]
-            problem_data['test_list'] = [dict(input=problem_data['full'], output=[""])]
+            problem_data['test_list'] = [dict(input=problem_data['full'], output=[full_output])]
             problem_data['name'] = problem
             data.append(problem_data)
 
@@ -69,7 +81,8 @@ class LiveDataset(Dataset):
                 tests=item["test_list"],
                 lang=language
             )
-            if results2[0] !=0.0 and not isinstance(results2, float):
+
+            if not (isinstance(results2[0], float) or results2[0] is True):
                 return 0.999, f"Program passes Sample Cases, but fails on full input with error: `{results2[1]}`," \
                               f" Error Type: {results2[0]}"
         return  results

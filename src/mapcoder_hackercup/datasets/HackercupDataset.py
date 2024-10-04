@@ -48,7 +48,7 @@ class HackercupDataset(Dataset):
                 tests=item["test_list"],
                 lang=language
             )
-            if not (isinstance(results2, float) or results2 is True):
+            if not (isinstance(results2[0], float) or results2[0] is True):
                 return 0.999, f"Program passes Sample Cases, but fails on full input with error: `{results2[1]}`," \
                               f" Error Type: {results2[0]}"
         return results
