@@ -46,7 +46,8 @@ def process_buffer(model, buffer):
 
     print(f"Processing buffer with {len(buffer)} prompts...")
     # Run in parallel and collect results with their indices
-    indexed_tags_list = utils.run_func_parallel_and_collect(gen_tags_inner, num_parallel=NUM_PARALLEL)
+    num_p = NUM_PARALLEL if len(buffer)>=NUM_PARALLEL else len(buffer)
+    indexed_tags_list = utils.run_func_parallel_and_collect(gen_tags_inner, num_parallel=num_p)
 
     # Sort results based on the original indices to maintain order
     indexed_tags_list.sort(key=lambda x: x[0])
@@ -57,37 +58,57 @@ def process_buffer(model, buffer):
         save_tags_to_json(name, tags, output_file)
 
 
-# Function to extract tags from dataset entries
-def extract_tags(prompts_file, gpu='4090', num_parallel=4):
+# Function to extract tags from dataset entries or a test_problem file
+def extract_tags(prompts_file, gpu='4090', num_parallel=4, use_test_problem=False):
     prompts = utils.load_prompts(prompts_file)
-    dataset = datasets.load_dataset("deepmind/code_contests", split='test', streaming=True)
-    dataset_length = dataset.info.splits['test'].num_examples
 
+    # Load model
     model = ModelFactory.get_model_class("Codestral" if gpu == '4090' else "CodestralVLLM")(
         temperature=0.1,
         top_p=0.9,
         gpu=gpu
     )
-    model.model_params.update(num_ctx=2048)
+    if gpu == "4090":
+        model.model_params.update(num_ctx=2048)
 
     buffer = []
 
-    for entry in tqdm(dataset, desc="Generating Tags", total=dataset_length):
-        problem_name = entry['name']
-        problem_description = entry['description']
+    if use_test_problem:
+        # Use test_problem.txt file
+        # test_problem_path = os.path.join(os.path.dirname(__file__), '../../data/Omkar_and_Tours_variation.txt')
+        test_problem_path = os.path.join(os.path.dirname(__file__), '../../data/Live/contestData/Line of Delivery (Part 1)/statement.txt')
+        if not os.path.exists(test_problem_path):
+            print(f"Test problem file '{test_problem_path}' does not exist.")
+            return
+
+        with open(test_problem_path, 'r') as file:
+            problem_description = file.read()
+
+        # Generate prompt for the test problem
         prompt = prompts['tag_gen'].format(problem_prompt=problem_description)
-        buffer.append((prompt, problem_name))
+        buffer.append((prompt, 'test_problem'))
 
-        if len(buffer) >= num_parallel:
-            process_buffer(model, buffer)
-            buffer = []
+    else:
+        # Use the dataset
+        dataset = datasets.load_dataset("deepmind/code_contests", split='train')
+        dataset_length = dataset.info.splits['test'].num_examples
 
+        for entry in tqdm(dataset, desc="Generating Tags", total=dataset_length):
+            problem_name = entry['name']
+            problem_description = entry['description']
+            prompt = prompts['tag_gen'].format(problem_prompt=problem_description)
+            buffer.append((prompt, problem_name))
+
+            if len(buffer) >= num_parallel:
+                process_buffer(model, buffer)
+                buffer = []
+
+    # Process any remaining buffer entries
     if buffer:
         print("Processing remaining entries in buffer...")
         process_buffer(model, buffer)
 
     print("Tag generation completed.")
-
 
 def post_process_output(output_file):
     if not os.path.exists(output_file):
@@ -233,6 +254,8 @@ if __name__ == '__main__':
                         help='If set, convert tags to embeddings.')
     parser.add_argument('--tags_only', action='store_true',
                         help='If set, extract tags only.')
+    parser.add_argument('--insert_test', action='store_true',
+                        help='If set, run the pipeline but only for an inserted item (test_problem).')
 
     args = parser.parse_args()
 
@@ -240,8 +263,8 @@ if __name__ == '__main__':
     cwd = os.path.dirname(os.path.abspath(__file__))
     prompts_file = os.path.join(cwd, 'promptings/prompt_templates/prompts_tag_gen.yaml')
     output_file = os.path.join(cwd, '../../outputs/output_tags.json')
-    GPU = '4090'
-    NUM_PARALLEL = 10
+    GPU = 'A100'
+    NUM_PARALLEL = 50
 
     # If post-process flag is set, perform post-processing
     if args.post_process:
@@ -254,16 +277,17 @@ if __name__ == '__main__':
 
     # If tags_only flag is set, extract tags only
     elif args.tags_only:
-        extract_tags(prompts_file, gpu=GPU, num_parallel=NUM_PARALLEL)
+        extract_tags(prompts_file, gpu=GPU, num_parallel=NUM_PARALLEL, use_test_problem=args.insert_test)
 
     # If no flags are set, perform all three tasks in sequence
     else:
-        # Step 1: Post-process the output JSON to extract (weight, tag) tuples
+        # Step 1: Extract tags in natural text
+        extract_tags(prompts_file, gpu=GPU, num_parallel=NUM_PARALLEL, use_test_problem=args.insert_test)
+
+        # Step 2: Post-process the output JSON to extract (weight, tag) tuples
         post_process_output(output_file)
 
-        # Step 2: Convert tags to embeddings
+        # Step 3: Convert tags to embeddings
         processed_file = output_file.replace('.json', '_processed.json')
         tags_to_faiss_index(processed_file)
 
-        # Step 3: Extract tags
-        extract_tags(prompts_file, gpu=GPU, num_parallel=NUM_PARALLEL)

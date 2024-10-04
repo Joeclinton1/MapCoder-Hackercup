@@ -1,0 +1,59 @@
+### **Problem: Magical Forest and the Mystic Stones**
+
+**Time Limit:** 3 seconds
+**Memory Limit:** 512 megabytes
+
+In a mystical forest, there are `n` ancient magical stones connected by a network of `n-1` enchanted pathways. These pathways form a tree structure, enabling traversal between any two stones. Each stone possesses a magical power level `p`. The pathways come in different elemental types: "fire," "water," and "earth." The forest guardian, Eldara, seeks to harness energy from these stones to charge her magical staff. However, each pathway has specific properties affecting how she can travel through the forest.
+
+Each pathway is characterized by:
+1. A stability level `s`, determining the maximum amount of magic that can traverse it.
+2. An elemental type (`fire`, `water`, or `earth`), which affects the toll paid for using the pathway.
+3. A magical toll `t`, which varies depending on the elemental properties of the pathway.
+
+Eldara has received `q` requests to collect energy, and each request specifies a starting stone. She must use pathways that match her magical staff's power level and are stable enough to support her journey.
+
+However, there are a few twists:
+1. **Pathway Restrictions:** Eldara can only use pathways of a specific elemental type for each journey, specified in the input.
+2. **Toll Aggregation:** Unlike traditional tolls, Eldara pays the **sum** of tolls for "fire" pathways, the **maximum** toll for "water" pathways, and the **minimum** toll for "earth" pathways along her journey.
+3. **Energy Collection:** Eldara's goal is to collect energy from the stone with the **maximum power level** reachable under the pathway conditions.
+
+**Input**
+
+The first line contains two integers `n` and `q` (`2 ≤ n ≤ 2 × 10^5`, `1 ≤ q ≤ 2 × 10^5`), representing the number of stones and the number of energy collection requests, respectively.
+
+The next line contains `n` integers `p1, p2, ..., pn` (`1 ≤ pi ≤ 10^9`), where `pi` represents the power level of stone `i`.
+
+The next `n-1` lines each contain five values: two integers `a` and `b`, an integer `s`, a string `type`, and an integer `t`. This line represents a pathway between stones `a` and `b` with a stability level `s`, an elemental type (`fire`, `water`, or `earth`), and a toll `t`.
+
+The next `q` lines each contain an integer `v`, a string `element`, and an integer `x` (`1 ≤ v ≤ 10^9`, `element` ∈ {`fire`, `water`, `earth`}, `1 ≤ x ≤ n`), representing the required stability of Eldara's staff (`v`), the elemental pathway she can use for the journey, and the starting stone for energy collection.
+
+**Output**
+
+Output `q` lines. Each line should contain two values: the maximum power level of a reachable stone under the given constraints, and the total toll cost based on the elemental rules specified for the journey.
+
+**Examples**
+
+**Input:**
+```
+5 3
+10 15 20 25 30
+1 2 5 fire 10
+1 3 3 water 7
+2 4 8 earth 12
+3 5 2 fire 6
+4 fire 1
+7 water 2
+5 earth 3
+```
+
+**Output:**
+```
+30 16
+20 7
+15 12
+```
+
+**Explanation:**
+1. For the first query (`4 fire 1`): Eldara can use "fire" pathways and has a stability requirement of 4. She starts at stone 1 and can travel to stones 2, 3, and 5. The maximum reachable power level is stone 5 with power level 30. Since "fire" pathways have summed tolls, the total toll is `10 + 6 = 16`.
+2. For the second query (`7 water 2`): Eldara can use "water" pathways and has a stability requirement of 7. She starts at stone 2 but can only use the path to stone 1 due to stability constraints. The maximum reachable power level is stone 1 with power level 20. Since "water" pathways take the maximum toll, the total toll is `7`.
+3. For the third query (`5 earth 3`): Eldara uses "earth" pathways and has a stability requirement of 5. Starting at stone 3, she can reach stone 2. The maximum power level reachable is 15 (stone 2). For "earth" pathways, the minimum toll is taken along the journey, which is `12`.

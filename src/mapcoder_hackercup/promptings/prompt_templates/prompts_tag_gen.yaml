@@ -3,7 +3,8 @@ tag_gen: |
   {problem_prompt}
   
   # Tags
-  Tag the above competitive coding problem with 5 detailed tags that would allow you to find similar problems. Prepend each tag with a weight. The sum of all tag weights should add up to 1. Tags should focus on the problem not the solution
+  Tag the above competitive coding problem with 7 tags that would allow you to find similar problems. Prepend each tag with a weight. The sum of all tag weights should add up to 1.
+  Tags should focus on the problem not the solution and include any uncommon datastructures, rules or constraints required by the problem. Tags should be made generic enough to match other competitive coding problems and use computer science terms.
   -----
   Important:
   
@@ -11,11 +12,12 @@ tag_gen: |
   
   weight: tag
   
-  Here is an example of a good set of 5 tags:
-  
-  0.30: collision_dynamics
-  0.25: energy_transfer
-  0.20: 1d_motion
-  0.15: closest_to_target
-  0.10: unique_initial_conditions
+  Here is an example of a good set of 7 tags:
 
+  0.20: collision_handling
+  0.20: energy_transfer
+  0.15: greedy_simulation
+  0.15: linear_traversal
+  0.10: positional_indexing
+  0.10: tie_breaking
+  0.10: nearest_target
