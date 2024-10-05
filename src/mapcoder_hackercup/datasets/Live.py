@@ -16,8 +16,8 @@ class LiveDataset(Dataset):
     def load(self):
         data = []
 
-        folder_path = pathlib.Path(self.path)
         # Try to unzip the file if it is not a directory
+        folder_path = pathlib.Path(self.path)
         if not folder_path.is_dir():
             # If not a directory, check if a .zip file exists
             zip_file_path = folder_path.with_suffix('.zip')
@@ -33,7 +33,6 @@ class LiveDataset(Dataset):
                         check=True
                     )
                     # Update folder_path to point to the newly created directory
-                    folder_path = output_dir
                 except subprocess.CalledProcessError:
                     print(f"Failed to unzip {zip_file_path}.")
                     return  # Exit since we can't continue without the unzipped files

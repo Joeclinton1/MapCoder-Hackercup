@@ -9,6 +9,7 @@ import xml.etree.ElementTree as ET
 import concurrent.futures
 import threading
 import json
+import time
 
 
 # Path to the prompts YAML file
@@ -99,9 +100,14 @@ class Joe(Matus):
             return None  # No successful result
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=NUM_SHOTS) as executor:
-            futures = [executor.submit(single_shot, i) for i in range(NUM_SHOTS)]
+            futures = []
+            for i in range(NUM_SHOTS):
+                future = executor.submit(single_shot, i)
+                futures.append(future)
+                time.sleep(0.01)  # Sleep for 10 milliseconds between submissions to prevent timeout
+
             for future in concurrent.futures.as_completed(futures):
-                result = future.result()
+                result = future.result(timeout=600)
                 if result is not None:
                     return result
 
