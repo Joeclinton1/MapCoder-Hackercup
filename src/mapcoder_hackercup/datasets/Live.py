@@ -1,6 +1,5 @@
 import os, pathlib
-import zipfile
-import shutil
+import subprocess
 
 from .Dataset import Dataset
 
@@ -16,6 +15,29 @@ class LiveDataset(Dataset):
 
     def load(self):
         data = []
+
+        folder_path = pathlib.Path(self.path)
+        # Try to unzip the file if it is not a directory
+        if not folder_path.is_dir():
+            # If not a directory, check if a .zip file exists
+            zip_file_path = folder_path.with_suffix('.zip')
+            if zip_file_path.exists():
+                # Create a new folder with the same name as the zip file (without extension)
+                output_dir = folder_path.with_suffix('')
+                output_dir.mkdir(exist_ok=True)
+
+                try:
+                    # Unzip using 7z with a password, extracting to the newly created folder
+                    subprocess.run(
+                        ['7z', 'x', f'-p{self.password}', str(zip_file_path), f'-o{str(output_dir)}'],
+                        check=True
+                    )
+                    # Update folder_path to point to the newly created directory
+                    folder_path = output_dir
+                except subprocess.CalledProcessError:
+                    print(f"Failed to unzip {zip_file_path}.")
+                    return  # Exit since we can't continue without the unzipped files
+
         for problem in os.listdir(self.path):
             problem_path = pathlib.Path(self.path) / problem
 

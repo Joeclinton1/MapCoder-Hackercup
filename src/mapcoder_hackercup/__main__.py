@@ -147,6 +147,12 @@ parser.add_argument(
     ]
 )
 
+parser.add_argument(
+    '--password',
+    type=str,
+    default=None,
+)
+
 args = parser.parse_args()
 
 SPLIT = args.split
@@ -173,7 +179,7 @@ match args.dataset:
     case 'Live':
         if not args.dir:
             raise ValueError(f'Please specify the dir name!')
-        dataset = LiveDataset(problem_ids=PROBLEM_IDS, dir_name=args.dir[0])
+        dataset = LiveDataset(problem_ids=PROBLEM_IDS, dir_name=args.dir[0], password=args.password)
     case _:
         raise ValueError(f'Please specify a valid dataset!')
 
