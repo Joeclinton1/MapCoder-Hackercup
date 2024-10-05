@@ -17,11 +17,12 @@ prompts_file = os.path.join(cwd, 'prompt_templates/prompts_joe.yaml')
 algorithms_file = os.path.join(cwd, 'prompt_templates/algorithm_list.yaml')
 lang_specific_file = os.path.join(cwd, 'prompt_templates/lang_specific_tips.yaml')
 
+# constants that affect how much computation it will use
 NUM_PARALLEL = 7
 NUM_SETS = 2
 NUM_TRICKS_PER_SET = 2
 MAX_IMPROVEMENT_TRIES = 1
-THRESH_FOR_IMPROVEMENT = 0.5
+NUM_SHOTS = 3
 
 class Joe(Matus):
     def __init__(self, *args, **kwargs):
@@ -39,8 +40,8 @@ class Joe(Matus):
         problem = self.data.get_prompt(item)
 
         sol = dict(score=0.0, code="", plan="", test_report="")
-        num_shots = round(14 // NUM_PARALLEL)
         stop_event = threading.Event()  # Create an event to signal when to stop other parallel executions
+        sol_lock = threading.Lock()  # Create a lock for updating the sol dictionary
 
         def single_shot(shot_index):
             nonlocal sol
@@ -67,12 +68,13 @@ class Joe(Matus):
                 print(f'Trick: {trick}')
                 score, code, test_report = self.generate_code(item, trick, plan, problem)
 
-                if score >= sol["score"]:
-                    sol = dict(score=score, code=code, plan=plan, test_report=test_report)
+                with sol_lock:  # Lock the code block that modifies the shared `sol`
+                    if score >= sol["score"]:
+                        sol = dict(score=score, code=code, plan=plan, test_report=test_report)
 
-                if score == 1.0:
-                    stop_event.set()  # Signal other threads to stop
-                    return sol["code"], self.pr_tok, self.com_tok
+                    if score == 1.0:
+                        stop_event.set()  # Signal other threads to stop
+                        return sol["code"], self.pr_tok, self.com_tok
 
                 if score == 0.999:
                     break
@@ -86,17 +88,18 @@ class Joe(Matus):
                 score, code, test_report = self.improve_code(item, problem, sol['code'], sol["plan"],
                                                              sol["test_report"])
 
-                if score >= sol["score"]:
-                    sol = dict(score=score, code=code, plan=sol["plan"], test_report=test_report)
+                with sol_lock:  # Lock the code block that modifies the shared `sol`
+                    if score >= sol["score"]:
+                        sol = dict(score=score, code=code, plan=sol["plan"], test_report=test_report)
 
-                if score == 1.0:
-                    stop_event.set()  # Signal other threads to stop
-                    return sol["code"], self.pr_tok, self.com_tok
+                    if score == 1.0:
+                        stop_event.set()  # Signal other threads to stop
+                        return sol["code"], self.pr_tok, self.com_tok
 
             return None  # No successful result
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=num_shots) as executor:
-            futures = [executor.submit(single_shot, i) for i in range(num_shots)]
+        with concurrent.futures.ThreadPoolExecutor(max_workers=NUM_SHOTS) as executor:
+            futures = [executor.submit(single_shot, i) for i in range(NUM_SHOTS)]
             for future in concurrent.futures.as_completed(futures):
                 result = future.result()
                 if result is not None:
