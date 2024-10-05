@@ -153,6 +153,7 @@ class OpenAIModel(OpenAIBaseModel):
             frequency_penalty=frequency_penalty,
             presence_penalty=presence_penalty,
         )
+        self.model_params["max_tokens"] = 4096
 
     def summarize_response(self, response):
         """Returns the first reply from the "assistant", if available"""
@@ -186,7 +187,6 @@ class OpenAIModel(OpenAIBaseModel):
             Response from the openai python library
 
         """
-        self.model_params["max_tokens"] = 4096
 
         response = self.openai.chat.completions.create(
             messages=processed_input,
@@ -212,4 +212,13 @@ class CodestralVLLM(OpenAIModel):
     def prompt(self, processed_input: list[dict], **kwargs):
         self.model_params.update(kwargs)
         self.model_params["model"] = 'ArthurGprog/Codestral-22B-v0.1-FIM-Fix-GPTQ'
+        return super().prompt(processed_input)
+
+
+class LlamaVLLM(OpenAIModel):
+    def prompt(self, processed_input: list[dict], temperature=0.7, **kwargs):
+        self.model_params.update(kwargs)
+        self.model_params["temperature"] = temperature * 0.8
+        self.model_params["model"] = 'neuralmagic/Meta-Llama-3.1-70B-Instruct-quantized.w4a16'
+        self.model_params["max_tokens"] = 1538
         return super().prompt(processed_input)
