@@ -19,11 +19,11 @@ algorithms_file = os.path.join(cwd, 'prompt_templates/algorithm_list.yaml')
 lang_specific_file = os.path.join(cwd, 'prompt_templates/lang_specific_tips.yaml')
 
 # constants that affect how much computation it will use
-NUM_PARALLEL = 7
-NUM_SETS = 2
+NUM_PARALLEL = 10
+NUM_SETS = 1
 NUM_TRICKS_PER_SET = 2
 MAX_IMPROVEMENT_TRIES = 1
-NUM_SHOTS = 3
+NUM_SHOTS = 8
 
 class Joe(Matus):
     def __init__(self, *args, **kwargs):
@@ -54,7 +54,17 @@ class Joe(Matus):
 
             # Step 1: Generate tricks
             print(f"Generating {NUM_SETS} sets of {NUM_TRICKS_PER_SET} tricks for how to solve the problem \n")
-            complexities, tricks = self.generate_tricks(item, problem)
+            attempts = 0
+            complexities, tricks = [], []
+            while attempts < 3:
+                complexities, tricks = self.generate_tricks(item, problem)
+                if tricks:  # If tricks is not empty, break out of the loop
+                    break
+                attempts += 1
+                print(f"Attempt {attempts} failed to generate tricks. Retrying...")
+
+            if not tricks:
+                raise Exception("Failed to generate tricks after 3 attempts.")
 
             # Step 2: Generate high-level plans
             print(f"Generating {NUM_SETS * NUM_TRICKS_PER_SET} plans for how to solve the problem \n")
@@ -115,12 +125,18 @@ class Joe(Matus):
 
     def generate_tricks(self, item, problem):
         def parse_tricks(response):
-            raw_xml = utils.replace_tag(response, 'trick')
-            tree = utils.parse_xml_element(raw_xml)
-            return tree.find("complexity"), tree.find('tricks').findall('trick')
+            try:
+                raw_xml = utils.replace_tag(response, 'trick')
+                tree = utils.parse_xml_element(raw_xml)
+                complexity = tree.find("complexity").text
+                tricks = tree.find('tricks').findall('trick')
+                return complexity, tricks
+            except Exception as e:
+                print(f"Error parsing XML: {e}")
+                return "", []
 
         def gen_tricks(_):
-            return  parse_tricks(self.chat(trick_prompt, item, 'tricks', temperature=0.8))
+            return parse_tricks(self.chat(trick_prompt, item, 'tricks', temperature=0.8))
 
         trick_prompt = self.prompts['trick'].format(
             problem_prompt=problem,
@@ -132,11 +148,15 @@ class Joe(Matus):
         complexities = []
         outputs = self.run_func_parallel_and_collect(gen_tricks, num_parallel=NUM_SETS)
 
+        # Filter out outputs with empty trick lists
+        outputs = [(complexity, tricks_xml) for complexity, tricks_xml in outputs if tricks_xml]
+
         print(" Complexity Targets:")
         for i, (complexity, tricks_xml) in enumerate(outputs):
-            complexities.append(complexity.text)
+            complexities.append(complexity)
             print(f"Set {i}: {complexities[-1]}")
             tricks.extend([t.text for t in tricks_xml])
+
         return complexities, tricks
 
     def generate_plans(self, item, problem, tricks):
