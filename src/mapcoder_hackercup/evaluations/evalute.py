@@ -31,6 +31,15 @@ api_comm = APICommunication(server_url=os.getenv('XCODE_SERVER_URL', 'http://win
 FULL_TEST_TIME = 40
 
 def score_output_cases(output, expected_output):
+    output = output.rstrip()
+    expected_output = expected_output.rstrip()
+    len_out = len(output.split('\n'))
+    len_eout = len(expected_output.split('\n'))
+    if len_out != len_eout:
+        print(f"len output: {len_out}, len expected output: {len_eout}")
+        print()
+        return 0
+
     passed = 0
     failed = 0
     for i, (x, y) in enumerate(zip(output.split('\n'), expected_output.split('\n'))):
