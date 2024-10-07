@@ -1,8 +1,6 @@
 C++: |
-  Handle limits with `INT_MAX`, `LLONG_MAX` from `<climits>`.
-  Prevent overflow with `long long` or `__int128` for very large numbers.
   Include ALL standard libraries needed.
-  Declare all variables
+  Declare ALL variables
   
   ## Note: Strictly follow the input and output format.
   The input should be taken from standard input (std::cin), and the output should be given to standard output (std::cout).
@@ -10,6 +8,7 @@ C++: |
   Do not add extra output statement otherwise it will failed the test cases.
   
   Begin with
+  #include <climits>
   #include <iostream>
   #include <iomanip>
   #include <numeric>
