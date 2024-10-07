@@ -197,5 +197,5 @@ def round_floats_in_str(output: str, prec: int) -> str:
 
 def plurarity_vote(outputs, precision=6):
     rounded_strings = [round_floats_in_str(s, precision) for s in outputs]
-    most_common_string, _ = Counter(rounded_strings).most_common(1)[0]
-    return rounded_strings.index(most_common_string)
+    most_common_string, count = Counter(rounded_strings).most_common(1)[0]
+    return rounded_strings.index(most_common_string), count

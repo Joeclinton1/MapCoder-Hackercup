@@ -6,9 +6,8 @@ coding: |
   
   You are an expert competitive programmer.
   Lets think step by step to generate correct {language} code to solve the above competitive coding problem.
-  
+  Consider the problem in a mathematically reduced way, taking into account the time complexity and edge cases.
   Important:
   {lang_specific_tips}
   
   ## Your response must contain only the {language} code to solve this problem. Do not add extra explanation or words.
-  

@@ -12,7 +12,7 @@ prompts_file = os.path.join(cwd, 'prompt_templates/prompts_baseline.yaml')
 lang_specific_file = os.path.join(cwd, 'prompt_templates/lang_specific_tips.yaml')
 
 # constants
-NUM_PARALLEL = 128
+NUM_PARALLEL = 256
 
 
 class Baseline(BaseStrategy):
@@ -34,8 +34,9 @@ class Baseline(BaseStrategy):
 
         if best_res[0] == 1:
             passed = [x for x in results if x[0] == 1]
-            mode_output_idx = utils.plurarity_vote([x[2] for x in passed])
+            mode_output_idx, count = utils.plurarity_vote([x[2] for x in passed])
             code = passed[mode_output_idx][1]
+            print(f"Solution was voted {count}/{len(passed)} times")
         else:
             code = best_res[1]
 
@@ -48,7 +49,7 @@ class Baseline(BaseStrategy):
             language=self.language,
             lang_specific_tips=self.lang_specific_tips
         )
-        code_output = self.chat(code_prompt, item, tag='code', temperature=0.5)
+        code_output = self.chat(code_prompt, item, tag='code', temperature=1.0)
         code = utils.parse_code(code_output)
         score, test_result = self.data.evaluate_sample_io(item, code, self.language,  log_if_passed_samples = True)
         return score, code, test_result

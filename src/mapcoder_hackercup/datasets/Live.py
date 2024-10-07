@@ -109,6 +109,7 @@ class LiveDataset(Dataset):
             if not (isinstance(results[0], float) or results[0] is True):
                 return 0.999, f"Program passes Sample Cases, but fails on full input with error: `{results[1]}`," \
                               f" Error Type: {results[0]}"
+            return 1.0, results[1]
         return  results
 
     @staticmethod
