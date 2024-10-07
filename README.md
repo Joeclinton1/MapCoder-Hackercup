@@ -82,6 +82,9 @@ set OLLAMA_HOST=0.0.0.0
 Ollama serve
 ```
 6. setup the [ExecEval](https://github.com/ntunlp/ExecEval) for docker execution. Please visit this [link](https://github.com/ntunlp/ExecEval) to setup a docker container and run it using 5000 port. Change the line 50 of the file `src\evaluations\api_comm.py` for different setup.
+```
+docker run -it -p 5000:5000 -e NUM_WORKERS=67 exec-eval:1.0
+```
 
 ## Running Our Project
 
@@ -117,6 +120,50 @@ python -m mapcoder_hackercup --model Codestral --strategy Joe --language C++ --t
 ```
 python -m mapcoder_hackercup --model CodestralVLLM --strategy Joe --language C++ --top_p 0.9 --dataset Live --dir contestData
 ```
+
+## Running LLMs on containers (e.g Vast.ai)
+
+### Step 1
+```
+sudo apt update
+sudo apt install -y pipx
+pipx install vllm
+pip install hf_transfer
+export HF_HUB_ENABLE_HF_TRANSFER=1
+pipx ensurepath
+tmux kill-server
+```
+After it installs it logs you out, so log back in again
+
+### Step 2
+We tested loads of models here are some options
+( note qwen2.5 models came out after the cutoff date set in the rules so they're only here for comparison):
+
+- Option 1 - Codestral-22b
+```
+vllm serve ArthurGprog/Codestral-22B-v0.1-FIM-Fix-GPTQ --dtype auto --api-key token-abc123 --port 11434 --host 0.0.0.0 --chat-template "{%- if messages[0]['role'] == 'system' %}\n    {%- set system_message = messages[0]['content'] %}\n    {%- set loop_messages = messages[1:] %}\n{%- else %}\n    {%- set loop_messages = messages %}\n{%- endif %}\n\n{{- bos_token }}\n{%- for message in loop_messages %}\n    {%- if (message['role'] == 'user') != (loop.index0 % 2 == 0) %}\n        {{- raise_exception('After the optional system message, conversation roles must alternate user/assistant/user/assistant/...') }}\n    {%- endif %}\n    {%- if message['role'] == 'user' %}\n        {%- if loop.last and system_message is defined %}\n            {{- '[INST] ' + system_message + '\\n\\n' + message['content'] + '[/INST]' }}\n        {%- else %}\n            {{- '[INST] ' + message['content'] + '[/INST]' }}\n        {%- endif %}\n    {%- elif message['role'] == 'assistant' %}\n        {{- ' ' + message['content'] + eos_token}}\n    {%- else %}\n        {{- raise_exception('Only user and assistant roles are supported, with the exception of an initial optional system message!') }}\n    {%- endif %}\n{%- endfor %}\n"
+```
+
+- Option 2: Qwen 2.5 14B - INT8
+
+```
+vllm serve Qwen/Qwen2.5-14B-Instruct-GPTQ-Int8 --dtype auto --api-key token-abc123 --port 11434 --host 0.0.0.0 
+```
+
+- Option 3: Qwen 2.5 14B - INT4
+
+```
+vllm serve Qwen/Qwen2.5-14B-Instruct-GPTQ-Int4 --dtype auto --api-key token-abc123 --port 11434 --host 0.0.0.0 
+```
+
+- Option 4: Llama 3.1 70B - INT4
+
+```
+vllm serve neuralmagic/Meta-Llama-3.1-70B-Instruct-quantized.w4a16 --dtype auto --api-key token-abc123 --port 11434 --host 0.0.0.0 
+```
+
+
+
 
 ## Citation
 ```

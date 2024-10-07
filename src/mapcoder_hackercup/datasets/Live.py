@@ -85,7 +85,8 @@ class LiveDataset(Dataset):
         item: dict,
         cur_imp: str,
         language: str,
-        evaluate_on_full_if_passed=True
+        evaluate_on_full_if_passed=True,
+        log_if_passed_samples = False
     ):
         results = contest_evaluate_public_tests(
             generated_code=cur_imp,
@@ -96,16 +97,18 @@ class LiveDataset(Dataset):
 
         # evaluate
         if results[0] == 1 and evaluate_on_full_if_passed:
-            results2 = contest_evaluate(
+            if log_if_passed_samples:
+                print("Passed sample input.")
+            results = contest_evaluate(
                 generated_code=cur_imp,
                 id=item[self.id_key],
                 tests=item["test_list"],
                 lang=language
             )
 
-            if not (isinstance(results2[0], float) or results2[0] is True):
-                return 0.999, f"Program passes Sample Cases, but fails on full input with error: `{results2[1]}`," \
-                              f" Error Type: {results2[0]}"
+            if not (isinstance(results[0], float) or results[0] is True):
+                return 0.999, f"Program passes Sample Cases, but fails on full input with error: `{results[1]}`," \
+                              f" Error Type: {results[0]}"
         return  results
 
     @staticmethod

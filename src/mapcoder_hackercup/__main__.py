@@ -41,7 +41,8 @@ parser.add_argument(
         "Matus",
         "ParallelCode",
         "Joe",
-        "Zac"
+        "Zac",
+        "Baseline"
     ]
 )
 
@@ -58,7 +59,8 @@ parser.add_argument(
         "Deepseek",
         "Llama",
         "CodestralVLLM",
-        "LlamaVLLM"
+        "LlamaVLLM",
+        "QwenVLLM"
     ]
 )
 

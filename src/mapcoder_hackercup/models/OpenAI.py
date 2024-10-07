@@ -217,6 +217,15 @@ class CodestralVLLM(OpenAIModel):
         # self.model_params["model"] = 'hugging-quants/Meta-Llama-3.1-8B-Instruct-AWQ-INT4'
         return super().prompt(processed_input)
 
+class QwenVLLM(OpenAIModel):
+    def prompt(self, processed_input: list[dict], **kwargs):
+        self.model_params.update(kwargs)
+        # self.model_params["model"] = 'Qwen/Qwen2.5-32B-Instruct-GPTQ-Int4'
+        # self.model_params["model"] = 'Qwen/Qwen2.5-14B-Instruct-GPTQ-Int4'
+        self.model_params["model"] = 'Qwen/Qwen2.5-14B-Instruct-GPTQ-Int8'
+        # self.model_params["model"] = 'hugging-quants/Meta-Llama-3.1-8B-Instruct-AWQ-INT4'
+        return super().prompt(processed_input)
+
 
 class LlamaVLLM(OpenAIModel):
     def prompt(self, processed_input: list[dict], temperature=0.7, **kwargs):

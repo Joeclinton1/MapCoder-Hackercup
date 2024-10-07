@@ -1,0 +1,14 @@
+coding: |
+  # Problem:
+  {problem_prompt}
+  {sample_io_prompt}
+  ----------------
+  
+  You are an expert competitive programmer.
+  Lets think step by step to generate correct {language} code to solve the above competitive coding problem.
+  
+  Important:
+  {lang_specific_tips}
+  
+  ## Your response must contain only the {language} code to solve this problem. Do not add extra explanation or words.
+  

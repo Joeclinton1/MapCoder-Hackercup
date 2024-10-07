@@ -1,35 +1,33 @@
 from mapcoder_hackercup.models.Gemini import Gemini
-from mapcoder_hackercup.models.OpenAI import ChatGPT
-from mapcoder_hackercup.models.OpenAI import GPT4
-from mapcoder_hackercup.models.OpenAI import CodestralVLLM
-from mapcoder_hackercup.models.OpenAI import LlamaVLLM
-from mapcoder_hackercup.models.Ollama import Codestral
-from mapcoder_hackercup.models.Ollama import Local
-from mapcoder_hackercup.models.Ollama import Deepseek
-from mapcoder_hackercup.models.Ollama import Local, Llama
+from mapcoder_hackercup.models.OpenAI import ChatGPT, GPT4
+from mapcoder_hackercup.models.OpenAI import CodestralVLLM, LlamaVLLM, QwenVLLM
+from mapcoder_hackercup.models.Ollama import Local, Llama, Deepseek, Codestral
 from mapcoder_hackercup.models.Base import BaseModel
 from typing import Type
 
 class ModelFactory:
     @staticmethod
     def get_model_class(model_name) -> Type[BaseModel]:
-        if model_name == "Gemini":
-            return Gemini
-        elif model_name == "ChatGPT":
-            return ChatGPT
-        elif model_name == "GPT4":
-            return GPT4
-        elif model_name == "Codestral":
-            return Codestral
-        elif model_name == "Local":
-            return Local
-        elif model_name == "Llama":
-            return Llama
-        elif model_name == "Deepseek":
-            return Deepseek
-        elif model_name == "CodestralVLLM":
-            return CodestralVLLM
-        elif model_name == "LlamaVLLM":
-            return LlamaVLLM
-        else:
-            raise Exception(f"Unknown model name {model_name}")
+        match model_name:
+            case "Gemini":
+                return Gemini
+            case "ChatGPT":
+                return ChatGPT
+            case "GPT4":
+                return GPT4
+            case "Codestral":
+                return Codestral
+            case "Local":
+                return Local
+            case "Llama":
+                return Llama
+            case "Deepseek":
+                return Deepseek
+            case "CodestralVLLM":
+                return CodestralVLLM
+            case "LlamaVLLM":
+                return LlamaVLLM
+            case "QwenVLLM":
+                return QwenVLLM
+            case _:
+                raise Exception(f"Unknown model name {model_name}")

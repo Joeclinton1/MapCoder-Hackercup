@@ -2,6 +2,8 @@ import re
 import xml.etree.ElementTree as ET
 import yaml
 import concurrent.futures
+import math
+from collections import Counter
 
 mapping = {
     1: "one (01)",
@@ -14,6 +16,7 @@ mapping = {
     8: "eight (08)",
     9: "nine (09)",
 }
+
 
 def xml_to_dict(element):
     result = {}
@@ -31,8 +34,11 @@ def xml_to_dict(element):
             result[child.tag] = child.text
     return result
 
-def parse_xml_element(response: str) ->ET.Element:
+
+def parse_xml_element(response: str) -> ET.Element:
     return parse_xml(response, use_dict=False)
+
+
 def parse_xml(response: str, use_dict=True) -> dict:
     if '```xml' in response:
         response = response.replace('```xml', '')
@@ -139,6 +145,7 @@ def get_sample_io_str(sample_io: any) -> str:
             return "\n".join([f"Sample Input:\n{io['input']}\nSample Output:\n{io['output'][0]}" for io in sample_io])
     return sample_io
 
+
 def load_prompts(prompts_file):
     """Load the YAML file containing the prompt templates."""
     with open(prompts_file, 'r') as file:
@@ -152,6 +159,9 @@ def log(header, content):
 
 
 def holistic_get_best_result(results):
+    '''
+    results is a list of tuples of the format [(score, code,test_result), ...]
+    '''
     # Instead of max score being returned use the average of the top two scores.
     results.sort(key=lambda x: x[0], reverse=True)
     best_score, best_code, test_result = results[0]
@@ -168,13 +178,24 @@ def holistic_get_best_result(results):
 
     # weighted holistic scoring so that the second-best score is taken into account
     # intuition is that if the second-best score is low but top is high then the plan is not actually good
-    average_top_two_score = results[0][0]*0.6+results[1][0]*0.4
+    average_top_two_score = results[0][0] * 0.6 + results[1][0] * 0.4
     return average_top_two_score, best_code, test_result
 
 
-def run_func_parallel_and_collect( func, num_parallel):
+def run_func_parallel_and_collect(func, num_parallel):
     # Running the code generation in parallel
     with concurrent.futures.ThreadPoolExecutor(max_workers=num_parallel) as executor:
         futures = [executor.submit(func, i) for i in range(num_parallel)]
         results = [future.result() for future in concurrent.futures.as_completed(futures)]
     return results
+
+
+def round_floats_in_str(output: str, prec: int) -> str:
+    float_pattern = re.compile(r'[-+]?\d*\.\d+')
+    return float_pattern.sub(lambda x: f"{round(float(x.group()), prec):.{prec}f}", output)
+
+
+def plurarity_vote(outputs, precision=6):
+    rounded_strings = [round_floats_in_str(s, precision) for s in outputs]
+    most_common_string, _ = Counter(rounded_strings).most_common(1)[0]
+    return rounded_strings.index(most_common_string)
