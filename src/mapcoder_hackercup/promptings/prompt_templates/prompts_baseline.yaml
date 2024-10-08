@@ -8,10 +8,20 @@ trick: |
   Check if 1) a mathematical constant time or 2) an approximate solution is allowed. if yes then solve it this way.
   Your response must contain only the trick and be concise.
 
+observation: |
+  ## Problem:
+  {problem_prompt}
+  {sample_io_prompt}
+  --------------
+  Generate an insightful observation about the problem in one line. Your observation should not explain how to solve the problem or contain code.
+
 coding: |
   ## Problem:
   {problem_prompt}
   {sample_io_prompt}
+  
+  ## Observations:
+  {observations}
   ----------------
   
   You are an expert competitive programmer.
@@ -20,7 +30,6 @@ coding: |
   Check if the problem allows for approximations.
   Important:
   {lang_specific_tips}
-  
   ## Your response must contain only the {language} code to solve this problem. Do not add extra explanation or words.
   
 
@@ -52,7 +61,7 @@ coding_improvement_B: |
   ## Code:
   {code}
   
-  ## Critical Analysis
+  ## Critical Analysis:
   You are an expert competitive programmer.
   1. Identify which test cases it failed to solve and explain how it should have solved them
   2. Critically analyze the code and concisely suggest improvements
