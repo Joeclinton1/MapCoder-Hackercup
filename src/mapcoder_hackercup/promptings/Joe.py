@@ -19,8 +19,8 @@ algorithms_file = os.path.join(cwd, 'prompt_templates/algorithm_list.yaml')
 lang_specific_file = os.path.join(cwd, 'prompt_templates/lang_specific_tips.yaml')
 
 # constants that affect how much computation it will use
-NUM_PARALLEL = 8
-NUM_SETS = 1
+NUM_PARALLEL = 7
+NUM_SETS = 2
 NUM_TRICKS_PER_SET = 2
 MAX_IMPROVEMENT_TRIES = 1
 NUM_SHOTS = 4 #6

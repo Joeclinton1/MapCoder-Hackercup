@@ -140,28 +140,33 @@ After it installs it logs you out, so log back in again
 We tested loads of models here are some options
 ( note qwen2.5 models came out after the cutoff date set in the rules so they're only here for comparison):
 
-- Option 1 - Codestral-22b - INT4
-```
-vllm serve solidrust/Codestral-22B-v0.1-hf-AWQ   --dtype auto --api-key token-abc123 --port 11434 --host 0.0.0.0 --chat-template "{%- if messages[0]['role'] == 'system' %}\n    {%- set system_message = messages[0]['content'] %}\n    {%- set loop_messages = messages[1:] %}\n{%- else %}\n    {%- set loop_messages = messages %}\n{%- endif %}\n\n{{- bos_token }}\n{%- for message in loop_messages %}\n    {%- if (message['role'] == 'user') != (loop.index0 % 2 == 0) %}\n        {{- raise_exception('After the optional system message, conversation roles must alternate user/assistant/user/assistant/...') }}\n    {%- endif %}\n    {%- if message['role'] == 'user' %}\n        {%- if loop.last and system_message is defined %}\n            {{- '[INST] ' + system_message + '\\n\\n' + message['content'] + '[/INST]' }}\n        {%- else %}\n            {{- '[INST] ' + message['content'] + '[/INST]' }}\n        {%- endif %}\n    {%- elif message['role'] == 'assistant' %}\n        {{- ' ' + message['content'] + eos_token}}\n    {%- else %}\n        {{- raise_exception('Only user and assistant roles are supported, with the exception of an initial optional system message!') }}\n    {%- endif %}\n{%- endfor %}\n" 
-```
+- Option 1 - Codestral-22b - INT4 - AWQ 
+  - AWQ
+    ```
+    vllm serve solidrust/Codestral-22B-v0.1-hf-AWQ   --dtype auto --api-key token-abc123 --port 11434 --host 0.0.0.0 --chat-template "{%- if messages[0]['role'] == 'system' %}\n    {%- set system_message = messages[0]['content'] %}\n    {%- set loop_messages = messages[1:] %}\n{%- else %}\n    {%- set loop_messages = messages %}\n{%- endif %}\n\n{{- bos_token }}\n{%- for message in loop_messages %}\n    {%- if (message['role'] == 'user') != (loop.index0 % 2 == 0) %}\n        {{- raise_exception('After the optional system message, conversation roles must alternate user/assistant/user/assistant/...') }}\n    {%- endif %}\n    {%- if message['role'] == 'user' %}\n        {%- if loop.last and system_message is defined %}\n            {{- '[INST] ' + system_message + '\\n\\n' + message['content'] + '[/INST]' }}\n        {%- else %}\n            {{- '[INST] ' + message['content'] + '[/INST]' }}\n        {%- endif %}\n    {%- elif message['role'] == 'assistant' %}\n        {{- ' ' + message['content'] + eos_token}}\n    {%- else %}\n        {{- raise_exception('Only user and assistant roles are supported, with the exception of an initial optional system message!') }}\n    {%- endif %}\n{%- endfor %}\n" 
+    ```
+  - GPTQ
+    ```
+    vllm serve ArthurGprog/Codestral-22B-v0.1-FIM-Fix-GPTQ --dtype auto --api-key token-abc123 --port 11434 --host 0.0.0.0 --chat-template "{%- if messages[0]['role'] == 'system' %}\n    {%- set system_message = messages[0]['content'] %}\n    {%- set loop_messages = messages[1:] %}\n{%- else %}\n    {%- set loop_messages = messages %}\n{%- endif %}\n\n{{- bos_token }}\n{%- for message in loop_messages %}\n    {%- if (message['role'] == 'user') != (loop.index0 % 2 == 0) %}\n        {{- raise_exception('After the optional system message, conversation roles must alternate user/assistant/user/assistant/...') }}\n    {%- endif %}\n    {%- if message['role'] == 'user' %}\n        {%- if loop.last and system_message is defined %}\n            {{- '[INST] ' + system_message + '\\n\\n' + message['content'] + '[/INST]' }}\n        {%- else %}\n            {{- '[INST] ' + message['content'] + '[/INST]' }}\n        {%- endif %}\n    {%- elif message['role'] == 'assistant' %}\n        {{- ' ' + message['content'] + eos_token}}\n    {%- else %}\n        {{- raise_exception('Only user and assistant roles are supported, with the exception of an initial optional system message!') }}\n    {%- endif %}\n{%- endfor %}\n"
+    ```
 
-- Option 2: Qwen 2.5 14B - INT8
+- Option 2: Qwen 2.5 14B 
+  - Int4
+    ```
+    vllm serve Qwen/Qwen2.5-14B-Instruct-GPTQ-Int4 --dtype auto --api-key token-abc123 --port 11434 --host 0.0.0.0 
+    ```
 
-```
-vllm serve Qwen/Qwen2.5-14B-Instruct-GPTQ-Int8 --dtype auto --api-key token-abc123 --port 11434 --host 0.0.0.0 
-```
+  - Int 8
+    ```
+    vllm serve Qwen/Qwen2.5-14B-Instruct-GPTQ-Int8 --dtype auto --api-key token-abc123 --port 11434 --host 0.0.0.0 
+    ```
 
-- Option 3: Qwen 2.5 14B - INT4
-
-```
-vllm serve Qwen/Qwen2.5-14B-Instruct-GPTQ-Int4 --dtype auto --api-key token-abc123 --port 11434 --host 0.0.0.0 
-```
-- Option 4: Qwen2.5 34B - INT4
+- Option 3: Qwen2.5 34B - INT4
 ```
  vllm serve Qwen/Qwen2.5-32B-Instruct-GPTQ-Int4 --dtype auto --api-key token-abc123 --port 11434 --host 0.0.0.0
 ```
 
-- Option 5: Llama 3.1 70B - INT4
+- Option 4: Llama 3.1 70B - INT4
 
 ```
 -- 40GB VRAM version
@@ -171,7 +176,7 @@ vllm serve neuralmagic/Meta-Llama-3.1-70B-Instruct-quantized.w4a16 --dtype auto 
 vllm serve neuralmagic/Meta-Llama-3.1-70B-Instruct-quantized.w4a16 --dtype auto --api-key token-abc123 --port 11434 --host 0.0.0.0 --max-model-len 6144 --max_num_seqs 32
 ```
 
-- Option 6: Qwen2.5 70B - NT4
+- Option 5: Qwen2.5 70B - INT4
 ```
  vllm serve Qwen/Qwen2.5-72B-Instruct-GPTQ-Int4 --dtype auto --api-key token-abc123 --port 11434 --host 0.0.0.0 --max-model-len 6144 --max_num_seqs 32  
 ```
