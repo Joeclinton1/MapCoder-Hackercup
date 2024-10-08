@@ -19,9 +19,6 @@ coding: |
   ## Problem:
   {problem_prompt}
   {sample_io_prompt}
-  
-  ## Trick for solving
-  {trick}
   ----------------
   
   You are an expert competitive programmer.
