@@ -1,0 +1,40 @@
+score_answer: |
+  ## Problem:
+  {problem}
+  
+  ## Markscheme for scoring
+  {markscheme}
+  
+  ## Student's Answer
+  ```
+  {answer}
+  ```
+  
+  ---------
+  
+  Your are a strict and harsh examiner.
+  For each point in the Markscheme, justify critically whether the Student's Answer passes it. The students answer must explictly state the marckscheme criteria to pass. Be very harsh.
+  After give a score as a percentage e.g 35%. You must output your response in the following XML format
+  
+  <root>
+  <marking>
+  ## Student's Answer marked against criteria in Markscheme
+  </marking>
+  <score>
+  ## Score%
+  </score>
+  </root>
+
+markscheme: |
+  1. Does it state the scenario is a "bounded random walk"?
+  
+  2. Does it state the random walk has "reflecting barriers"?
+  
+  3. Does it state the expected time to lose 1 unit of weight is "2L + 1" ?
+  
+  4. Does it state that it should multiply the expected time to lose 1 unit by "W - G" (the weight difference)?
+  
+  5. Does it include the final formula (2L + 1) * (W - G)
+  
+  The answer gets 0 points if it does not explicitly mention "random walk".
+  

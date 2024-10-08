@@ -4,6 +4,7 @@ import yaml
 import concurrent.futures
 import math
 from collections import Counter
+import os
 
 mapping = {
     1: "one (01)",
@@ -16,6 +17,9 @@ mapping = {
     8: "eight (08)",
     9: "nine (09)",
 }
+
+cwd = os.path.dirname(os.path.abspath(__file__))
+prompts_scoring = os.path.join(cwd, 'prompt_templates/prompts_score_answer.yaml')
 
 
 def xml_to_dict(element):
@@ -199,3 +203,23 @@ def plurarity_vote(outputs, precision=6):
     rounded_strings = [round_floats_in_str(s, precision) for s in outputs]
     most_common_string, count = Counter(rounded_strings).most_common(1)[0]
     return rounded_strings.index(most_common_string), count
+
+
+def score_answer(item, problem, answer, chat, i):
+    prompts = load_prompts(prompts_scoring)
+
+    score_trick_prompt = prompts['score_answer'].format(
+        problem=problem,
+        answer=answer,
+        markscheme=prompts['markscheme']
+    )
+    for _ in range(3):
+        try:
+            res = chat(score_trick_prompt, item, tag=f'score_trick_{i}', temperature=0.1)
+            res = parse_xml(res)
+            score = res["score"].split('/')[0].split('%')[0].strip().split()[-1]
+            return i, score
+        except:
+            print("Failed to parse retrying")
+
+    return i,0

@@ -26,7 +26,8 @@ dependencies = [
     "accelerate",
     "datasets",
     "sentence_transformers",
-    "faiss-gpu-cu11"
+    "faiss-gpu-cu11",
+    "tabulate"
 ]
 
 [build-system]

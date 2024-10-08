@@ -13,15 +13,15 @@ observation: |
   {problem_prompt}
   {sample_io_prompt}
   --------------
-  Generate an insightful observation about the problem in one line. Your observation should not explain how to solve the problem or contain code.
+  Generate an insightful and concise observation about the problem in one line. Your observation should not explain how to solve the problem or contain code. It must be one line.
 
 coding: |
   ## Problem:
   {problem_prompt}
   {sample_io_prompt}
   
-  ## Observations:
-  {observations}
+  ## Trick for solving
+  {trick}
   ----------------
   
   You are an expert competitive programmer.
@@ -73,3 +73,29 @@ coding_improvement_B: |
   {lang_specific_tips}
   
   ## Your response must contain the Critical Analysis and then the {language} code inside <code> block to solve this problem.
+
+trick_comparison: |
+  Compare the following two tricks for how to solve the competitive coding question, and output which trick is more likely to solve the problem.
+  
+  # Problem
+  {problem_prompt}
+  
+  # Trick A
+  {trick_a}
+  
+  # Trick B
+  {trick_b}
+  --------------
+  
+  Compare the two tricks, by stating reasoning for and against for each of them for why solve the problem more correctly.
+  At the end state your verdict on which trick is better by outputting either A if trick A is better or B if trick B is better.
+  you MUST format your answer with the following XML. Include all explanation inside the analysis tag:
+  
+  <root>
+  <analysis>
+  ## Reasons for and against for each trick being the more likely one to solve the problem correctly.
+  </analysis>
+  <verdict>
+  ## A single Letter A or B, denoting the trick that is more likely to be correct.
+  </verdict>
+  </root>
