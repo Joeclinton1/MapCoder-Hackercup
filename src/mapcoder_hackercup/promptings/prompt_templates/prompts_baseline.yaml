@@ -58,6 +58,9 @@ coding_improvement_B: |
   ## Code:
   {code}
   
+  ## Test Report:
+  {test_report}
+  
   ## Critical Analysis:
   You are an expert competitive programmer.
   1. Identify which test cases it failed to solve and explain how it should have solved them

@@ -15,9 +15,7 @@ prompts_file = os.path.join(cwd, 'prompt_templates/prompts_baseline.yaml')
 lang_specific_file = os.path.join(cwd, 'prompt_templates/lang_specific_tips.yaml')
 
 # constants
-NUM_PARALLEL = 128
-DEBUG = False
-
+NUM_PARALLEL = 64
 
 class Baseline(BaseStrategy):
     def __init__(self, *args, **kwargs):
@@ -70,15 +68,14 @@ class Baseline(BaseStrategy):
                 print(f"Solution was voted {count}/{len(passed)} times")
                 return code, self.pr_tok, self.com_tok
             elif i == 0:
-                break
-                # print("No solution passed, so lets try and fix the best ones we got.")
-                # best_codes = [x[1] for x in results if x[0] == best_res[0]]
-                # results2 = utils.run_func_parallel_and_collect(
-                #     lambda i: self.generate_code_improvement(item, problem, choice(best_codes), type="B"),
-                #     NUM_PARALLEL
-                # )
-                # print(f' Additional Scores: {",".join([str(r[0]) for r in results2])}')
-                # results.extend(results2)
+                print("No solution passed, so lets try and fix the best ones we got.")
+                best_codes = [x[1:] for x in results if x[0] == best_res[0]]
+                results2 = utils.run_func_parallel_and_collect(
+                    lambda i: self.generate_code_improvement(item, problem, *choice(best_codes), type="B"),
+                    NUM_PARALLEL
+                )
+                print(f' Additional Scores: {",".join([str(r[0]) for r in results2])}')
+                results.extend(results2)
 
         code = best_res[1]
         return code, self.pr_tok, self.com_tok
@@ -101,18 +98,19 @@ class Baseline(BaseStrategy):
             sample_io_prompt=self.sample_io_prompt,
             # observations=observations,
         )
-        code_output = self.chat(code_prompt, item, tag='code', temperature=1.0)
+        code_output = self.chat(code_prompt, item, tag='code', temperature=0.95)
         code = utils.parse_code(code_output)
         score, test_result = self.data.evaluate_sample_io(item, code, self.language, log_if_passed_samples=True)
         return score, code, test_result
 
-    def generate_code_improvement(self, item, problem_prompt, code, type):
+    def generate_code_improvement(self, item, problem_prompt, code, test_report=None, type="A" ):
         code_prompt = self.prompts[f'coding_improvement_{type}'].format(
             problem_prompt=problem_prompt,
             language=self.language,
             lang_specific_tips=self.lang_specific_tips,
             sample_io_prompt=self.sample_io_prompt,
-            code=code
+            code=code,
+            test_report=test_report
         )
         code_output = self.chat(code_prompt, item, tag='improvement', temperature=1.0)
         code = utils.parse_code(code_output)
