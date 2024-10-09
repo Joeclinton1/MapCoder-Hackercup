@@ -15,7 +15,7 @@ prompts_file = os.path.join(cwd, 'prompt_templates/prompts_baseline.yaml')
 lang_specific_file = os.path.join(cwd, 'prompt_templates/lang_specific_tips.yaml')
 
 # constants
-NUM_PARALLEL = 196
+NUM_PARALLEL = 128
 
 class Baseline(BaseStrategy):
     def __init__(self, *args, **kwargs):
@@ -35,9 +35,10 @@ class Baseline(BaseStrategy):
         obs = utils.run_func_parallel_and_collect(lambda i: self.generate_observation(item, problem), 32)
 
         print(f"Generating {NUM_PARALLEL} codes")
-        results = utils.run_func_parallel_and_collect(
+        results = []
+        results.extend(utils.run_func_parallel_and_collect(
             lambda i: self.generate_code(item, problem, choice(obs)), NUM_PARALLEL
-        )
+        ))
         best_res = None
         for i in range(2):
             results.sort(key=lambda x: x[0], reverse=True)
@@ -46,21 +47,20 @@ class Baseline(BaseStrategy):
             print(f' Best Score: {best_res[0]}\n')
 
             if best_res[0] == 1:
-                passed_codes = [x[1] for x in results if x[0] == 1]
-
-                if len(passed_codes) <= NUM_PARALLEL // 8:
-                    # take the solutions that passed and randomly sample to use as seeds for improvements
-                    # robustify!
-
-                    print(f"Generating {NUM_PARALLEL} more solutions from the solutions that passed")
-                    results2 = utils.run_func_parallel_and_collect(
-                        lambda i: self.generate_code_improvement(item, problem, choice(passed_codes), type="A"),
-                        NUM_PARALLEL//2
-                    )
-
-                    print(f' Additional Scores: {",".join([str(r[0]) for r in results2])}')
-
-                    results.extend(results2)
+                # passed_codes = [x[1] for x in results if x[0] == 1]
+                # if len(passed_codes) <= NUM_PARALLEL // 8:
+                #     # take the solutions that passed and randomly sample to use as seeds for improvements
+                #     # robustify!
+                #
+                #     print(f"Generating {NUM_PARALLEL//2} more solutions from the solutions that passed")
+                #     results2 = utils.run_func_parallel_and_collect(
+                #         lambda i: self.generate_code_improvement(item, problem, choice(passed_codes), type="A"),
+                #         NUM_PARALLEL//2
+                #     )
+                #
+                #     print(f' Additional Scores: {",".join([str(r[0]) for r in results2])}')
+                #
+                #     results.extend(results2)
 
                 passed = [x for x in results if x[0] == 1]
                 passed_outputs = [x[2] for x in passed]
