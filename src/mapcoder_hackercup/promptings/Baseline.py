@@ -15,7 +15,7 @@ prompts_file = os.path.join(cwd, 'prompt_templates/prompts_baseline.yaml')
 lang_specific_file = os.path.join(cwd, 'prompt_templates/lang_specific_tips.yaml')
 
 # constants
-NUM_PARALLEL = 64
+NUM_PARALLEL = 196
 
 class Baseline(BaseStrategy):
     def __init__(self, *args, **kwargs):
@@ -31,12 +31,12 @@ class Baseline(BaseStrategy):
         self.sample_io_prompt = f"## Sample Test cases: \n{utils.get_sample_io_str(item['sample_io'])}"
         problem = self.data.get_prompt(item)
 
-        # print(f"Generating a pool of 32 observations about the problem")
-        # obs = utils.run_func_parallel_and_collect(lambda i: self.generate_observation(item, problem), 32)
+        print(f"Generating a pool of 32 observations about the problem")
+        obs = utils.run_func_parallel_and_collect(lambda i: self.generate_observation(item, problem), 32)
 
         print(f"Generating {NUM_PARALLEL} codes")
         results = utils.run_func_parallel_and_collect(
-            lambda i: self.generate_code(item, problem), NUM_PARALLEL
+            lambda i: self.generate_code(item, problem, choice(obs)), NUM_PARALLEL
         )
         best_res = None
         for i in range(2):
@@ -48,14 +48,14 @@ class Baseline(BaseStrategy):
             if best_res[0] == 1:
                 passed_codes = [x[1] for x in results if x[0] == 1]
 
-                if len(passed_codes) < NUM_PARALLEL // 8:
+                if len(passed_codes) <= NUM_PARALLEL // 8:
                     # take the solutions that passed and randomly sample to use as seeds for improvements
                     # robustify!
 
                     print(f"Generating {NUM_PARALLEL} more solutions from the solutions that passed")
                     results2 = utils.run_func_parallel_and_collect(
                         lambda i: self.generate_code_improvement(item, problem, choice(passed_codes), type="A"),
-                        NUM_PARALLEL
+                        NUM_PARALLEL//2
                     )
 
                     print(f' Additional Scores: {",".join([str(r[0]) for r in results2])}')
@@ -63,7 +63,11 @@ class Baseline(BaseStrategy):
                     results.extend(results2)
 
                 passed = [x for x in results if x[0] == 1]
-                mode_output_idx, count = utils.plurarity_vote([x[2] for x in passed])
+                passed_outputs = [x[2] for x in passed]
+
+                utils.plurarity_vote_per_case(passed_outputs, item["test_list"][0]["output"][0])
+
+                mode_output_idx, count = utils.plurarity_vote(passed_outputs)
                 code = passed[mode_output_idx][1]
                 print(f"Solution was voted {count}/{len(passed)} times")
                 return code, self.pr_tok, self.com_tok
@@ -72,7 +76,7 @@ class Baseline(BaseStrategy):
                 best_codes = [x[1:] for x in results if x[0] == best_res[0]]
                 results2 = utils.run_func_parallel_and_collect(
                     lambda i: self.generate_code_improvement(item, problem, *choice(best_codes), type="B"),
-                    NUM_PARALLEL
+                    NUM_PARALLEL//2
                 )
                 print(f' Additional Scores: {",".join([str(r[0]) for r in results2])}')
                 results.extend(results2)
@@ -81,22 +85,20 @@ class Baseline(BaseStrategy):
         return code, self.pr_tok, self.com_tok
 
     def generate_observation(self, item, problem_prompt):
-        observation_prompt = self.prompts['observation'].format(
+        observation_prompt = self.prompts['self-reflection'].format(
             problem_prompt=problem_prompt,
             sample_io_prompt=self.sample_io_prompt,
         )
         observation = self.chat(observation_prompt, item, tag='observation', temperature=1.0)
         return observation
 
-    def generate_code(self, item, problem_prompt):
-        # obs = [x for x in obs if len(x)<100]
-        # observations = '\n'.join(obs)
+    def generate_code(self, item, problem_prompt, observation=None):
         code_prompt = self.prompts['coding'].format(
             problem_prompt=problem_prompt,
             language=self.language,
             lang_specific_tips=self.lang_specific_tips,
             sample_io_prompt=self.sample_io_prompt,
-            # observations=observations,
+            observation=f"\n{observation}" if observation else "",
         )
         code_output = self.chat(code_prompt, item, tag='code', temperature=0.95)
         code = utils.parse_code(code_output)

@@ -5,6 +5,7 @@ import concurrent.futures
 import math
 from collections import Counter
 import os
+from tabulate import tabulate
 
 mapping = {
     1: "one (01)",
@@ -203,6 +204,30 @@ def plurarity_vote(outputs, precision=6):
     rounded_strings = [round_floats_in_str(s, precision) for s in outputs]
     most_common_string, count = Counter(rounded_strings).most_common(1)[0]
     return rounded_strings.index(most_common_string), count
+
+
+def plurarity_vote_per_case(outputs, true_output, precision=6):
+    # Apply rounding to floats and parse outputs into case-based results
+    parsed_outputs = [round_floats_in_str(output, precision).strip().splitlines() for output in outputs]
+    true_cases = round_floats_in_str(true_output, precision).strip().splitlines()
+
+    # For each case, find the most common result and its count
+    case_votes = []
+    scores = []
+    for case_num in range(len(parsed_outputs[0])):
+        case_results = [case[case_num] for case in parsed_outputs]
+        most_common_result, count = Counter(case_results).most_common(1)[0]
+        case_votes.append(count)
+
+        # Score based on whether the most common result matches the true output
+        score = 1 if most_common_result == true_cases[case_num] else 0
+        scores.append(score)
+
+    headers = ["Case #", "Vote Count", "Score"]
+    table = [[i + 1, vote, score] for i, (vote, score) in enumerate(zip(case_votes, scores))]
+    print(tabulate(table, headers, tablefmt="grid"))
+
+    return case_votes, scores
 
 
 def score_answer(item, problem, answer, chat, i):

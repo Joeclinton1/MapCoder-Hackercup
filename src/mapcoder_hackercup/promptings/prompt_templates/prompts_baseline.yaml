@@ -19,6 +19,7 @@ coding: |
   ## Problem:
   {problem_prompt}
   {sample_io_prompt}
+  {observation}
   ----------------
   
   You are an expert competitive programmer.
@@ -34,21 +35,26 @@ coding_improvement_A: |
   ## Problem:
   {problem_prompt}
   {sample_io_prompt}
-  
+
   ## Code:
   {code}
-  
-  ## Critical Analysis
-  You are an expert competitive programmer. Analyze carefully and critically the above code, to determine whether it solves the competitive coding problem.
-  Does it solve all the edge cases? Can you invent an edge case it would fail on.
-  
-  # Improve code
-  Modify the code to improve it so that it fully solves the problem
+
+  # Step 1: Identify Issues
+  Analyze the code for any bugs, inefficiencies, or unhandled cases.
+
+  # Step 2: Edge Case Generation
+  Invent at least one edge case that the current solution might fail on. Justify why this edge case is important and how it exposes a weakness in the code.
+
+  # Step 3: Improve Code
+  Refactor the code to address the identified issues and handle all edge cases, ensuring the solution is correct and robust.
+
   ----------------
   Important:
   {lang_specific_tips}
-  
-  ## Your response must contain the Critical Analysis and then the {language} code inside <code> block to solve this problem.
+
+  ## Response should include:
+  - Step-by-step Critical Analysis (Issues, Edge Case Generation, Code Improvement)
+  - Updated {language} code in a <code> block to solve the problem fully.
 
 coding_improvement_B: |
   ## Problem:
@@ -99,3 +105,19 @@ trick_comparison: |
   ## A single Letter A or B, denoting the trick that is more likely to be correct.
   </verdict>
   </root>
+
+self-reflection: |
+  You are given a code contest problem:
+
+  problem description:
+  =====
+  {problem_prompt}
+  {sample_io_prompt}
+  =====
+
+
+  Given the code contest problem, you have two tasks:
+  1) Reflect on the problem, and describe it in your own words, in bullet points. Pay attention to small details, nuances, notes and examples in the problem description.
+  2) Explain how each provided example input leads to the corresponding output (in total {{ actual_number_of_tests }} examples are provided).
+  Read carefully the problem description. Make sure the test explanations are consistent with them, and between themselves.
+  The explanation must coherently and logically lead from the input to the output. Be as specific as possible.
