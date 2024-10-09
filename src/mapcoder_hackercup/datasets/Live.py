@@ -99,15 +99,15 @@ class LiveDataset(Dataset):
         if results[0] == 1 and evaluate_on_full_if_passed:
             if log_if_passed_samples:
                 print("Passed sample input.")
-            results = contest_evaluate(
+            results2 = contest_evaluate(
                 generated_code=cur_imp,
                 id=item[self.id_key],
                 tests=item["test_list"],
                 lang=language
             )
 
-            if not (isinstance(results[0], float) or results[0] is True):
-                return 0.999, f"Program passes Sample Cases, but fails on full input with error: `{results[1]}`," \
+            if not (isinstance(results2[0], float) or results2[0] is True):
+                return 0.999, f"Program passes Sample Cases, but fails on full input with error: `{results2[1]}`," \
                               f" Error Type: {results[0]}"
             return 1.0, results[1]
         return  results

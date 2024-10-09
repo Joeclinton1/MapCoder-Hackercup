@@ -10,6 +10,7 @@ from .api_comm import APICommunication
 from .exec_outcome import ExecOutcome
 from mapcoder_hackercup.constants.lang_mappings import LANGUAGE_MAPPING
 from ..results import write_debug
+from ..promptings.utils import round_floats_in_str
 
 limits_by_lang_cfg_file = f"{os.path.dirname(__file__)}/limits_by_lang.yaml"
 
@@ -39,6 +40,7 @@ def score_output_cases(output, expected_output):
         print(f"len output: {len_out}, len expected output: {len_eout}\n")
         return 0.0
 
+    output, expected_output = round_floats_in_str(output, 6), round_floats_in_str(expected_output,6)
     passed = 0
     failed = 0
     for i, (x, y) in enumerate(zip(output.split('\n'), expected_output.split('\n'))):
