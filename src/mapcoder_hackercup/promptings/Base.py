@@ -4,12 +4,14 @@ import os
 import copy
 import time
 import json
+import traceback
 
 from mapcoder_hackercup.models.Base import BaseModel
 from mapcoder_hackercup.datasets.Dataset import Dataset
 from mapcoder_hackercup.results.Results import Results
 from mapcoder_hackercup.utils.parse import parse_response
 from mapcoder_hackercup.gen_comp_out import output_results
+
 
 
 class BaseStrategy(object):
@@ -102,7 +104,8 @@ class BaseStrategy(object):
                             response, prompt_tokens, completion_tokens = self.run_single_pass(item)
                         break
                     except Exception as e:
-                        print(f"An error occurred on line {e.__traceback__.tb_lineno}: {e}")
+                        print(f"An error occurred: {e}")
+                        traceback.print_exc()  # This will print the full stack trace
                         time.sleep(5)
                         pass
 

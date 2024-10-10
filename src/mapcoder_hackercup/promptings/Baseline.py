@@ -65,7 +65,9 @@ class Baseline(BaseStrategy):
                 passed = [x for x in results if x[0] == 1]
                 passed_outputs = [x[2] for x in passed]
 
-                utils.plurarity_vote_per_case(passed_outputs, item["test_list"][0]["output"][0])
+                if item["test_list"][0]["output"][0] != "":
+                    # scoring each case for debugging purposes
+                    utils.plurarity_vote_per_case(passed_outputs, item["test_list"][0]["output"][0])
 
                 mode_output_idx, count = utils.plurarity_vote(passed_outputs)
                 code = passed[mode_output_idx][1]
@@ -89,7 +91,7 @@ class Baseline(BaseStrategy):
             problem_prompt=problem_prompt,
             sample_io_prompt=self.sample_io_prompt,
         )
-        observation = self.chat(observation_prompt, item, tag='observation', temperature=1.0)
+        observation = self.chat(observation_prompt, item, tag='observation', temperature=0.9)
         return observation
 
     def generate_code(self, item, problem_prompt, observation=None):
@@ -100,7 +102,7 @@ class Baseline(BaseStrategy):
             sample_io_prompt=self.sample_io_prompt,
             observation=f"\n{observation}" if observation else "",
         )
-        code_output = self.chat(code_prompt, item, tag='code', temperature=0.95)
+        code_output = self.chat(code_prompt, item, tag='code', temperature=1.2)
         code = utils.parse_code(code_output)
         score, test_result = self.data.evaluate_sample_io(item, code, self.language, log_if_passed_samples=True)
         return score, code, test_result
@@ -114,7 +116,7 @@ class Baseline(BaseStrategy):
             code=code,
             test_report=test_report
         )
-        code_output = self.chat(code_prompt, item, tag='improvement', temperature=1.0)
+        code_output = self.chat(code_prompt, item, tag='improvement', temperature=0.9)
         code = utils.parse_code(code_output)
         score, test_result = self.data.evaluate_sample_io(item, code, self.language, log_if_passed_samples=True)
         return score, code, test_result

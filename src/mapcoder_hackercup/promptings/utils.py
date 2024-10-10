@@ -117,12 +117,15 @@ def parse_code(response: str) -> str:
 
     code_blocks = re.findall(code_pattern, response, re.DOTALL)
 
-    if type(code_blocks[-1]) == tuple or type(code_blocks[-1]) == list:
-        code_str = "\n".join(code_blocks[-1])
-    elif type(code_blocks[-1]) == str:
-        code_str = code_blocks[-1]
+    if code_blocks:  # Check if code_blocks is not empty
+        if isinstance(code_blocks[-1], (tuple, list)):  # Better to use isinstance
+            code_str = "\n".join(code_blocks[-1])
+        elif isinstance(code_blocks[-1], str):
+            code_str = code_blocks[-1]
+        else:
+            code_str = response
     else:
-        code_str = response
+        code_str = response  # If no code blocks found, use the whole response
 
     # Weird indentation error fix for python, count how many spaces there are, then strip
     n_spaces = len(code_str) - len(code_str.lstrip())
@@ -211,18 +214,27 @@ def plurarity_vote_per_case(outputs, true_output, precision=6):
     parsed_outputs = [round_floats_in_str(output, precision).strip().splitlines() for output in outputs]
     true_cases = round_floats_in_str(true_output, precision).strip().splitlines()
 
-    # For each case, find the most common result and its count
+    # For each case, find all unique results and their counts
     case_votes = []
     scores = []
+
     for case_num in range(len(parsed_outputs[0])):
         case_results = [case[case_num] for case in parsed_outputs]
-        most_common_result, count = Counter(case_results).most_common(1)[0]
-        case_votes.append(count)
+        result_counts = Counter(case_results)  # Get counts for each unique result
 
-        # Score based on whether the most common result matches the true output
-        score = 1 if most_common_result == true_cases[case_num] else 0
-        scores.append(score)
+        # For each unique result, log its count and whether it matches the true output
+        vote_counts = []
+        case_scores = []
+        for result, count in result_counts.items():
+            score = 1 if result == true_cases[case_num] else 0
+            vote_counts.append(str(count))
+            case_scores.append(str(score))
 
+        # Store comma-separated counts and scores for this case
+        case_votes.append(", ".join(vote_counts))
+        scores.append(", ".join(case_scores))
+
+    # Format table output
     headers = ["Case #", "Vote Count", "Score"]
     table = [[i + 1, vote, score] for i, (vote, score) in enumerate(zip(case_votes, scores))]
     print(tabulate(table, headers, tablefmt="grid"))
