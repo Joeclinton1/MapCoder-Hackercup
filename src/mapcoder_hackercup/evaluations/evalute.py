@@ -50,6 +50,9 @@ def score_output_cases(output, expected_output, scorer=None):
     failed = 0
     for i, (x, y) in enumerate(zip(output.split('\n'), expected_output.split('\n'))):
         if custom_scorer:
+            if len(x.split(": ", 1))<2:
+                failed +=1
+                continue
             x = x.split(": ", 1)[1].strip()
             y = y.split(": ", 1)[1].strip()
         if scorer(x, y):
