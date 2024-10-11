@@ -28,7 +28,7 @@ with open(unittest_file) as ut_rp:
     unittest_db = json.load(ut_rp)
 
 api_comm = APICommunication(server_url=os.getenv('XCODE_SERVER_URL', 'http://windows-6absj2b:5000'))
-FULL_TEST_TIME = 40
+FULL_TEST_TIME = 30
 
 
 def score_output_cases(output, expected_output, scorer=None):

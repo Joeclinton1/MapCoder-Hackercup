@@ -8,6 +8,51 @@ trick: |
   Check if 1) a mathematical constant time or 2) an approximate solution is allowed. if yes then solve it this way.
   Your response must contain only the trick and be concise.
 
+trick2: |
+  You are a world-class competitive programmer who has been given the below problem:
+  
+  ```
+  {problem_prompt}
+  {sample_io_prompt}
+  ```
+  -----------
+  
+  Answer the following questions:
+  
+  1. Reflect on the problem, and describe it in your own words, in bullet points. Pay attention to small details, nuances, notes and examples in the problem description.
+  2. Is an O(1) Math algorithm possible? Are approximate solutions allowed?
+  3. identify a simple but clever trick to solving the following competitive coding problem correctly and efficiently.
+
+  For each trick, be concise, and focus on the crux of how it uses a given algorithm to solve the problem.
+  
+  Do not describe how to solve the problem and do not provide code.
+
+trick3: |
+  You are an expert competitive programmer.
+  Determine the best possible time complexity taking into account all constraints and all details provided in the problem statement
+  Identify 1 different but all similar tricks to solving the following competitive coding problem correctly and efficiently.
+  For each trick, be concise, and focus on the crux of how it uses a given algorithm or data structure to solve the problem.
+  
+  # Problem to be solved:
+  {problem_prompt}
+  {sample_io_prompt}
+  
+  # Complexity
+  1. With the largest input in mind (as given by constraints), calculate step by step what time complexity is required.
+  2. Is an O(1) Math algorithm possible? Are approximate solutions allowed?
+  
+  # Tricks
+  identify 1 different possible tricks to solving the following competitive coding problem correctly and efficiently.
+  For each trick state it's time complexity, which must be less than the complexity determined initially.
+  
+  Give your response in the following format:
+  
+  # Complexity
+  
+  # Tricks
+  
+  Do not describe how to solve the problem in detail and do not provide code.
+
 observation: |
   ## Problem:
   {problem_prompt}

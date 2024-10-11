@@ -226,7 +226,11 @@ def plurarity_vote_per_case(outputs, true_output, precision=6):
         vote_counts = []
         case_scores = []
         for result, count in result_counts.items():
-            score = 1 if result == true_cases[case_num] else 0
+            if len(true_cases) >= case_num+1:
+                score = 1 if result == true_cases[case_num] else 0
+            else:
+                score = -1
+
             vote_counts.append(str(count))
             case_scores.append(str(score))
 
