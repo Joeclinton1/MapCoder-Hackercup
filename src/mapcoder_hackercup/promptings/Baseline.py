@@ -102,7 +102,7 @@ class Baseline(BaseStrategy):
             sample_io_prompt=self.sample_io_prompt,
             observation=f"\n{observation}" if observation else "",
         )
-        code_output = self.chat(code_prompt, item, tag='code', temperature=1.2)
+        code_output = self.chat(code_prompt, item, tag='code', temperature=0.95)
         code = utils.parse_code(code_output)
         score, test_result = self.data.evaluate_sample_io(item, code, self.language, log_if_passed_samples=True)
         return score, code, test_result
