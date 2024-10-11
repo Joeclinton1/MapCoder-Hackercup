@@ -77,7 +77,8 @@ class LiveDataset(Dataset):
             generated_code=cur_imp,
             id=item[self.id_key],
             tests=item["test_list"],
-            lang=language
+            lang=language,
+            scorer=self.scorer
         )
 
     def evaluate_sample_io(
@@ -92,7 +93,8 @@ class LiveDataset(Dataset):
             generated_code=cur_imp,
             id=item[self.id_key],
             tests=[dict(input=item['input'], output=[item['output']])],
-            lang=language
+            lang=language,
+            scorer=self.scorer
         )
 
         # evaluate
@@ -105,7 +107,8 @@ class LiveDataset(Dataset):
                 generated_code=cur_imp,
                 id=item[self.id_key],
                 tests=item["test_list"],
-                lang=language
+                lang=language,
+                scorer=self.scorer
             )
 
             if not (isinstance(results[0], float) or results[0] is True):

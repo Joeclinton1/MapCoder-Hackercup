@@ -1,0 +1,24 @@
+scorer: |
+  Given the below competitive coding problem:
+  
+  ```
+  {problem_prompt}
+  ```
+  
+  Write a python lambda function score predicted test case outputs, against provided true outputs. It should take the predicted output and a hardcoded sample output and score it.
+  
+  For example, if a test case output uses floats that are correct if they are within 10^-6 absolute error of the true sample output we would use the following scorer:
+  
+  ```python
+  lambda pred,true: round(float(true), 6) == round(float(pred), 6)
+  ```
+  
+  if the predicted test case just needs to match and is not an inequality or approximation, it suffices to leave the outputs in string form and check if they match:
+  
+  ```python
+  lambda pred,true: pred == true
+  ```
+  
+  If the question allows for approximations the scorer should use chained inequality expressions, and convert to float or int.
+  
+  Output just the solver lambda function in python code do not include any explanations or reasoning. It must use the exact format as described above.

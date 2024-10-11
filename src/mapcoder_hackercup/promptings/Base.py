@@ -11,6 +11,7 @@ from mapcoder_hackercup.datasets.Dataset import Dataset
 from mapcoder_hackercup.results.Results import Results
 from mapcoder_hackercup.utils.parse import parse_response
 from mapcoder_hackercup.gen_comp_out import output_results
+from . import utils
 
 
 
@@ -82,6 +83,9 @@ class BaseStrategy(object):
                 is_solved = False
                 output = ""
                 cur_imp = ""
+
+            # generate a scorer which if set will be used instead of matching during evaluate
+            self.generate_scorer(item)
             while cur_pass < self.pass_at_k and not is_solved:
                 for _ in range(10):
                     try:
@@ -170,3 +174,37 @@ class BaseStrategy(object):
             # break
         # output the results to an output folder
         output_results(self.results.result_path[:-1], self.data)
+
+    def generate_scorer(self, item):
+        # for approximation questions we need to have a scorer
+
+        cwd = os.path.dirname(os.path.abspath(__file__))
+        prompts_scorer = utils.load_prompts(os.path.join(cwd, 'prompt_templates/prompts_scorer.yaml'))
+        scorer_prompt = prompts_scorer["scorer"].format(problem_prompt=self.data.get_prompt(item))
+
+        scorer = ""
+        for _ in range(3):
+            code_output, _, _ = self.model.prompt(
+                processed_input=[{"role": "user", "content": scorer_prompt}],
+                temperature=0.1
+            )
+            scorer = utils.parse_code(code_output).strip()
+
+            if scorer.startswith("lambda") and "pred" in scorer and "true" in scorer:
+                try:
+                    scorer_func = eval(scorer)
+                    if scorer_func(1, 1):
+                        self.data.scorer = scorer_func
+                        break
+                    else:
+                        print("Scorer function does not return True for identical inputs.")
+                except Exception as e:
+                    print(f"Error evaluating scorer: {e}")
+
+        # check that we are actually dealing with an approximation problem, otherwise we don't need a scorer
+        if "<" not in scorer and ">" not in scorer:
+            self.data.scorer = None
+        if self.data.scorer is not None:
+            print(f"Problem identified as allowing for approximate outputs, using scorer function: \n {scorer}")
+
+

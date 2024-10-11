@@ -87,7 +87,7 @@ class Baseline(BaseStrategy):
         return code, self.pr_tok, self.com_tok
 
     def generate_observation(self, item, problem_prompt):
-        observation_prompt = self.prompts['self-reflection'].format(
+        observation_prompt = self.prompts['observation'].format(
             problem_prompt=problem_prompt,
             sample_io_prompt=self.sample_io_prompt,
         )

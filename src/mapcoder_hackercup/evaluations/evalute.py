@@ -27,11 +27,16 @@ assert os.path.exists(unittest_file), "Unittest file not found."
 with open(unittest_file) as ut_rp:
     unittest_db = json.load(ut_rp)
 
-
 api_comm = APICommunication(server_url=os.getenv('XCODE_SERVER_URL', 'http://windows-6absj2b:5000'))
 FULL_TEST_TIME = 40
 
-def score_output_cases(output, expected_output):
+
+def score_output_cases(output, expected_output, scorer=None):
+    custom_scorer = True
+    if scorer is None:
+        custom_scorer = False
+        scorer = lambda pred, true: pred == true
+
     output = output.rstrip()
     expected_output = expected_output.rstrip()
     len_out = len(output.split('\n'))
@@ -40,11 +45,14 @@ def score_output_cases(output, expected_output):
         print(f"len output: {len_out}, len expected output: {len_eout}\n")
         return 0.0
 
-    output, expected_output = round_floats_in_str(output, 6), round_floats_in_str(expected_output,6)
+    output, expected_output = round_floats_in_str(output, 6), round_floats_in_str(expected_output, 6)
     passed = 0
     failed = 0
     for i, (x, y) in enumerate(zip(output.split('\n'), expected_output.split('\n'))):
-        if x == y:
+        if custom_scorer:
+            x = x.split(": ", 1)[1].strip()
+            y = y.split(": ", 1)[1].strip()
+        if scorer(x, y):
             passed += 1
         else:
             failed += 1
@@ -52,10 +60,10 @@ def score_output_cases(output, expected_output):
 
 
 def generate_output(
-    generated_code: str,
-    lang: str,
-    id: int,
-    stdin: str,
+        generated_code: str,
+        lang: str,
+        id: int,
+        stdin: str,
 ):
     assert lang in LANGUAGE_MAPPING, f"language must be inside the supported language list: {LANGUAGE_MAPPING.keys()}"
 
@@ -74,10 +82,11 @@ def generate_output(
 
 
 def contest_evaluate(
-    generated_code: str,
-    lang: str,
-    id: int,
-    tests: List[dict],
+        generated_code: str,
+        lang: str,
+        id: int,
+        tests: List[dict],
+        scorer=None
 ):
     assert lang in LANGUAGE_MAPPING, f"language must be inside the supported language list: {LANGUAGE_MAPPING.keys()}"
 
@@ -99,15 +108,16 @@ def contest_evaluate(
     if results[0]['exec_outcome'] == ExecOutcome.PASSED.value:
         return True, results[0]['result']
     elif results[0]['exec_outcome'] == ExecOutcome.WRONG_ANSWER.value:
-        return score_output_cases(results[0]['result'], tests[0]["output"][0]), results[0]['result']
+        return score_output_cases(results[0]['result'], tests[0]["output"][0], scorer), results[0]['result']
     return results[0]['exec_outcome'], results[0]['result']
 
 
 def contest_evaluate_public_tests(
-    generated_code: str,
-    lang: str,
-    id: int,
-    tests: List[dict],
+        generated_code: str,
+        lang: str,
+        id: int,
+        tests: List[dict],
+        scorer=None
 ):
     limits = limits_by_lang[LANGUAGE_MAPPING[lang]]
     limits["cpu"] = 1.5
@@ -124,11 +134,11 @@ def contest_evaluate_public_tests(
     input = tests[0]['input']
     expected_output = tests[0]['output'][0]
     output = results[0]['result']
-    write_debug(results[0],type_="output")
+    write_debug(results[0], type_="output")
     if results[0]['exec_outcome'] == ExecOutcome.PASSED.value:
         return 1, "All tests passed!"
     elif results[0]['exec_outcome'] == ExecOutcome.WRONG_ANSWER.value:
-        score = score_output_cases(output, expected_output)
+        score = score_output_cases(output, expected_output, scorer)
         feedback = f"Wrong Solution.\n Input:\n{input}\nExpected Output:\n{expected_output}\nYour output:\n{output}"
         return score, feedback
     return 0, f"Program Failed with error: `{output}`, Error Type: {results[0]['exec_outcome']}"

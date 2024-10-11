@@ -12,6 +12,7 @@ class Dataset(object):
         self.data = None
         self.id_key = id_key
         self.problem_ids = problem_ids
+        self.scorer = None
         self.load()
 
     def load(self):
