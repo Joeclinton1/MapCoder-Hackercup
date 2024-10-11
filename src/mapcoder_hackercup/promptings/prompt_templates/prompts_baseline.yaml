@@ -121,3 +121,12 @@ self-reflection: |
   2) Explain how each provided example input leads to the corresponding output (in total {{ actual_number_of_tests }} examples are provided).
   Read carefully the problem description. Make sure the test explanations are consistent with them, and between themselves.
   The explanation must coherently and logically lead from the input to the output. Be as specific as possible.
+
+rules: |
+  Below is a competitive coding problem:
+  ```
+  {problem_prompt}
+  ```
+  --------------
+  What explict rules have been stated?
+  For each rule, explain what the implications of it are. Do not make any assumptions or attempt to solve the problem.
