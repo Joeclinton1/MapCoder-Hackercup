@@ -95,7 +95,7 @@ def contest_evaluate(
 
     limits = limits_by_lang[LANGUAGE_MAPPING[lang]]
     limits["cpu"] = FULL_TEST_TIME
-    limits["_as"] = -1
+    limits["_as"] = 1 * 1024 ** 3 # 1 GB Should reduce out of memory errors
     results, _, _ = api_comm.execute_code(
         language=LANGUAGE_MAPPING[lang],
         source_code=generated_code,
@@ -124,7 +124,7 @@ def contest_evaluate_public_tests(
 ):
     limits = limits_by_lang[LANGUAGE_MAPPING[lang]]
     limits["cpu"] = 1.5
-
+    limits["_as"] = 0.2 * 1024 ** 3  # 0.2GB for samples Should reduce out of memory errors
     results, _, _ = api_comm.execute_code(
         language=LANGUAGE_MAPPING[lang],
         source_code=generated_code,
