@@ -16,8 +16,8 @@ lang_specific_file = os.path.join(cwd, 'prompt_templates/lang_specific_tips.yaml
 algorithms_file = os.path.join(cwd, 'prompt_templates/algorithm_list.yaml')
 
 # constants
-NUM_PARALLEL = 128
-USE_OBSERVATION = False
+NUM_PARALLEL = 64
+USE_OBSERVATION = True
 
 class Baseline(BaseStrategy):
     def __init__(self, *args, **kwargs):
@@ -98,21 +98,21 @@ class Baseline(BaseStrategy):
         return code, self.pr_tok, self.com_tok
 
     def generate_observation(self, item, problem_prompt):
-        # observation_prompt = self.prompts['self-reflection'].format(
-        #     problem_prompt=problem_prompt,
-        #     sample_io_prompt=self.sample_io_prompt,
-        # )
-
-        observation_prompt = self.prompts['trick2'].format(
+        observation_prompt = self.prompts['self-reflection'].format(
             problem_prompt=problem_prompt,
             sample_io_prompt=self.sample_io_prompt,
-            algorithms_list=self.algorithms
         )
+
+        # observation_prompt = self.prompts['trick2'].format(
+        #     problem_prompt=problem_prompt,
+        #     sample_io_prompt=self.sample_io_prompt,
+        #     algorithms_list=self.algorithms
+        # )
         observation = self.chat(observation_prompt, item, tag='observation', temperature=0.95)
         return observation
 
     def generate_code(self, item, problem_prompt, observation=None):
-        code_prompt = self.prompts['coding'].format(
+        code_prompt = self.prompts['coding-cot'].format(
             problem_prompt=problem_prompt,
             language=self.language,
             lang_specific_tips=self.lang_specific_tips,

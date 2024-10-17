@@ -73,8 +73,31 @@ coding: |
   Check if the problem allows for approximations.
   Important:
   {lang_specific_tips}
-  ## Your response must contain only the {language} code to solve this problem. Do not add extra explanation or words.
   
+  ## Your response must contain only the {language} code to solve this problem. Do not add extra explanation or words.
+
+coding-cot: |
+  You are a world class competitive programmer.
+  
+  ## Problem:
+  {problem_prompt}
+  {sample_io_prompt}
+  {observation}
+ 
+  ## Step-By-Step reasoning
+  Lets think step by step for how to solve this competitive coding problem efficiently and correctly.
+  Consider the problem mathematically, taking into account the time complexity and edge cases.
+  Check if the problem allows for approximations.
+  Be concise.
+  
+  ## Code
+  Code block containing full code to solve problem
+  
+   ----------------
+  Important:
+  {lang_specific_tips}
+  
+  ## Your response must contain the concise Step-By-Step reasoning and then the {language} code block to solve this problem.
 
 coding_improvement_A: |
   ## Problem:
