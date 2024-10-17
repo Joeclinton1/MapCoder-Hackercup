@@ -197,8 +197,11 @@ class OpenAIModel(OpenAIBaseModel):
 
 
 class GPT4(OpenAIModel):
-    def prompt(self, processed_input: list[dict]):
-        self.model_params["model"] = "gpt-4-1106-preview"
+    def prompt(self, processed_input: list[dict], temperature=0.7, **kwargs):
+        self.model_params.update(kwargs)
+        self.model_params["temperature"] = temperature * 0.8
+        self.model_params["model"] = "chatgpt-4o-latest"
+        self.model_params["max_tokens"] = 8192
         return super().prompt(processed_input)
 
 
@@ -217,22 +220,25 @@ class CodestralVLLM(OpenAIModel):
         return super().prompt(processed_input)
 
 class QwenVLLM(OpenAIModel):
-    def prompt(self, processed_input: list[dict], **kwargs):
+    def prompt(self, processed_input: list[dict], temperature=0.7, **kwargs):
         self.model_params.update(kwargs)
+        self.model_params["temperature"] = temperature * 0.85
         # self.model_params["model"] = 'Qwen/Qwen2.5-72B-Instruct-GPTQ-Int4'
         # self.model_params["model"] = 'Qwen/Qwen2.5-32B-Instruct-GPTQ-Int8'
-        self.model_params["model"] = 'Qwen/Qwen2.5-32B-Instruct-GPTQ-Int4'
+        # self.model_params["model"] = 'Qwen/Qwen2.5-32B-Instruct-GPTQ-Int4'
         # self.model_params["model"] = 'Qwen/Qwen2.5-14B-Instruct-GPTQ-Int4'
         # self.model_params["model"] = 'Qwen/Qwen2.5-14B-Instruct-GPTQ-Int8'
+        self.model_params["model"] = "Qwen/Qwen2.5-72B-Instruct"
         return super().prompt(processed_input)
 
 
 class LlamaVLLM(OpenAIModel):
     def prompt(self, processed_input: list[dict], temperature=0.7, **kwargs):
         self.model_params.update(kwargs)
-        self.model_params["temperature"] = temperature * 0.8
+        self.model_params["temperature"] = temperature * 0.85
+        self.model_params["model"] = "nvidia/Llama-3.1-Nemotron-70B-Instruct"
         # self.model_params["model"] = 'neuralmagic/Meta-Llama-3.1-70B-Instruct-quantized.w4a16'
-        self.model_params["model"] = 'hugging-quants/Meta-Llama-3.1-8B-Instruct-AWQ-INT4'
+        # self.model_params["model"] = 'hugging-quants/Meta-Llama-3.1-8B-Instruct-AWQ-INT4'
         # self.model_params["max_tokens"] = 1538
         self.model_params["max_tokens"] =  3072
         return super().prompt(processed_input)
