@@ -26,7 +26,7 @@ def output_results(results_path, dataset):
         if "full_output" in problem and problem["is_solved"] != "error" :
             output = problem["full_output"]
         else:
-            full_input = dataset.data[dataset_task_to_idx[task_id]]['full']
+            full_input = dataset.data[dataset_task_to_idx[task_id]]['test_list'][0]["input"]
             item = {
                 'test_list': [dict(input=full_input, output=[""])],
                 dataset.id_key: task_id
