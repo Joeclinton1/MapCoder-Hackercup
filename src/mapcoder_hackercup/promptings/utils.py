@@ -217,26 +217,33 @@ def plurarity_vote_per_case(outputs, true_output, precision=6):
     # For each case, find all unique results and their counts
     case_votes = []
     scores = []
+    modal_length = Counter(map(len, parsed_outputs)).most_common(1)[0][0]
+    for case_num in range(modal_length):
+        case_results = []
 
-    for case_num in range(len(parsed_outputs[0])):
-        case_results = [case[case_num] for case in parsed_outputs]
-        result_counts = Counter(case_results)  # Get counts for each unique result
+        # Safely index parsed_outputs for the case_num
+        for case in parsed_outputs:
+            if len(case) > case_num:
+                case_results.append(case[case_num])
 
-        # For each unique result, log its count and whether it matches the true output
-        vote_counts = []
-        case_scores = []
-        for result, count in result_counts.items():
-            if len(true_cases) >= case_num+1:
-                score = 1 if result == true_cases[case_num] else 0
-            else:
-                score = -1
+        # Proceed only if there are case_results to evaluate
+        if case_results:
+            result_counts = Counter(case_results)  # Get counts for each unique result
 
-            vote_counts.append(str(count))
-            case_scores.append(str(score))
+            vote_counts = []
+            case_scores = []
+            for result, count in result_counts.items():
+                if len(true_cases) > case_num:
+                    score = 1 if result == true_cases[case_num] else 0
+                else:
+                    score = -1
 
-        # Store comma-separated counts and scores for this case
-        case_votes.append(", ".join(vote_counts))
-        scores.append(", ".join(case_scores))
+                vote_counts.append(str(count))
+                case_scores.append(str(score))
+
+            # Store comma-separated counts and scores for this case
+            case_votes.append(", ".join(vote_counts))
+            scores.append(", ".join(case_scores))
 
     # Format table output
     headers = ["Case #", "Vote Count", "Score"]
