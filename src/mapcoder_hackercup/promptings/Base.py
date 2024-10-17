@@ -152,11 +152,14 @@ class BaseStrategy(object):
             item["is_solved"] = is_solved
             item["language"] = self.language
             item["task_id"] = item[self.data.id_key]
-            item["full_output"] = output
+            # item["full_output"] = output
 
             entries_to_remove = ('description', 'test_list', 'code', 'full', 'input', 'output')
             for k in entries_to_remove:
                 item.pop(k, None)
+
+            if len(item['sample_actual_output'])>500:
+                item.pop('sample_actual_output', None)
 
             if i < len(self.results):
                 self.results.results[i] = item
