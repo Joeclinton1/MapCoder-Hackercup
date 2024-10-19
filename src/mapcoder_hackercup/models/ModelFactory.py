@@ -2,6 +2,7 @@ from mapcoder_hackercup.models.Gemini import Gemini
 from mapcoder_hackercup.models.OpenAI import ChatGPT, GPT4
 from mapcoder_hackercup.models.OpenAI import CodestralVLLM, LlamaVLLM, QwenVLLM
 from mapcoder_hackercup.models.Ollama import Local, Llama, Deepseek, Codestral
+from mapcoder_hackercup.models.Claude import Claude35Sonnet
 from mapcoder_hackercup.models.Base import BaseModel
 from typing import Type
 
@@ -29,5 +30,7 @@ class ModelFactory:
                 return LlamaVLLM
             case "QwenVLLM":
                 return QwenVLLM
+            case "Claude35Sonnet":
+                return Claude35Sonnet
             case _:
                 raise Exception(f"Unknown model name {model_name}")

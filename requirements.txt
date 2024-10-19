@@ -17,3 +17,4 @@ datasets
 sentence_transformers
 faiss-gpu-cu11
 tabulate
+anthropic

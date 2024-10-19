@@ -16,8 +16,10 @@ lang_specific_file = os.path.join(cwd, 'prompt_templates/lang_specific_tips.yaml
 algorithms_file = os.path.join(cwd, 'prompt_templates/algorithm_list.yaml')
 
 # constants
-NUM_PARALLEL = 64
+NUM_PARALLEL = 128
 USE_OBSERVATION = True
+NUM_OBSERVATIONS = 24
+MAX_FIX_STEPS = 3
 
 class Baseline(BaseStrategy):
     def __init__(self, *args, **kwargs):
@@ -35,8 +37,8 @@ class Baseline(BaseStrategy):
         problem = self.data.get_prompt(item)
 
         if USE_OBSERVATION:
-            print(f"Generating a pool of 32 observations about the problem")
-            obs = utils.run_func_parallel_and_collect(lambda i: self.generate_observation(item, problem), 32)
+            print(f"Generating a pool of {NUM_OBSERVATIONS} observations about the problem")
+            obs = utils.run_func_parallel_and_collect(lambda i: self.generate_observation(item, problem), NUM_OBSERVATIONS)
         else:
             obs = [None]
 
@@ -54,20 +56,20 @@ class Baseline(BaseStrategy):
             print(f' Best Score: {best_res[0]}\n')
 
             if best_res[0] == 1:
-                # passed_codes = [x[1] for x in results if x[0] == 1]
-                # if len(passed_codes) <= NUM_PARALLEL // 8:
-                #     # take the solutions that passed and randomly sample to use as seeds for improvements
-                #     # robustify!
-                #
-                #     print(f"Generating {NUM_PARALLEL//2} more solutions from the solutions that passed")
-                #     results2 = utils.run_func_parallel_and_collect(
-                #         lambda i: self.generate_code_improvement(item, problem, choice(passed_codes), type="A"),
-                #         NUM_PARALLEL//2
-                #     )
-                #
-                #     print(f' Additional Scores: {",".join([str(r[0]) for r in results2])}')
-                #
-                #     results.extend(results2)
+                passed_codes = [x[1] for x in results if x[0] == 1]
+                if len(passed_codes) <= NUM_PARALLEL // 8:
+                    # take the solutions that passed and randomly sample to use as seeds for improvements
+                    # robustify!
+
+                    print(f"Generating {NUM_PARALLEL//4} more solutions from the solutions that passed")
+                    results2 = utils.run_func_parallel_and_collect(
+                        lambda i: self.generate_code_improvement(item, problem, choice(passed_codes), type="A"),
+                        NUM_PARALLEL//4
+                    )
+
+                    print(f' Additional Scores: {",".join([str(r[0]) for r in results2])}')
+
+                    results.extend(results2)
 
                 passed = [x for x in results if x[0] == 1]
                 passed_outputs = [x[2] for x in passed]
@@ -79,7 +81,7 @@ class Baseline(BaseStrategy):
                 code = passed[mode_output_idx][1]
                 print(f"Solution was voted {count}/{len(passed)} times")
                 return code, self.pr_tok, self.com_tok
-            elif i < 2:
+            elif i < MAX_FIX_STEPS:
                 if best_res[0] <= prev_best:
                     print("score not improving. Stopping ...")
                     break

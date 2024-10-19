@@ -83,7 +83,7 @@ coding-cot: |
   {problem_prompt}
   {sample_io_prompt}
   {observation}
- 
+  
   ## Step-By-Step reasoning
   Lets think step by step for how to solve this competitive coding problem efficiently and correctly.
   Consider the problem mathematically, taking into account the time complexity and edge cases.

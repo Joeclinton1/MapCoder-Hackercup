@@ -27,7 +27,8 @@ dependencies = [
     "datasets",
     "sentence_transformers",
     "faiss-gpu-cu11",
-    "tabulate"
+    "tabulate",
+    "anthropic"
 ]
 
 [build-system]

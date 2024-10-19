@@ -60,7 +60,8 @@ parser.add_argument(
         "Llama",
         "CodestralVLLM",
         "LlamaVLLM",
-        "QwenVLLM"
+        "QwenVLLM",
+        "Claude35Sonnet"
     ]
 )
 
