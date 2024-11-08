@@ -16,7 +16,7 @@ We tested various strategies which you can see in our strategies folder. Our bes
 ## Setup Our Project
 1. Clone our project
 ```
-git clone https://github.com/Md-Ashraful-Pramanik/MapCoder && cd MapCoder
+git clone https://github.com/Joeclinton1/MapCoder-Hackercup && cd MapCoder-Hackercup
 ```
 
 2. Install the module using the following command:
